@@ -1,0 +1,472 @@
+\documentclass[dvipsnames]{article}
+
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{doi}
+\usepackage{parskip}
+\usepackage{color}
+\usepackage{subfigure}
+\usepackage[inline]{enumitem}
+\usepackage{xcolor}
+\usepackage{color,soul}
+% Define custom color
+\usepackage{hyperref}
+\usepackage{ulem}
+
+\usepackage{soul} % for highlighting; use this in manuscript
+\soulregister\cite7 % need these lines to include refs and cites inside highlighted region
+\soulregister\citep7
+\soulregister\citet7
+\soulregister\ref7
+\soulregister\eqnref7
+
+\definecolor{rev1}{HTML}{FF999A} % red
+\definecolor{rev2}{HTML}{F3F298} % yellow
+\definecolor{rev3}{HTML}{B2E0AE} % green
+\definecolor{other}{HTML}{C8C7FF} % blue
+
+\DeclareRobustCommand{\hlone}[1]{{\sethlcolor{rev1}\hl{#1}}}
+\DeclareRobustCommand{\hltwo}[1]{{\sethlcolor{rev2}\hl{#1}}}
+\DeclareRobustCommand{\hlthree}[1]{{\sethlcolor{rev3}\hl{#1}}}
+\DeclareRobustCommand{\hlo}[1]{{\sethlcolor{other}\hl{#1}}}
+
+% We can use these colors for different reviewers.
+% \definecolor{rev1}{HTML}{FF999A} % red
+% \definecolor{rev2}{HTML}{F3F298} % yellow
+% \definecolor{rev3}{HTML}{B2E0AE} % green
+% \DeclareRobustCommand{\hlone}[1]{{\sethlcolor{rev1}\hl{#1}}}
+% \DeclareRobustCommand{\hltwo}[1]{{\sethlcolor{rev2}\hl{#1}}}
+% \DeclareRobustCommand{\hlthree}[1]{{\sethlcolor{rev3}\hl{#1}}}
+
+\colorlet{mblue}{blue!40!black}
+\hypersetup{bookmarksnumbered=true,colorlinks=true,linkcolor=mblue,citecolor=mblue,urlcolor=mblue}
+
+% Bibtex stuff:
+\usepackage[square,sort,comma,numbers]{natbib}
+% use the natbib options below when using the AIAA style:
+%\usepackage[numbers,sort]{natbib}
+%\usepackage{hypernat} % To get natbib to play nicely with hyperref
+
+%===================================================================
+% STANDARD COLORS
+
+% Response color
+\newcommand{\responsecolor}{MidnightBlue}
+
+% Action color
+\newcommand{\actioncolor}{RedOrange}
+
+%===================================================================
+% COUNTERS
+
+% Counter for the number of comments addressed so far.
+% We reset this counter when we move on to another reviewer
+% (This is why we have [section], since we have one section for each reviewer).
+\newcounter{CommentCounter}[section]
+
+%===================================================================
+% ENVIRONMENT DEFINITION
+
+% Quotes
+\newenvironment{myquote}{\begin{quote}\em}{\color{black}\end{quote}}
+
+% Reviewer's comments
+\newenvironment{revcom}
+{
+% Increment counter
+\stepcounter{CommentCounter}
+%
+\textbf{Comment \arabic{CommentCounter}:}
+}
+
+% Author's response
+\newenvironment{response}
+{
+\textbf{\color{\responsecolor} Response:}
+\color{\responsecolor}
+}
+{
+\vspace{20pt}
+}
+
+%===================================================================
+% NEW COMMANDS
+
+% Author's action
+\newcommand{\action}[1]{{\color{\actioncolor} {#1}}}
+
+% Modify section header to include additional text
+\renewcommand{\thesection}{Reviewer \arabic{section} Comments and Response}
+
+% Define dummy command that creates a section just to make the LaTeX more readable
+\newcommand{\newreviewer}{\section{}}
+
+%===================================================================
+% FIGURE CAPTIONS
+% Set all colors to the response format
+\usepackage[font={color=\responsecolor}]{caption}
+
+%===================================================================
+% MANUSCRIPT INFORMATION
+
+\title{A Jacobian-free approximate Newton--Krylov startup strategy for RANS simulations \\
+\emph{Journal of Computational Physics} \\
+Manuscript ID JCOMP-D-18-01226}
+
+\author{
+Anil Yildirim,
+Gaetan K.~W.~Kenway
+Charles A.~Mader,
+Joaquim R.~R.~A.~Martins,
+}
+\date{}
+\begin{document}
+
+\maketitle
+
+%=========================================================
+%=========================================================
+%=========================================================
+
+Notes:
+\begin{itemize}
+    \item {\color{MidnightBlue}Our direct responses to reviewers' comments are written in blue in this response.}
+    \item \action{Actions taken to address the reviewers' comments are written in red in this response.}
+    \item \hlone{Reviewer 1 modifications are highlighted in red in the manuscript.}
+    \item \hltwo{Reviewer 2 modifications  are highlighted in yellow in the manuscript.}
+    \item \hlthree{Reviewer 3 modifications are highlighted in green in the manuscript.}
+    \item \hlo{Other modifications are highlighted in blue in the manuscript.}
+\end{itemize}
+
+\newreviewer
+
+%=========================================================
+% General comments
+\setcounter{CommentCounter}{-1}
+\begin{revcom}
+The paper outlines residual routines in the context of Jacobian-free approximate Newton—Krylov solvers for RANS simulations. Two different residual approximations are introduced: 1) omitting the 4th order scalar dissipation of the JST scheme in the advection terms and 2) assuming an orthogonal-mesh assumption for the diffusion term. In addition, the simplification of the turbulence model residual consists of omitting the production term. The advection of the turbulence model is always treated first order accurate.
+
+Using these residual approximations, the aim of the paper is to investigate the convergence rate of the RANS solver in combination with several other solver settings - for example, coupled/uncouled turbulence, lagging of preconditioner, matrix based and matrix free approximate Newton-Krylov method, or even using the option of using a multigrid scheme. The convergence results are quantified in terms of linear and nonlinear iteration counts and amount of tau-code workbench units.
+\end{revcom}
+
+% \begin{response}
+% Thank you for reviewing our work.
+% \end{response}
+
+\begin{revcom}
+While the paper is well written and clear, I am left with the impression that the results presented are very specific to their solver. I believe that the presented tweaks and solver settings might give very different results for different RANS solvers with different turbulence models, second order accurate advection schemes for the turbulence models themselves, using approximate Riemann solvers instead of using the JST scheme, etc. Moreover, the authors present in table 2 a list of 19 tunable parameters that are also very specific to their solver.
+
+Given these points, the character of the manuscript corresponds more to a manual for their solver, rather than a general contribution presentation of new significantly improved techniques that can be reproduced by others using a different RANS solver.
+\end{revcom}
+
+% second order turbulence does not work with a large enough case. The turbulence model variable wants to get negative values, we probably need to constrain it in a similar way in Marco Ceze's paper on constrained pseudo transient continuation.
+% I can show a converged case with the RAE2822 airfoil with second order accurate turbulence.
+% we will deflect now since reviewer #3 did not ask for results, he/she said mention this in the paper.
+% if the reviewers come back asking for results with second order turbulence, I can get those.
+
+\begin{response}
+
+The approximate Jacobian-free formulation is generalizable to other discretization methods.
+\action{To demonstrate this, we added a set of results using the JST scheme with matrix dissipation, and upwind method using the Roe flux in Section~5.3 (Pages~25--27).}
+The case using the upwind method failed to converge during the NK stage; however, the same case without the switch to the NK solver successfully converged to $\eta_{\text{rel}} = 10^{-12}$.
+This shows that the approximations improve the convergence of the system, even with a different discretization method that uses a Riemann solver.
+
+We agree with the reviewer regarding the spatial order of accuracy of the turbulence model implementation.
+This affects the end result of the simulations and the nonlinear convergence rates compared to using a second-order accurate turbulence model.
+For our purpose, which is to develop a CFD solver to be used for aerodynamic shape optimization and MDO, we saw little difference in the optimized designs between using a second-order accurate turbulence discretization and a first-order accurate one.
+Therefore, we tuned our solver with the first-order accurate discretization for the SA turbulence model.
+However, the solver we describe in this work is still applicable to second-order accurate discretizations for the turbulence model, or even to turbulence models other than the SA model.
+
+\action{We added a discussion on this in Section~2.2 (Page~7).}
+
+Regarding the tunable options, we listed all the options we used in this work for the sake of transparency and replicability.
+The options are tuned with our solver; however, we see similar trends for other CFD codes with similar solvers that we cite.
+Even though other solvers may not have the exact set of tunable parameters we have, these parameters can be grouped into their respective components in the complete solver algorithm.
+These groups usually have direct analogies to other methods.
+For example, tunings parameters for the linear solver and preconditioner strength can be grouped together, and even though other CFD codes might contain very different linear solvers, the tuning parameters for these solvers can be modified to achieve the same effect we get with our solver.
+
+\action{To better present these tuning parameters, we grouped them into relevant components in Table 2, and added a discussion in Section~3.9 (Pages~17, 19).}
+% Furthermore, \citet{osusky_steady_2014} state that it is very difficult to obtain a set of tunings that is applicable to all cases for a CFD solver.
+% Even if it is possible, this would be very conservative and yield poor performance with majority of the cases.
+% However with a set of tunings that perform well for most of the cases, the users can tweak this baseline set for more problematic cases where the solver might fail or perform sub-optimally with the default set.
+% Therefore we stress that having access to many tunable parameters is a desirable property from a nonlinear solver.
+\end{response}
+
+\begin{revcom}
+Moreover, in my opinion the result presented in the current manuscript also do not allow a clear conclusion which strategy is best. For example, table 4 summarizes the convergence behavior for the common research wing-body model. Analyzing the data, there is no clear trend in terms of PC lag and matrix-based vs matrix-free scheme. In terms of workbench units, it seems that using no residual approximation with the automatic algorithm to determine the PC lag for the matrix free NK gives the best results. For the Onera M6 test case reported in table 2, it seems that the best performance is achieved using the most aggressive residual approximation, while for the wing body case with a multiblock mesh case, only the algorithm with the medium approximation was able to converge.
+\end{revcom}
+
+\begin{response}
+We agree that there is no definite trend in terms of performance; however, there is a trend in terms of \emph{robustness}.
+The approximation level $\mathcal{R}_1$ was the only one that could converge all the test cases we included here, and many other test cases we used while developing the solver.
+We tried showing a wide variety of results that would not only showcase when our approach is fastest but also demonstrate the tradeoffs depending on the cases we considered.
+
+In the context of aerodynamic shape optimization and multidisciplinary design optimization, robustness of the CFD solver is much more important than performance.
+This is because repeated failures of the CFD solver cause the optimization to fail, and this requires human intervention.
+Instead, it is more beneficial to have a robust solver, at the cost of worse performance.
+In the long run, the solver robustness will make up for the slower convergence because the optimizations will require less human intervention, and users can obtain final results faster.
+
+\action{We added a discussion on this in the introduction, Section~1 (Page~2), and in the conclusions, in Section~6 (Page~36).}
+
+\end{response}
+
+% \begin{revcom}
+% Based on these conclusions, I do not recommend the manuscript for publication in the Journal of Computational Physics.
+% \end{revcom}
+
+% \begin{response}
+% Thank you for your critical review.
+% \end{response}
+
+% JM: Thank you for the rejection? :)
+
+%=========================================================
+% Final text to thank the reviewer
+
+Thank you so much for your diligent comments and suggestions.
+
+%=========================================================
+%=========================================================
+%=========================================================
+% Initialize section for the second reviewer
+\newreviewer
+
+%=========================================================
+% General comments
+\setcounter{CommentCounter}{-1}
+\begin{revcom}
+In this manuscript, the authors introduce the use of approximate residual schemes
+in the context of a Jacobian-free approximate Newton-Krylov algorithm for large-scale
+Reynolds-averages Navier-Stokes simulations.  In the proposed method, the
+Jacobian matrix is not explicitly formed; rather, it is approximated to various levels
+using residual routines computed at each iteration of the nonlinear solve.
+In contrast, the preconditioner is lagged by some number of iterations which
+increases the efficiency of the method without causing it to stall or diverge as
+failing to update the (approximate) Jacobian might. The authors further propose a
+method to auto-adaptively decide when to recompute the preconditioner.
+
+Large-scale CFD problems are computationally challenging, and a substantial amount
+of technology has been developed to address the convergence and computational cost
+issues therein. The authors provide a literature review summarizing the main results
+and methods they build upon and they describe how their method relates to these.
+The main contributions appear to be the residual-based matrix free strategy of
+Jacobian approximation and the approach towards preconditioner lagging.
+The discussion of Jacobian approximation includes three different stencils the use
+of which can provide a balance between robustness and efficiency.
+The numerical results do a nice job of illustrating the difference between the
+different approximation levels.  I appreciate the eigenvalue discussion as an
+illustration of lagging the preconditioner. Overall I find the paper very nicely
+written, and I think the results are interesting enough to publish, after some
+revision.
+\end{revcom}
+
+% \begin{response}
+% Thank you for reviewing our work.
+% % \action{Action.}
+% \end{response}
+
+\begin{revcom}
+My main criticism of the paper is that it must be read very carefully to detect
+the novel contributions in comparison to the previously developed methods and
+accompanying heuristics which are described with essentially the same level of
+detail.  For instance in Section 3 it is my understanding that Section 3.2 and 3.4
+contain the novel contributions of this paper, whereas 3.1, 3.3, 3.5-3.9 contain
+important implementation details and parameter choices, mostly using previously
+developed methods and heuristics.  I would suggest the novel parts should be separated
+out so readers can learn the new ideas introduced by the authors.
+\end{revcom}
+
+\begin{response}
+Our goal was to describe all the elements of the ANK solver in enough detail for the sake of transparency and reproducibility.
+There is no single paper in the literature that describes such a solver completely, so we believe this is needed.
+This goal meant that there are a lot of subsections on state of the art methods and heuristics.
+We can see how this makes it difficult to understand what aspects of the algorithm is our novel contributions.
+We describe the algorithm in a way that each section builds on what was explained in the previous ones, so separating out Sections~3.2 and 3.4 as suggested would break the flow of the paper.
+
+\action{To address the reviewer's concern, we clearly stated our novel contributions in the introduction of Section~3 (Page~9) and highlighted the novel contributions in Sections~3.2 (Page~10) and 3.4 (Page~11). We also highlighted the novel contributions in the conclusions, in Section~6  (Page~36).}
+\end{response}
+
+%Additional comments:
+\begin{revcom}
+Under equation (8): in describing the diagonal time-stepping term $I/Delta t^{(n)}$
+it should be mentioned that a shorthand notation is used. Otherwise from a
+mathematical notation standpoint this term does not make sense.
+\end{revcom}
+\begin{response}
+\action{We modified the notation in Section~3 as suggested (Page~9).}
+\end{response}
+
+\begin{revcom}
+At the end of p. 10 it is stated: ``Even with an up to date PC, if the linear system fails to converge to the prescribed tolerance with the maximum iteration limit, we simply terminate the linear solution and proceed to the next nonlinear iteration for the sake of computational cost.''
+Does this tend to lead to a sequence of failures of the nonlinear solve?
+Is the successfully converged iterate from the previous step rather than the
+current failed one (or something else) used to start the next linear solve?
+\end{revcom}
+
+\begin{response}
+On the first question, yes, not updating the preconditioner might lead to sequence of failed linear solutions, that might cause the nonlinear convergence to stall.
+In most cases, the iteration limit yields a ``good enough'' linear solution so that the nonlinear convergence can progress.
+In some rare cases, the linear solver completely stalls; however, at this point there is nothing that the preconditioner lagging algorithm can do.
+This issue arises due to inadequate preconditioning of the linear system, and in these situations we restart the simulation with linear solver options that yield better PCs and higher iteration limits.
+
+\action{We added a discussion for these scenarios in Section~3.4 (Page~12).}
+
+Regarding the second question, we do not use the previous linear solution as the initial guess for the next linear solution.
+The linear systems we solve do not change drastically between nonlinear iterations.
+If the right hand side vector, that is the residual vector in our case, is also similar, restarting the linear solution from a previous solution would improve linear convergence.
+However, because we are performing linear solutions in the context of a Newton type method to solve a system of nonlinear equations, we expect the subsequent update directions to be different from each other.
+Therefore, there is no benefit to restarting linear solutions between nonlinear updates.
+
+\action{We added a discussion on this topic in Section~3.1 (Page~10).}
+
+\end{response}
+
+\begin{revcom}
+In Section~3.5 on Linear Solution Tolerance: It is stated that many low-cost
+nonlinear iterations are preferred in the startup-stage, and that a tolerance of
+0.05 is used with a maximum of 40 linear iterations.
+Is the tolerance updated to require more accuracy as the simulation progresses?
+Can this be done adaptively, or is that done already?
+\end{revcom}
+
+\begin{response}
+There is an algorithm that changes the linear solution tolerance adaptively, developed by~\citet{eisenstat_choosing_1996}.
+However, this algorithm is tuned for Newton's method with exact Jacobian formulations, and therefore it is not applicable to our nonlinear solver where we have approximations in the Jacobian.
+As we noted in Section~4, the Newton--Krylov solver we have in our CFD code does use this algorithm; however, the approximate Newton--Krylov uses a fixed tolerance for the linear solutions.
+
+\action{We added a discussion for this in Section~3.5 of the manuscript (Page~13).}
+\end{response}
+
+\begin{revcom}
+p. 31: ``Rest of the failed cases represent...'' should probably read
+ ``The rest of the failed cases represent...''
+\end{revcom}
+
+\begin{response}
+\action{We changed the wording in Section~5.7 as suggested (Page~35).}
+\end{response}
+
+%=========================================================
+% Final text to thank the reviewer
+
+% Thank you so much for your diligent comments and suggestions.
+
+%=========================================================
+%=========================================================
+%=========================================================
+% Initialize section for the second reviewer
+\newreviewer
+
+%=========================================================
+% General comments
+\setcounter{CommentCounter}{-1}
+\begin{revcom}
+In general, the authors discuss several aspects of their ANK instead of focusing on their startup (globalization) strategy. This makes the article longer than necessary and gets the reader distracted from their main contribution: an algorithm for switching between approximated residual routines to accelerate the global convergence phase of pseudo-transient continuation for RANS problems.
+\end{revcom}
+
+\begin{response}
+    Thank you for reviewing our work.
+    We agree that the manuscript is long; we wanted to include enough detail for the sake of transparency and reproducibility.
+    There is no single paper that describes this type of solver completely, and we believe this is needed in the literature.
+    \action{To better guide the readers, we stated our novel contributions more clearly in the introduction of Section~3 (Page~9), and highlighted the novel contributions in Sections~3.2 (Page~10) and 3.4 (Page~11).}
+    We used \hltwo{yellow} to highlight this change, since this issue was also raised by the second reviewer.
+\end{response}
+
+\begin{revcom}
+Literature Review:
+To my knowledge the authors covered well most of the relevant research works but I believe they missed some approximate, matrix-free NK approaches in the high-order finite elements community, e.g.: where a coarser (collocated) quadrature is used for the residual Jacobian yielding an approximate linearization. The same approach can be used for the adjoint solve.
+\end{revcom}
+
+\begin{response}
+\action{We added a paragraph in the literature review on the methods the reviewer mentioned in the high-order finite element community in Section~1 (Page~4).}
+\end{response}
+
+\begin{revcom}
+In the second bullet of the research highlights: ``Matrix-free approach improves robustness..'', I believe the authors mean the approach improves computational efficiency?
+\end{revcom}
+
+% These are the rules for "research highlights":
+% Highlights
+% Highlights are a short collection of bullet points that convey the core findings of the article. Highlights are optional and should be submitted in a separate editable file in the online submission system. Please use 'Highlights' in the file name and include 3 to 5 bullet points (maximum 85 characters, including spaces, per bullet point). You can view example Highlights on our information site.
+
+% todo AY-:
+% the highlight the reviewer is talking about was:
+% •	Matrix-free approach improves robustness, while the preconditioner is lagged.
+% I changed it to
+% •	Matrix-free approach improves robustness despite the lagged preconditioner.
+% Let me know if you have better suggestions
+% You can find the research highlights document under "ank_paper/Additional Documents/"
+\begin{response}
+There is a coupled effect that is very difficult to convey with 85 characters (including spaces), which is the limit for each point in ``Research Highlights'' document.
+The point we were trying to make is:
+Alternative ANK methods are based on the matrix-based preconditioner.
+Lagging the preconditioner introduces instabilities in the nonlinear solver.
+To avoid this, we use matrix-free approximate routines, and the approximate Jacobian we use is always up to date.
+As a result, the use of matrix-free approach improves robustness.
+
+\action{We re-worded this point as ``Matrix-free approach improves robustness despite the lagged preconditioner.'' in the Research Highlights document (Page~1, second bullet point).}
+\end{response}
+
+\begin{revcom}
+In the abstract, fifth line, the authors refer to globalization methods and in the next sentence they wrongly lead the reader towards thinking that all globalization methods use a pseudo-time approach. Please consider rewording.
+\end{revcom}
+
+\begin{response}
+\action{We reworded the relevant sentence in the abstract (Page~1).}
+\end{response}
+
+\begin{revcom}
+In the introduction, at paragraph starting with ``In this work..'', the authors refer to the linear systems being easier to solve due to the lower bandwidth of the approximate Jacobian but there is also the diagonal dominance effect of the pseudo-transient term. I think it would be better to rephrase the paragraph to either point out this added effect or show that linear systems with and without the temporal term are equally easy to solve.
+\end{revcom}
+
+\begin{response}
+That is correct; the diagonal time-stepping term improves the diagonal dominance of the linear system, therefore making it easier to solve compared to not having the time-stepping term.
+We were trying to describe that a linear system with an approximate Jacobian and a time-stepping term is easier to solve compared to a linear system with an exact Jacobian and the same time-stepping term.
+
+\action{We added a sentence describing this detail in Section~1 (Page~4).}
+\end{response}
+
+\begin{revcom}
+The authors use a first-order discretization of the SA turbulence model. My impression is that this approach has a significant impact on the final result and on the nonlinear solver performance. I think it would be important to highlight this topic given that the paper is about a solver strategy for RANS.
+\end{revcom}
+
+\begin{response}
+\action{We highlighted this aspect in Section~2.2 (Page~7).}
+We used \hlone{red} to highlight this change, since this issue was also raised by the first reviewer.
+\end{response}
+
+\begin{revcom}
+When discussing the variable scaling in the text, It would be beneficial to the reader to either add a comment to the chosen value of the scaling or refer the reader to a reference.
+\end{revcom}
+
+\begin{response}
+\action{We added the reference where we adopted the scaling strategy from in Section~2.4 (Page~9)}.
+\end{response}
+
+\begin{revcom}
+The back-tracking line search approach relies on the updated direction being a descent direction for the L2-norm of the globalized (unsteady) residual. This is indeed the case for an exact NK approach. It is unclear that the approximations used in the residual routines proposed by the authors would retain such a property and I think it would significantly improve the quality of the paper if this was discussed or shown mathematically. Furthermore, if a residual approximation would be guaranteed to preserve that property, the resulting scheme is expected to be both robust and efficient.
+\end{revcom}
+
+\begin{response}
+This is a very good point; however, we cannot guarantee a descent in the unsteady residual when we use an approximate Jacobian.
+These Jacobian matrices are simply linearizations of the nonlinear system governed by the RANS equations.
+For most practical cases of interest, the approximate Jacobian matrices do indeed generate updates that are in the descent direction.
+However, we can engineer nonlinear states that destroy this property of the approximate Jacobian.
+Furthermore, we sometimes see updates that fail to reduce the unsteady residual norm.
+If this happens, the solver algorithm reduces the global CFL number and tries again.
+This is done to increase the weight of the time-stepping term compared to the approximate Jacobian.
+
+\action{We added a discussion on this topic in Section~3.6 (Page~14).}
+\end{response}
+
+%=========================================================
+% Final text to thank the reviewer
+
+Thank you so much for your diligent comments and suggestions.
+\bibliographystyle{unsrtnat}
+\bibliography{../R1_journal/ankbib}
+
+\end{document}

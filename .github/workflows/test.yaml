@@ -1,0 +1,54 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install LaTeX dependencies
+        run: |
+          sudo apt update
+          sudo apt-get install -y texlive texlive-pictures texlive-latex-extra texlive-science latexmk texlive-fonts-extra
+
+      - name: Download bib file
+        run: |
+          git clone https://github.com/mdolab/bib-file.git
+          mv bib-file/mdolab.bib .
+          rm -rf bib-file
+
+      - name: Test journal-paper
+        run: |
+          cd journal-paper
+          latexmk -pdf paper.tex
+          cd ../
+
+      - name: Download MDO Lab class files
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.MDOLAB_PUB_PRIVATE_KEY }}'
+          git clone git@github.com:mdolab/mdolab_publishing.git
+          cp mdolab_publishing/papers/mdolab/mdolab-response.cls responses/mdolab-response.cls
+          cp mdolab_publishing/papers/mdolab/mdolab-preprint.cls preprint/mdolab-preprint.cls
+
+      - name: Test responses
+        run: |
+          cd responses
+          latexmk -pdf R0_response.tex
+          cd ../
+
+      - name: Test preprint
+        run: |
+          cd preprint
+          latexmk -pdf preprint.tex
+          cd ../

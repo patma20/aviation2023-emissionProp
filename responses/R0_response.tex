@@ -1,0 +1,139 @@
+\documentclass{mdolab-response}
+
+\title{AIAA Paper Template \\
+\emph{Journal of Aircraft} \\
+Manuscript ID 20XX-XX-XXXXXX}
+
+\author{
+Author1,
+Author2
+and
+Joaquim R. R. A. Martins
+}
+\date{}
+\begin{document}
+
+\maketitle
+
+%=========================================================
+%=========================================================
+%=========================================================
+
+\action{Note: Actions taken to address the reviewers comments are highlighted in red.}
+
+% Initialize section for a new reviewer
+\newreviewer
+
+%=========================================================
+
+
+\begin{revcom}
+    Should the associated conference paper~\cite{secco2018sbw} be cited and referred to?
+\end{revcom}
+
+\begin{response}
+    We did not cite the conference paper in the references, but declared the conference paper in the submission process.
+    This information is used by the journal typesetting team to mention the conference paper in the footnotes of the first page of the final paper.
+\end{response}
+
+%=========================================================
+
+\begin{revcom}
+    Page 1, lines 46-47: ``is'' $\rightarrow$ ``in''?
+\end{revcom}
+
+\begin{response}
+    \action{We corrected the error.}
+\end{response}
+
+%=========================================================
+
+\begin{revcom}
+    Page 3, lines 11-12: should also mention the use of empirical models for interference drag, which may use wind tunnel or CFD data to form polynomial approximation models (functions of normal loading, Mach number, incidence angle, sweep angle, etc.) – c.f. Tetrault's work at Virginia Tech.
+\end{revcom}
+
+\begin{response}
+    \action{We added sentences to page 2 discussing the use of interference drag surrogate models for SBW and TBW conceptual design.}
+\end{response}
+
+%=========================================================
+\newreviewersection{Methods}
+\begin{revcom}
+    Page 17, lines 46-47: Do each of the 69 CFD simulations include both a direct and adjoint solution?
+\end{revcom}
+
+\begin{response}
+    These 69 CFD simulations include line search evaluations, which have no associated adjoint solution.
+    \action{We modified the text in the first paragraph of Section IV to mention the number of adjoint evaluations.
+        We also modified Fig. 10 to indicate the adjoint solutions.}
+\end{response}
+
+%=========================================================
+
+\newreviewersection{Results}
+\begin{revcom}
+    Page 24: might be worth noting how your finding regarding the downward-lifting strut compares to other works (e.g. NASA SUGAR reports, Virginia Tech research) – I believe I've seen the same trend elsewhere.
+\end{revcom}
+
+\begin{response}
+    We already mentioned the work of \citet{gagnon2014tbw,gagnon2016euler}, \citet{Ivaldi2015a}, and \citet{Hwang2014a}, which found negative lifting struts for Euler- and RANS-based optimizations.
+    \action{We added a new reference from Virginia Tech in which they show parametric studies that suggest the advantages of a negative lifting strut~\cite{ko2003_paramStudy}.}
+    We could not find any direct reference to a negative lifting strut in the publicly available NASA SUGAR reports.
+\end{response}
+
+%=========================================================
+% Final text to thank the reviewer
+
+Thank you for your review.
+
+%=========================================================
+%=========================================================
+%=========================================================
+
+% Initialize section for a new reviewer
+\newreviewer
+
+%=========================================================
+
+\begin{revcom}
+    Please send through a technical editor for minor grammar/English corrections. There is also some informal/slang language.
+\end{revcom}
+
+\begin{response}
+    \action{We sent the manuscript to a technical editor for a complete review of the text.}
+    We also checked the text to remove informal language.
+\end{response}
+
+%=========================================================
+
+\begin{revcom}
+    Fig 14 is confusing.
+\end{revcom}
+
+\begin{response}
+    \action{We modified Fig. 14 to highlight the contributions of each component.}
+\end{response}
+
+%=========================================================
+% Final text to thank the reviewer
+
+Thank you for your comments and suggestions.
+
+%=========================================================
+% Extra section for other modifications
+\section*{Other modifications}
+
+\begin{itemize}
+
+    \item We modified the document to follow the new AIAA \LaTeX \ template.
+
+    \item Added missing DOIs to the Reference Section.
+
+\end{itemize}
+
+%=========================================================
+% REFERENCES
+\bibliographystyle{new-aiaa}
+\bibliography{../tbwbib,../mdolab}
+
+\end{document}
