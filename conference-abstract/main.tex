@@ -69,7 +69,7 @@ A consequence of using hydrogen as a fuel and designing higher pressure ratios i
 High combustion temperatures and pressures tend to increase NOx formation and emissions in aircraft engines.
 
 % Message 2: Background and references to support using H2 and water injection in HBTF engines
-Therefore, a potential solution to these downsides is to inject finely atomized water droplets into the core air stream of a high-bypass turbofan engine.
+A potential solution to these drawbacks to improve fuel efficiency is to inject finely atomized water droplets into the core air stream of a high-bypass turbofan engine.
 While water injection is generally an old technology, studies conducted by NASA, Boeing, and Rolls-Royce suggest that this technique can be used to reduce the NOx emissions in high-bypass turbofan engines by as much as 47\%.
 Additional benefits include improvements in fuel efficiency and thrust, lower burner temperatures to improve the lifetime of high-temperature components, and engine noise reduction \cite{nasa_inject}.
 While water injection may provide all of these benefits, water would still have to be stored on the aircraft and increase the weight of the aircraft.
@@ -83,26 +83,29 @@ NPSS utilizes a modular object-oriented framework in which individual engine com
 pyCycle improves on this modular architecture by introducing efficient analytic gradients to allow gradient-based multidisciplinary optimization \cite{Hendricks2019}.
 
 % Message 3: Introduce the extension of the HBTF and propose novel contributions
-In this work, we will analyze the potential propulsion benefits of closed-loop water vapor recovery with water injection in a high-bypass turbofan engine by optimizing the thrust-specific fuel consumption (TSFC) with a NOx emission constraint.
-This will be accomplished by developing new pyCycle components for water injection and vapor recovery and will use empirical NOx formation correlations to evaluate NOx emissions.
-Furthermore, two fuel types will be evaluated, Jet-A and liquid hydrogen to determine the maximum improvement of engine performance over current technologies.
+In this work, we will analyze the potential propulsion benefits of a closed-loop water vapor recovery with water injection system in a high-bypass turbofan engine by optimizing the thrust-specific energy consumption (TSEC) with a NOx emission constraint.
+TSEC is the thrust specfic fuel consumption multiplied by the lower heating value of the fuel and is a metric for comparing the efficiency of different fuels.
+The optimization problem will be accomplished by developing new pyCycle components for water injection and vapor recovery and will use empirical NOx formation correlations to evaluate NOx emissions.
+Furthermore, two fuel types will be evaluated, Jet-A and liquid hydrogen to determine the how these improvements vary with fuel type and how they compare to current technologies.
 
 In Section \ref{sec:epModel} we introduce the turbofan model and explain how we will introduce the water injection and water recovery components within the model.
+Additionally, preliminary data is provided as a motivation for studying these methods.
 Section \ref{sec:imp} explains how the multidisciplinary optimization will be implemented to take into account the different operating conditions of the engine model and the associated NOx emissions.
 
 \section{Emission-Propulsion Model Description}
 \label{sec:epModel}
 % Engine Architecture: Describe the flow path of the engine and establish the mechanical coupling.
 We will use a next-generation high-bypass turbofan engine configuration for this work.
-Specifically, the NASA advanced technology high bypass geared turbofan engine cycle, referred to as the "N+3" engine, was selected for this research \cite[]{Hendricks2019}. The N+3 reference cycle represents a notional high bypass ratio geared turbofan that could be available in the 2030–2040 time frame.
-This engine was selected since it has already been modeled in pyCycle as a robust example cycle and includes the advanced engine cycle improvements that were mentioned before such as a large bypass ratio, high pressure ratio, and high combustion temperature.
-This model consists of an inlet that directs ambient air through a fan, followed by a duct that splits the flow into a core flow and a bypass flow, and ends in a bypass nozzle and core nozzle. The fan and low pressure compressor (LPC) are connected to the low pressure turbine (LPT) by the low pressure shaft.
-Similarly, the high pressure compressor (HPC) is connected to the high pressure turbine (HPT) by the high pressure shaft. Along the axial flow path, a the one-dimensional thermodynamic connections are solved using CEA to ensure first the principle governing equations are satisfied.
-We then introduce a water injection component directly before the HPC.
-This will inject pure water vapor into the core stream to reduce the flame combustion temperature.
-The water vapor recovery component is then introduced directly before the core nozzle to recover water vapor from the core stream.
-While in practice this component would require a technical analysis of a condenser in the core stream, this work is only looking at the potential benefit of extracting water vapor and not the recovery method specifically.
-With these components integrated into the N+3 engine, the coupled water inject and water recovery presents a implicit relationship which would need to be iterative solver to match the flow rate entering the engine and exiting the engine.
+Specifically, the NASA advanced technology high bypass geared turbofan engine cycle, referred to as the "N+3" engine, was selected for this research \cite[]{Hendricks2019}.
+The N+3 reference cycle represents a notional high bypass ratio geared turbofan that could be available in the 2030–2040 time frame.
+This engine was selected since it has already been modeled in pyCycle as a robust example cycle and includes the advanced engine cycle improvements such as a large bypass ratio, high pressure ratio, and high combustion temperature.
+This high-bypass turbofan model consists of an inlet that directs ambient air through a fan, followed by a duct that splits the flow into a core flow and a bypass flow, each of which ends in a bypass nozzle and core nozzle, respectively.
+The fan and low pressure compressor (LPC) are connected to the low pressure turbine (LPT) by the low pressure shaft and the high pressure compressor (HPC) is connected to the high pressure turbine (HPT) by the high pressure shaft.
+Along the axial flow path, a the one-dimensional thermodynamic connections are solved using CEA to ensure first the principle governing equations are satisfied.
+The closed-loop water recovery system is integrated by placing a water injection component directly before the HPC.
+This component will inject pure water vapor into the core stream which will reduce the combustion temperature.
+The water vapor recovery component is then placed directly before the core nozzle to recover water vapor from the core stream and recycle it back to the water injector component.
+While in practice the water vapor recovery component would require a technical analysis of a condenser in the core stream, this work will only look at the potential benefits of extracting water vapor and not the recovery method specifically.
 The flow and mechanical connections within the engine model with the water injector and water extractor are visualized in Figure \ref{fig:hbtf_cycle}.
 
 \begin{figure}[H]
@@ -113,8 +116,8 @@ The flow and mechanical connections within the engine model with the water injec
 \end{figure}
 
 % Preliminary Results
-This model has been tested using Jet-A and liquid hydrogen fuels to determine the improvements in efficiency with injecting water into the core stream.
-Preliminary results are shown in Figure \ref{fig:results} and show the relative improvement in thrust specfic energy consumption with water injection for the same engine design with each type of fuel.
+This model has been tested using Jet-A and liquid hydrogen fuels to determine if there are any immediate improvements in efficiency with injecting water into the core stream.
+The preliminary results from this analysis are shown in Figure \ref{fig:results} and show the relative improvement in thrust specfic energy consumption with water injection for the same engine design with each type of fuel.
 We can already see great improvements in the cruise engine efficiency which may be able to be further improved with a full engine optimization.
 
 \begin{figure}[H]
@@ -130,10 +133,11 @@ We can already see great improvements in the cruise engine efficiency which may 
 The propulsion model is constructed in pyCycle which is built on top of OpenMDAO to allow a modular design of the engine components and allows the coupling of other engineering disciplines for analysis \cite{Gray2019a}.
 For the Jet-A fuel, the NOx correlation will use the P3-T3 method which is commonly a used technique in industry to determine NOx formation in aircraft engines while considering humidity \cite[]{Dubois2006}.
 This method uses the pressure and temperature of the flow before the combustor to determine NOx formation from a reference design condition of the engine.
-Since not many NOx correlations exist for the NOx formation for the liquid hydrogen fuel, we will use a surrogate model using data computed using Cantera to approximately model the NOx emissions.
+Since not many accurate NOx formation correlations exist for full-sized turbofan engines running on liquid hydrogen, we will use a surrogate model using data computed using Cantera to model the NOx emissions \cite[]{cantera}.
 
 % Briefly discuss the optimization problem
-We will perform gradient-based emission-propulsion design optimization of the engine model with a multipoint architecture that considers the common flight conditions experienced by commercial aircraft. And XDSM diagram of the optimization problem is shown in Figure \ref{fig:opt_prob}.
+We will perform gradient-based emission-propulsion design optimization of the engine model with a multipoint architecture that considers the common flight conditions experienced by commercial aircraft.
+An XDSM diagram of the optimization problem is shown in Figure \ref{fig:opt_prob}.
 
 \begin{figure}[H]
 	\centering
@@ -142,20 +146,20 @@ We will perform gradient-based emission-propulsion design optimization of the en
 	\label{fig:opt_prob}
 \end{figure}
 
-The objective is to minimize the thrust specific energy consumption at a cruise condition subject to NOx formation, thrust, engine diameter.
-Following this study, we will conduct a multi-objective optimization problem considering thrust specific fuel consumption and NOx formation.
-This will define a pareto front of different thrust specific fuel consumption and NOx formation designs to show trade-offs in the design space.
+The objective is to minimize the thrust specific energy consumption at a cruise condition subject to NOx formation, thrust, engine diameter and explore the design space of the model formulation.
+Following this study, we will conduct a multi-objective optimization problem considering thrust specific energy consumption and NOx formation.
+This will define a pareto front of different thrust specific energy consumption and NOx formation designs to show trade-offs in the design space.
 
 \section{Conclusion}
 % Message 1: Re-state the problem
-In this work, we will model, analyze, and optimize a high-bypass turbofan propulsion cycle using a novel closed-loop water vapor recovery to improve cycle efficiency and NOx emissions. We
+In this work, we will model, analyze, and optimize a high-bypass turbofan propulsion cycle using a novel closed-loop water vapor recovery to improve cycle efficiency and NOx emissions.
 % Message 2: Summarize the HBTF model
-The high-bypass turbofan engine will be composed of separate sub-components modeled in pyCycle with two newly developed water injection and water vapor recovery components to accurately compute the thermodynamic response of the engine.
-Two fuels, Jet-A and liquid hydrogen, will be compared with and without the closed-loop water vapor recovery system to determine the benefits of the implementation.
+The high-bypass turbofan engine will be composed of separate sub-components modeled in pyCycle with two newly developed novel components to model water recovery and injection to accurately establish the performance and emissions improvements.
+Two fuels, Jet-A and liquid hydrogen, will be compared with and without the closed-loop water vapor recovery system to determine the benefits of this technology implementation.
 NOx formation will be modeled using common industry methods and a novel reactor model in Cantera for hydrogen combustion NOx formation.
 % Message 3: Expected results
 The results will include a full propulsion-emission analysis of the novel systems with multipoint design optimizations of the entire flight envelope.
-This work will build off of current industry research into NOx emission reduction methods and provide a first principles analysis of the potential benefits of closed-loop water vapor recover and injection for commercial aviation applications.
+This work will build off of current industry research into emission reduction methods and provide a first principles analysis of the potential benefits of closed-loop water vapor recover and injection for commercial aviation applications.
 
 \bibliography{mdolab,references}
 
