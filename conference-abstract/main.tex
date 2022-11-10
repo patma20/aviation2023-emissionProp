@@ -49,30 +49,31 @@
 
 \begin{abstract}
 	Advances in commercial propulsion technology have resulted in the creation of larger and more advanced high-bypass turbofan engines with higher bypass ratios, pressure ratios, and internal temperatures.
-	With the focus on reducing aircraft emissions, aircraft and engine manufacturers have been pushing for Hydrogen as a fuel and more efficient engines to lower carbon dioxide and NOx emissions.
-	Using Hydrogen introduces complexity and weight penalties that we need to offset by using all the advantageous properties of the fuel.
-	In this study we investigate the benefits of using Hydrogen versus Jet-A fuel with a closed-loop water recirculation system within a high-bypass turbofan.
-	We will setup and perform a gradient-based optimization parameter sweep to understand the performance and emissions benefits of water recirculation using Jet-A and Hydrogen fuels.
-	This study will demonstrate the benefits of hydrogen combustion with water recirculation in order to encourage next-generation propulsion systems to use the properties of hydrogen for improved performance and reduced emissions.
+	With the focus on reducing aircraft emissions, aircraft and engine manufacturers have been pushing for hydrogen as a fuel and more efficient engines to lower carbon dioxide and NOx emissions.
+	Carrying and burning hydrogen introduces complexity and weight penalties that can be partially offset by taking advantage of the fuel's thermodynamic and chemical properties.
+	In this study, we compare the benefits of using hydrogen against Jet-A fuel in a high-bypass turbofan with a closed-loop water recirculation system.
+	We will setup and perform a gradient-based optimization parameter sweep to understand the performance and emissions benefits of water recirculation using Jet-A and hydrogen fuels.
+	This study will demonstrate the benefits of hydrogen combustion with water recirculation in order to encourage next-generation propulsion systems to exploit the properties of hydrogen for improved performance and reduced emissions.
 \end{abstract}
 
 \section{Introduction}
 % Message 1: Motivation to incorporate low-emission fuels and techniques
-The effects of climate change are pushing the aviation industry towards Hydrogen-fueled propulsion systems as a solution to reduce emissions.
+The effects of climate change are pushing the aviation industry towards hydrogen-fueled propulsion systems as a solution to reduce emissions.
 N+3 technology estimates for turbofan engines that burn hydrocarbon fuels suggest that higher efficiency can be achieved by designing ultra high-bypass (UHB) engines with small cores and high overall pressure ratios (OPR).
-Higher OPR and smaller core designs are pushing the limits of compressor and turbine design, placing an upper bound on potential performance and emissions improvements.
+Higher OPR and smaller cores are pushing the limits of compressor and turbine design, placing an upper bound on potential performance and emissions improvements.
 Switching to hydrogen as the primary fuel source reduces carbon dioxide emissions immediately, but adds complexity and weight that offset the benefits.
-However, Hydrogen is a versatile fuel with advantageous chemical and thermodynamic properties that can be leveraged to further increase the performance and emission reduction of the propulsion system.
-In this study, we investigate the tradeoff between burning hydrocarbon fuels like Jet-A or Hydrogen considering UHB ratio turbofan engines.
-We will look at new ideas with water recirculation to further squeeze performance and efficiency from Jet-A and Hydrogen combustion using gradient-based design optimization.
+However, hydrogen is a versatile fuel with advantageous chemical and thermodynamic properties that can be leveraged to further increase the performance and emission reduction of the propulsion system.
+In this study, we investigate the tradeoff between burning hydrocarbon fuels like Jet-A versus hydrogen for UHB ratio turbofan engines.
+We will look at new ideas with water recirculation to further squeeze performance and efficiency from Jet-A and hydrogen combustion using gradient-based design optimization.
 
 % Message 2: Background and references to support using H2 and water injection in HBTF engines
 Water recirculation is the process of extracting water from the exhaust stream of a propulsion system and injecting it upstream of the combustor as finely atomized droplets.
+% TODO: AL-PM: This needs a citation.  If its the 'nasa_inject' citation we should add it in both lines.
 NASA, Boeing, and Rolls-Royce studied this concept and suggested that this technique reduces the NOx emissions as much as 47 percent.
 Additionally, water recirculation improves fuel efficiency and thrust output with lower burner temperatures that can improve the lifetime of turbine blades and reduce noise~\cite{nasa_inject}.
 Traditional propulsion systems that burn hydrocarbon fuels would require external water storage on the aircraft because they do not produce enough in the exhaust for recirculation.
 The added weight of tanks, pumping, and ducting makes this concept infeasible for a conventional aircraft.
-However, if Hydrogen fuels are used, the main product of Hydrogen combustion is water vapor and can thus be recovered.
+However, if hydrogen fuels are used, the main product of hydrogen combustion is water vapor and can thus be recovered.
 The ability to recirculate water vapor from the exhaust of hydrogen combustion reduces the requirement for storage tanks and allows for the creation of a closed loop system inside the propulsion cycle.
 
 Zero-dimensional cycle modeling is an efficient tool for predicting the initial design, performance, and emissions of new propulsion concepts.
@@ -80,11 +81,11 @@ Zero-dimensional cycle analysis uses a first-principles approach with a chemical
 This can be used to understand the trends and design limitations of an engine cycle and study potential improvements in design using optimization.
 The industry standard for zero and one-dimensional cycle analysis is the Numerical Proprulsion System Simulation (NPSS) framework~\cite{JonesNPSS}.
 NPSS is a modular object-oriented framework in that models engine components as individual blocks with several thermodynamic solvers.
-\citet{Hendricks2019} and \citet{Gray2017b} created a tool called pyCycle with the same functionality as NPSS, but including analytical derivatives for every engine component and thermodynamic solver.
-We use pyCycle because it is built on top of the OpenMDAO framework~\cite{Gray2019a} to simplify gradient-based optimization and leverage hierarchical nonlinear solver structures to improve robustness.
+\citet{Hendricks2019} and \citet{Gray2017b} created a tool called pyCycle with the same functionality as NPSS, but includes analytical derivatives for each engine component and thermodynamic solver.
+We use pyCycle because it is built on top of the OpenMDAO framework~\cite{Gray2019a} to simplify gradient-based optimization and leverage hierarchical nonlinear solver structures for robustness.
 
 % Message 3: Introduce the extension of the HBTF and propose novel contributions
-In this work, we will analyze the potential propulsion benefits of a closed-loop water vapor recirculation with a water injection system in a high-bypass turbofan engine by optimizing the thrust-specific energy consumption (TSEC) with a NOx emission constraint.
+In this work, we will analyze the potential propulsion benefits of a closed-loop water vapor recovery and water injection system in a high-bypass turbofan engine by optimizing the thrust-specific energy consumption (TSEC) with a NOx emission constraint.
 TSEC is the thrust specific fuel consumption multiplied by the lower heating value of the fuel and is a metric for comparing the efficiency of different fuel choices.
 We will develop new pyCycle components for water injection and vapor recovery within pyCycle to understand the benefit of a closed loop recirculation system.
 In addition, we will apply existing empirical models as well as develop new surrogate models to estimate NOx emissions using chemical reactor networks and steady-state combustion analyses.
@@ -96,8 +97,9 @@ Section \ref{sec:imp} explains the implementation of the multi-point optimizatio
 \section{Emission-Propulsion Model Description}
 \label{sec:epModel}
 % Engine Architecture: Describe the flow path of the engine and establish the mechanical coupling.
+% TODO: AL-PM: I think the follow three sentences can be reduced into one or two sentences.
 We will use a next-generation UHB turbofan engine configuration for this work.
-Specifically, the NASA advanced technology high bypass geared turbofan engine cycle, referred to as the "N+3" engine, was selected for this research \cite{Jones2017a}.
+Specifically, the NASA advanced technology UHB geared turbofan engine cycle, referred to as the "N+3" engine, was selected for this research \cite{Jones2017a}.
 The N+3 reference cycle represents a UHB ratio geared turbofan that could be available in the 2030–2040 time frame.
 This engine was selected since it has already been modeled in pyCycle as a robust example cycle and includes the advanced engine cycle improvements such as a large bypass ratio, high pressure ratio, and high combustion temperature.
 The flow path consists of an inlet that directs ambient air through a fan, followed by a duct that splits the flow into a core flow and a bypass flow, each of which ends in a bypass nozzle and core nozzle, respectively.
@@ -112,9 +114,9 @@ The component flow interface and mechanical connections, including the water inj
 % TODO: AL-PA: You need to add more description to the caption.  The figure and caption should stand alone in the paper.
 % i.e The reader should be able to look at the figure and caption and understand without reading the paper.
 % It's okay for the caption to be 3-4 sentences long if necessary.
-\begin{figure}[H]
+\begin{figure}[!hbt]
 	\centering
-	\includegraphics[width=0.8\textwidth]{turbofan_wvr.pdf}
+	\includegraphics[width=0.75\textwidth]{turbofan_wvr.pdf}
 	\caption{The configuration of a high-bypass turbofan model with an integrated closed-loop vapor recovery and injection system.
 		Water vapor is recovered from the core stream of the engine before the nozzle and is re-injected into the core stream before the LPC.}
 	\label{fig:hbtf_cycle}
@@ -126,7 +128,7 @@ The preliminary results from this analysis are shown in Figure \ref{fig:results}
 We see improvements in the cruise engine efficiency using a baseline analysis and will be further improved using design optimization.
 
 % TODO: AL-PA: Again, this needs a much better caption.
-\begin{figure}[H]
+\begin{figure}[!hbt]
 	\centering
 	\includegraphics[width=0.8\textwidth]{JetA-H2_bar_chart_diff.pdf}
 	\caption{Percent relative improvement in thrust specific energy consumption (TSEC) of an ultra-high bypass turbofan engine from water injection.
@@ -137,18 +139,18 @@ We see improvements in the cruise engine efficiency using a baseline analysis an
 \section{Implementation}
 \label{sec:imp}
 % Fully coupled model
-The propulsion model is constructed in pyCycle which is built on top of OpenMDAO to allow a modular design of the engine components and allows the coupling of other engineering disciplines for analysis \cite{Gray2019a}.
+The propulsion model is constructed in pyCycle which is built on top of OpenMDAO to allow a modular design of the engine components and the coupling of other engineering disciplines for analysis \cite{Gray2019a}.
 The NOx model for Jet-A fuel will use the P3-T3 method~\cite{Dubois2006}, a common technique in academia and industry for determing NOx formation in aircraft engines.
 This method uses the pressure and temperature of the flow before the combustor to determine NOx formation.
-Since not many accurate NOx formation correlations exist for full-sized turbofan engines running on liquid hydrogen, we will use a surrogate model using data from combustor reactor network models to accurately predict NOx emissions.
+Since not many accurate NOx correlations exist for full-sized turbofan engines burning liquid hydrogen, we will create a surrogate model using data from combustor reactor network models to accurately predict NOx emissions.
 
 % Briefly discuss the optimization problem
-We will perform gradient-based emission-propulsion design optimization of the engine model with a multi-point architecture that considers several flight conditions experienced by commercial aircraft.
-An XDSM diagram of the optimization problem with the multi-point formulation is shown in Figure \ref{fig:opt_prob}.
+We will perform gradient-based design optimization of the engine model with a multi-point architecture that considers several flight conditions experienced by commercial aircraft.
+An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:opt_prob}.
 
-\begin{figure}[H]
+\begin{figure}[!hbt]
 	\centering
-	\includegraphics[width=0.8\textwidth]{N3_inject.pdf}
+	\includegraphics[width=0.75\textwidth]{N3_inject.pdf}
 	\caption{XDSM diagram of the multi-point optimization problem with constraints.
 		The XDSM diagram shows the variables and outputs within the optimization model and how each of these values is connected to the optimizer and design points.}
 	\label{fig:opt_prob}
