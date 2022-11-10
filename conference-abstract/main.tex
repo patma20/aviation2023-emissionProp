@@ -26,14 +26,14 @@
 \hypersetup{
     pdfauthor={Peter Atma}, % insert author here
 	pdftitle={Aviation 2022 Abstract}, % insert title here
-	pdfsubject={}, % insert keywords here
+	pdfsubject={Propulsion Analysis and Optimization of a High Bypass Turbofan Engine}, % insert keywords here
 }
 
 \graphicspath{{../figures/}}
 
-\title{Multi-point Aeropropulsive Design Optimization of a High-Bypass Turbofan Engine} % change
+\title{Multi-point Low-Emission Propulsion Analysis and Optimization of a High Bypass Turbofan Engine} % change
 
-\author{Peter Atma\footnote{MS Student, Department of Aerospace Engineering, AIAA Student Member}}
+\author{Peter Atma\footnote{MSE Student, Department of Aerospace Engineering, AIAA Student Member}}
 \author{Andrew H.R. Lamkin\footnote{Ph.D.~Candidate, Department of Aerospace Engineering, AIAA Student Member}}
 \author{Joaquim R.~R.~A.~Martins\footnote{Professor, Department of Aerospace Engineering, AIAA Fellow}}
 \affil{University of Michigan, Ann Arbor, MI, 48109}
@@ -108,7 +108,7 @@ The flow and mechanical connections within the engine model with the water injec
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{turbofan_wvr.pdf}
-	\caption{Configuration of the original high-bypass turbofan model.}
+	\caption{Configuration of the high-bypass turbofan model with vapor recovery and injection.}
 	\label{fig:hbtf_cycle}
 \end{figure}
 
@@ -119,8 +119,8 @@ We can already see great improvements in the cruise engine efficiency which may 
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[width=0.8\textwidth]{JetA-H2_bar_chart_diff.png.pdf}
-	\caption{Relative improvement in .}
+	\includegraphics[width=0.8\textwidth]{JetA-H2_bar_chart_diff.png}
+	\caption{Relative improvement in TSEC from water injection.}
 	\label{fig:results}
 \end{figure}
 
@@ -128,7 +128,7 @@ We can already see great improvements in the cruise engine efficiency which may 
 \label{sec:imp}
 % Fully coupled model
 The propulsion model is constructed in pyCycle which is built on top of OpenMDAO to allow a modular design of the engine components and allows the coupling of other engineering disciplines for analysis \cite{Gray2019a}.
-For the Jet-A fuel, the NOx correlation will use the P3-T3 method which is commonly a used technique in industry to determine NOx formation in aircraft engines while considering humidity (CITE P3T3).
+For the Jet-A fuel, the NOx correlation will use the P3-T3 method which is commonly a used technique in industry to determine NOx formation in aircraft engines while considering humidity \cite[]{Dubois2006}.
 This method uses the pressure and temperature of the flow before the combustor to determine NOx formation from a reference design condition of the engine.
 Since not many NOx correlations exist for the NOx formation for the liquid hydrogen fuel, we will use a surrogate model using data computed using Cantera to approximately model the NOx emissions.
 
@@ -138,7 +138,7 @@ We will perform gradient-based emission-propulsion design optimization of the en
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{N3_inject.pdf}
-	\caption{}
+	\caption{XDSM diagram of the multi-point optimization problem with constraints.}
 	\label{fig:opt_prob}
 \end{figure}
 
