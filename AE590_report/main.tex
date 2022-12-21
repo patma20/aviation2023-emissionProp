@@ -1,5 +1,6 @@
-\documentclass[12pt]{article}
-% \documentclass[12pt]{new-aiaa}
+\RequirePackage{fix-cm}
+% \documentclass[12pt]{article}
+\documentclass[12pt]{new-aiaa}
 
 % Formatting
 \usepackage[utf8]{inputenc}
@@ -50,7 +51,7 @@ Traditional propulsion systems that burn hydrocarbon fuels would require externa
 The added weight of tanks, pumping, and ducting makes this concept infeasible for a conventional aircraft.
 However, if hydrogen fuels are used, the main product of hydrogen combustion is water vapor and can thus be recovered.
 The ability to recirculate water vapor from the exhaust of hydrogen combustion reduces the requirement for storage tanks and allows for the creation of a closed loop system inside the propulsion cycle.
-Additionally, Pratt and Whitney are currently looking at closed-loop water vapor recovery for impementation in their Hydrogen Steam-Injected, Inter‐Cooled Turbine Engine (HySIITE) as part of the US Departement of Energy's Advanced Research Projects Agency-Energy (ARPA-E) program (CITE).
+Additionally, Pratt and Whitney are currently looking at closed-loop water vapor recovery for impementation in their Hydrogen Steam-Injected, Inter‐Cooled Turbine Engine (HySIITE) as part of the US Departement of Energy's Advanced Research Projects Agency-Energy (ARPA-E) program \cite{hysiite}.
 Pratt and Whitney suggest that this type of hydrogen-powered engine could achieve zero-carbon emissions and reduce NOx emissions by as much as 80\%.
 
 Zero-dimensional cycle modeling is an efficient tool for predicting the initial design, performance, and emissions of new propulsion concepts.
@@ -123,7 +124,7 @@ The new species composition and thermodynamic variables are then determined usin
 Once the new composition is determined, the various thermodynamic variables are passed to the next component in the engine.
 The water injector component was created to work similarly to the combustor but would instead inject water as a reactant instead of the fuel.
 The water injector can take either water-to-air ratio (WAR) or water mass flow rate to determine how much water is added to the flow.
-A simple schematic of the injector is shown in Figure \ref{fig:injector}
+A simple schematic of the injector is shown in Figure \ref{fig:injector} where $Y_{H_2O}$ is the mole fraction of water molecules.
 
 \begin{figure}[!hbt]
     \centering
@@ -140,7 +141,7 @@ This water content in the incoming flow is then used with a given fraction of th
 At the some time, the atomic mixture is updated to represent the mixture that would be left if a number of hydrogen and oxygen atoms corresponding to the amount of water were removed.
 The outputs of the extractor component are the flow rate of the main flow and the corresponding properties in addition to a water mass flow rate.
 While this process certainly would have pressure loss penalties in terms of condensing water in a condersor, this project looks to just look at the effects of water recovery since there are no current models for nozzle exhaust condensors.
-A simple schematic of the extractor is shown in Figure \ref{fig:extractor}
+A simple schematic of the extractor is shown in Figure \ref{fig:extractor} where $Y_{H_2O}$ is the mole fraction of water molecules and $X_{H_2O,k}$ is the fraction of water that is recovered from the core stream of operating condition, $k$.
 
 \begin{figure}[!hbt]
     \centering
@@ -157,7 +158,7 @@ However, the N3 model already has a nonlinear Newton solver at the Multipoint De
 These connections can be seen in Figure \ref{fig:N3_xdsm_full}
 
 \subsection{NOx Model}
-To compute the Nitrogen Oxide (NOx) emissions from the engine model when using JetA as a fuel, the P3T3 NOx correlation was used (CITE).
+To compute the Nitrogen Oxide (NOx) emissions from the engine model when using JetA as a fuel, the P3T3 NOx correlation was used \cite{Voet2021}.
 The P3T3 method computes the NOx emission index (EINOx) of an engine at a specific operation condition as a function of the combustor pressure ($P_3$) and FAR.
 The P3T3 method uses the EINOx level at sea-level operating condition as a reference point to scale the desired operating condition EINOx.
 Finally, the EINOx level is scaled by a humidity factor based on the water content of the specific operating condition compared to the sea-level water content.
@@ -312,16 +313,16 @@ The SNOPT optimizations for both fuels successfully finished with a 0/1 exit cod
     \caption{Vapor recovery loop water fraction optimization for JetA fuel.}
     \begin{tabular}{|c|c|c|c|c|c|}
         \hline
-        Category    & Name          & Value   & Lower & Upper  & Units                 \\
+        Category    & Name          & Value   & Lower  & Upper & Units                 \\
         \hline
-        Objective   & $TSEC_{CRZ}$  & 7886.58 & -     & -      & $\frac{BTU}{hr-lb_f}$ \\
+        Objective   & $TSEC_{CRZ}$  & 7886.58 & -      & -     & $\frac{BTU}{hr-lb_f}$ \\
         \hline
-        Variables   & $x_{H2O,TOC}$ & 0.0699  & 0.0   & -      & -                     \\
-                    & $x_{H2O,RTO}$ & 0.0     & 0.0   & -      & -                     \\
-                    & $x_{H2O,SLS}$ & 0.0     & 0.0   & -      & -                     \\
-                    & $x_{H2O,CRZ}$ & 0.27    & 0.0   & 0.27   & -                     \\
+        Variables   & $x_{H2O,TOC}$ & 0.0699  & 0.0    & -     & -                     \\
+                    & $x_{H2O,RTO}$ & 0.0     & 0.0    & -     & -                     \\
+                    & $x_{H2O,SLS}$ & 0.0     & 0.0    & -     & -                     \\
+                    & $x_{H2O,CRZ}$ & 0.27    & 0.0    & 0.27  & -                     \\
         \hline
-        Constraints & $F_{net,TOC}$ & 5800.0  & -     & 5800.0 & $lbf$                 \\
+        Constraints & $F_{net,TOC}$ & 5800.0  & 5800.0 & -     & $lbf$                 \\
         \hline
     \end{tabular}
     \label{tab_jeta_opt}
@@ -332,16 +333,16 @@ The SNOPT optimizations for both fuels successfully finished with a 0/1 exit cod
     \caption{Vapor recovery loop water fraction optimization for H2 fuel.}
     \begin{tabular}{|c|c|c|c|c|c|}
         \hline
-        Category    & Name          & Value   & Lower & Upper  & Units                 \\
+        Category    & Name          & Value   & Lower  & Upper & Units                 \\
         \hline
-        Objective   & $TSEC_{CRZ}$  & 7840.04 & -     & -      & $\frac{BTU}{hr-lb_f}$ \\
+        Objective   & $TSEC_{CRZ}$  & 7840.04 & -      & -     & $\frac{BTU}{hr-lb_f}$ \\
         \hline
-        Variables   & $x_{H2O,TOC}$ & 0.105   & 0.0   & -      & -                     \\
-                    & $x_{H2O,RTO}$ & 0.0     & 0.0   & -      & -                     \\
-                    & $x_{H2O,SLS}$ & 0.0     & 0.0   & -      & -                     \\
-                    & $x_{H2O,CRZ}$ & 0.19    & 0.0   & 0.19   & -                     \\
+        Variables   & $x_{H2O,TOC}$ & 0.105   & 0.0    & -     & -                     \\
+                    & $x_{H2O,RTO}$ & 0.0     & 0.0    & -     & -                     \\
+                    & $x_{H2O,SLS}$ & 0.0     & 0.0    & -     & -                     \\
+                    & $x_{H2O,CRZ}$ & 0.19    & 0.0    & 0.19  & -                     \\
         \hline
-        Constraints & $F_{net,TOC}$ & 5800.0  & -     & 5800.0 & $lbf$                 \\
+        Constraints & $F_{net,TOC}$ & 5800.0  & 5800.0 & -     & $lbf$                 \\
         \hline
     \end{tabular}
     \label{tab_h2_opt}
@@ -378,6 +379,7 @@ These results are promising as they indicate that the efficiency improvement tha
 Future plans for this project are to use this model to run large parallel sweeps of the model design space and to eventually create a surrogate model of this engine for use in other optimization libraries such as OpenConcept.
 Additionally, water condensor models may be researched in the future so that a fairly accurate condensor and pressure loss model can be implemented for the extractor to determine how severe the pressure loss penalties are.
 Finally, a pareto front will be computed to determine the tradeoffs between TSEC and NOx emissions for the JetA fuel.
+All of these future studies will help determine if the claims of performance enhancements and emission reductions of water recovery and hydrogen engines that are promoted by industy are within the realm of possibliy.
 
 \bibliography{mdolab,references}
 
