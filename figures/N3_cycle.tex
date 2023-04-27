@@ -1,0 +1,86 @@
+\documentclass[landscape]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, positioning, calc, matrix}
+\usepackage{xcolor}
+
+%%%<
+\usepackage{verbatim}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{5pt}%
+%%%>
+
+
+\begin{document}
+\pagestyle{empty}
+
+% define colors
+\definecolor{shaftcolor}{RGB}{255,0,0}
+\definecolor{elementcolor}{RGB}{46, 187, 242}
+
+% Define block styles
+
+\tikzstyle{element} = [rectangle, draw, fill=elementcolor!20,
+text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
+\tikzstyle{shaft_element} = [rectangle, draw, fill=shaftcolor!20,
+text width=10em, text centered, font=\LARGE, rounded corners, minimum height=4em]
+\tikzstyle{heat_element} = [rectangle, draw, fill=heatcolor!20,
+text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
+\tikzstyle{connection} = [draw, -latex', ultra thick]
+\tikzstyle{shaft} = [draw, line width=0.1cm, color=shaftcolor]
+\tikzstyle{heat_flow} = [draw, -latex', ultra thick, color=heatcolor]
+
+
+\begin{tikzpicture}[node distance = 2cm, auto]
+    % Create elements
+    % \node [element] (fc) {Flight Conditions};
+    \node [element] (inlet) {Inlet};
+    \node [element, right=4em of inlet] (fan) {Fan};
+    \node [element, right=4em of fan] (splitter) {Splitter};
+    \node [element, right=4em of splitter] (lpc) {Low Pressure Compressor};
+    \node [element, right=4em of lpc ] (hpc) {High Pressure Compressor};
+    \node [element, right=4em of hpc] (burner) {Burner};
+    \node [element, right=4em of burner] (hpt) {High-Pressure Turbine};
+    \node [element, right=4em of hpt] (lpt) {Low-Pressure Turbine};
+    \node [element, right=4em of lpt] (corenozzle) {Core Nozzle};
+    \node [element, below=4em of burner] (bypduct) {Bypass Duct};
+    \node [element, below=4em of corenozzle] (bypnozzle) {Bypass Nozzle};
+
+    % Add shaft elements
+    \node [shaft_element, above=8em of $(hpc)!0.5!(hpt)$] (hpshaft) {High Pressure Shaft};
+    \node [shaft_element, above=16em of $(lpc)!0.5!(lpt)$] (lpshaft) {Low Pressure Shaft};
+    \node [shaft_element, above=16em of $(fan)!0.28!(lpc)$] (fanshaft) {Fan Shaft};
+    \node [shaft_element, above=16em of $(fan)!0.72!(lpc)$] (gearbox) {Gearbox};
+
+    % Draw element connections
+    % \path [connection] (fc) -- (inlet);
+    \path [connection] (inlet) -- (fan);
+    \path [connection] (fan) -- (splitter);
+    \path [connection] (splitter) -- (lpc);
+    \path [connection] (splitter) |- (bypduct);
+    \path [connection] (bypduct) -- (bypnozzle);
+    \path [connection] (lpc) -- (hpc);
+    \path [connection] (hpc) -- (burner);
+    \path [connection] (burner) -- (hpt);
+    \path [connection] (hpt) -- (lpt);
+    \path [connection] (lpt) -- (corenozzle);
+
+    % Draw Shaft Connections
+    \path [shaft] (fan) |- (fanshaft) -- (gearbox);
+    \path [shaft] (gearbox) -| (lpc);
+    \path [shaft] (lpc) |- (lpshaft) -| (lpt);
+    \path [shaft] (hpc) |- (hpshaft) -| (hpt);
+
+    % \matrix[draw, ultra thick, rounded corners, matrix of nodes, text width=30em, font=\LARGE, row sep=3mm, below=25em of current page.south west, anchor=west] (key) {
+    %     $\bullet$ Black arrows are flow connections    \\
+    %     $\bullet$ Red lines are mechanical connections \\
+    %     $\bullet$ Blue boxes are cycle elements        \\
+    %     $\bullet$ Red boxes are shaft elements         \\
+    % };
+
+\end{tikzpicture}
+
+
+\end{document}
