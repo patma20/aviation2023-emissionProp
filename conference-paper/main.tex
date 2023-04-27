@@ -34,7 +34,7 @@
 % [x] TODO: AL-PA, Consider changing the title to "Comparing Hydrogen and Jet-A for an N+3 Turbofan with Water Recirculation using Gradient-Based Optimization"
 \title{Comparing Hydrogen and Jet-A for an N+3 Turbofan with Water Recirculation using Gradient-Based Optimization} % change
 \author{Peter N. Atma\footnote{MSE Student, Department of Aerospace Engineering, AIAA Student Member}}
-\author{Andrew hbt!.R. Lamkin\footnote{Ph.D.~Candidate, Department of Aerospace Engineering, AIAA Student Member}}
+\author{Andrew H~.R.~Lamkin\footnote{Ph.D.~Candidate, Department of Aerospace Engineering, AIAA Student Member}}
 \author{Joaquim R.~R.~A.~Martins\footnote{Professor, Department of Aerospace Engineering, AIAA Fellow}}
 \affil{University of Michigan, Ann Arbor, MI, 48109}
 
@@ -54,7 +54,7 @@
     Advances in commercial propulsion technology led to the development of efficient high bypass ratio turbofan engines with larger overall pressure ratios and internal temperatures.
     Current trends suggest that geared ultra high bypass ratio turbofans are the next generation of commercial propulsion systems.
     Furthermore, the emphasis on decreasing emissions has driven the exploration of hydrogen-powered aircraft, adding to the already challenging design space.
-    %   With the focus on reducing aircraft emissions, aircraft and engine manufacturers have been pushing for hydrogen as a fuel and more efficient engines to lower carbon emissions.
+    % With the focus on reducing aircraft emissions, aircraft and engine manufacturers have been pushing for hydrogen as a fuel and more efficient engines to lower carbon emissions.
     Carrying and burning hydrogen introduces complexity and weight penalties that we must offset using the fuel's thermodynamic and chemical properties.
     In this study, we create a closed-loop water recirculation system with a zero-dimensional thermodynamic model and compare the benefits between jet-A and hydrogen fuels.
     We perform a gradient-based optimization parameter sweep to explore the trade-offs between performance and emissions using both fuels with water recirculation.
@@ -151,7 +151,7 @@ The component flow interface and mechanical connections, including the water inj
     \label{fig:N3_original}
 \end{figure}
 
-\subsection{Water Recovery Loop Model}
+\subsection{Water Recovery Model}
 We implemented the closed-loop water recovery system as a feedback system that extracts water from the exhaust stream and injects it upstream of the HPC.
 % The closed-loop water recovery system is implemented into the cycle by placing a water injection component directly before the HPC.
 % This component will inject pure water into the core stream which will reduce the combustion temperature due to heat absorption from vaporization.
@@ -175,24 +175,33 @@ The component flow interface and mechanical connections, including the water inj
     \label{fig:n3_cycle}
 \end{figure}
 
-Since water is being used in the sections of the engine upstream of the combustor, this model was designed to take the humidity of the air into account.
-To utilize water engine section infront of the combustor the N+3 engine model had to be modified to include $H_2O$ as a species.
-This can be accomplished by using the $wet_air$ dataset in pyCycle.
-The $wet_air$ dataset simply uses the $Janaf$ dataset from the original model but removes a couple troublesome hydrocarbons from the product species as they can cause numerical issues.
-The FlightConditions() pyCycle subsystem can then have a reactant and mixture ratio specified when implemented.
-In this case, the reactant is be $H_2O$ and the mixture ratio is the water-to-air (WAR) ratio of the water content in the air.
-The WAR value is simply the specific humidity (g water/kg total) of the air expressed in equal units and separating out the total mass (kg water/kg air).
-The humidity values used in this paper are from a NOAA dataset \cite{Kalnay1996}.
+We modified the composition of the air mixture upstream of the combustor to account for humidity.
+% Since water is being used in the sections of the engine upstream of the combustor, this model was designed to take the humidity of the air into account.
+% To utilize water engine section infront of the combustor the N+3 engine model had to be modified to include $H_2O$ as a species.
+pyCycle provides a \texttt{wet-air} dataset that introduces $\mathrm{H_2O}$ molecules to the composition of air.
+% The \texttt{wet-air} dataset inherits the NPSS \texttt{JANAF} data from the original model but removes a couple troublesome hydrocarbons from the product species as they can cause numerical issues.
+% The FlightConditions() pyCycle subsystem can then have a reactant and mixture ratio specified when implemented.
+We prescribe atmospheric mass-specific humidity as a water-to-air ratio (WAR) that is defined as the ratio of $\mathrm{H_2O}$ to air in the reactants of the inflow mixture.
+% In this case, the reactant is be $H_2O$ and the mixture ratio is the water-to-air (WAR) ratio of the water content in the air.
+% The WAR is the sp of the air expressed in equal units and separating out the total mass (kg water/kg air).
+\citet{Kalnay1996} give the humidity values for each flight condition.
+% The humidity values used in this paper are from a NOAA dataset \cite{Kalnay1996}.
 
-To model the complicated water recirculation loop in pyCycle new components had to be developed.
-The two new components that were developed are a water injector to add water to the flow and a water extractor to divert a fraction of the water in the flow away from the exhaust stream.
-The injector component is based on the combustor component already included in pyCycle which operates by injecting a given fuel-to-air ratio (FAR) or fuel flow rate to determine the mass of fuel added to the incoming flow.
-This new mixture combination is then used to compute the various chemical species present in the flow at the given thermodynamic state which is determined by the incoming flow.
-The new species composition and thermodynamic variables are then determined using a Gibbs Free Energy minimization approach called Chemical Equilibrium with Applications (CEA).
-Once the new composition is determined, the various thermodynamic variables are passed to the next component in the engine.
-The water injector component would inject water as a reactant instead of the fuel as the combustor would.
-The water injector can take either water-to-air ratio (WAR) or water mass flow rate to determine how much water is added to the flow.
-A simple schematic of the injector is shown in Figure \ref{fig:injector} where $Y_{H_2O}$ is the mole fraction of water molecules.
+We introduce two new thermodynamic models for water recirculation in pyCycle.
+% To model the complicated water recirculation loop in pyCycle new components had to be developed.
+A water injector adds water to the flow upstream of the HPC, while a water extractor diverts a portion of the water in the flow away from the exhaust stream.
+% The two models are a water injector that adds water to the flow upstream of the HPC and a water extractor to divert a fraction of the water in the flow away from the exhaust stream.
+The injector operates similarly to fuel injection in the combustor.
+We determine a WAR that is analogous to the fuel-to-air (FAR) ratio in the combustor.
+% The injector component is based on the combustor component already included in pyCycle which operates by injecting a given fuel-to-air ratio (FAR) or fuel flow rate to determine the mass of fuel added to the incoming flow.
+This WAR is used to compute the chemical species present in the flow at the current thermodynamic state, determined by the incoming flow.
+The new species composition and thermodynamic state are determined using the pyCycle CEA solver~\cite{Gray2017b}.
+% Once the new composition is determined, the various thermodynamic variables are passed to the next component in the engine.
+% The water injector component would inject water as a reactant instead of the fuel as the combustor would.
+The water injector inputs are the mass flow rate and mass fraction of water.
+We can solve for the mass flow rate on a mixture basis using the WAR, or directly by specifying the mass flow rate of water.
+% The water injector can take either water-to-air ratio (WAR) or water mass flow rate to determine how much water is added to the flow.
+A schematic of the injector is shown in Figure \ref{fig:injector} where $Y_{H_2O}$ is the mole fraction of water molecules.
 
 \begin{figure}[hbt!]
     \centering
@@ -204,14 +213,17 @@ A simple schematic of the injector is shown in Figure \ref{fig:injector} where $
     \label{fig:injector}
 \end{figure}
 
-The water extractor component is based on an air-bleed component in pyCycle with the added complexity of extracting a fraction of a specific species within the flow.
-This extractor component works by first determining the water content of the incoming flow and extracting a given fraction of that water flow.
-The water content of the incoming flow is determined by solving a CEA analysis of the incoming flow.
-This water content in the incoming flow is then used with a given fraction of the water to extract to determine the how much water mass flow to remove from the stream.
-At the same time, the atomic mixture of the core stream is updated to represent the mixture that would be left if a number of hydrogen and oxygen atoms corresponding to the amount of water extracted were removed.
-The outputs of the extractor component are the flow rate of the core flow and the corresponding flow properties in addition to the extracted water mass flow rate.
-While this process certainly would have pressure loss penalties in terms of condensing water in a condenser, this project just looks at the effects of water recovery since there are no current models for nozzle exhaust condensers available.
-A simple schematic of the extractor is shown in Figure \ref{fig:extractor} where $Y_{H_2O}$ is the mole fraction of water molecules and $X_{H_2O,k}$ is the fraction of water that is recovered from the core stream of operating condition, $k$.
+The water extractor model diverts a fraction of a specific species from one flow path to another.
+% The water extractor model is based on an air-bleed component in pyCycle with the added complexity of extracting a fraction of a specific species within the flow.
+The CEA solver calculates the inflow composition and the extractor separates a specific species based on a mass fraction input.
+The composition of the core stream is updated to represent the remaining mixture after the extractor model removes the desired species from the incoming flow.
+We then solve for the thermodynamic state and flow path areas at the outflow of both extractor streams.
+% The extraction determines the water content of the incoming flow and extracting a given fraction of that water flow.
+% The water content of the incoming flow is determined by solving a CEA analysis of the incoming flow.
+% This water content in the incoming flow is then used with a given fraction of the water to extract to determine the how much water mass flow to remove from the stream.
+% The outputs of the extractor component are the flow rate of the core flow and the corresponding flow properties in addition to the extracted water mass flow rate.
+% While this process certainly would have pressure loss penalties in terms of condensing water in a condenser, this project just looks at the effects of water recovery since there are no current models for nozzle exhaust condensers available.
+A simple schematic of the extractor is shown in Figure \ref{fig:extractor} where $Y_{H_2O}$ is the mole fraction of water molecules and $X_{H_2O,k}$ is the fraction of water that is recovered from the core stream.
 
 \begin{figure}[hbt!]
     \centering
@@ -224,11 +236,13 @@ A simple schematic of the extractor is shown in Figure \ref{fig:extractor} where
     \label{fig:extractor}
 \end{figure}
 
-Unlike other flow streams in the N+3 model, the vapor recovery loop has a feedback effect since it is adding a mass flow rate at the injector and extracting a mass flow rate at the extractor.
-This is because the pyCycle model is solved sequentially component to component during each Newton iteration.
-So a Nonlinear Block Gauss-Seidel solver would be sufficient to solve this feedback loop.
-However, the N+3 model already has a nonlinear Newton solver at the Multipoint Design level, so the extractor mass flow rate and injector mass flow rate variables are connected for each design point and use this nonlinear solver to converge the water streams.
-These connections can be seen in Figure \ref{fig:N3_xdsm_full}.
+We connect one outflow stream of the extractor to the inflow stream of the injector to complete the water recirculation system.
+The model results in a mismatch between the mass flow rate upstream of the HPC and the mass flow rate exiting the core nozzle.
+To preserve conservation of mass, we treat the water recirculation as a nonlinear cycle that must converge before the engine calculation is physically balanced.
+% This is because the pyCycle model is solved sequentially component to component during each Newton iteration.
+% So a Nonlinear Block Gauss-Seidel solver would be sufficient to solve this feedback loop.
+% However, the N+3 model already has a nonlinear Newton solver at the Multipoint Design level, so the extractor mass flow rate and injector mass flow rate variables are connected for each design point and use this nonlinear solver to converge the water streams.
+We illustrate the water recirculation loop and the nonlinear solver connections in Figure \ref{fig:N3_xdsm_full}.
 
 \begin{figure}[hbt!]
     \centering
@@ -334,11 +348,6 @@ With all of the sub-models of the N3 engine presented, the complete engine cycle
     \label{fig:N3_xdsm_full}
 \end{figure}
 
-\subsection{Model Parametric Studies}
-To understand the coupling between the various operation conditions and design point, a few simple parametric studies of the water recovery fractions were run.
-The design parameters for the engine are shown in the table below.
-Additionally, the humidity conditions listed below are used in the flight conditions component in the N+3 engine to ensure that the humidity of the air entering the engine is equal to the humidity of the atmosphere at a given operating condition.
-
 % Update with table from Andrew
 \begin{table}[hbt!]
     \centering
@@ -347,14 +356,14 @@ Additionally, the humidity conditions listed below are used in the flight condit
         Atmospheric parameters specify the flight conditions and humidity of the atmosphere and Lower Heating Values are given for each fuel to compute TSEC.}
     \begin{tabular}{c c c c}
         \hline
-        Parameter    & Value   & Units                 & Comments                                        \\
+        Parameter              & Value   & Units          & Comments                                        \\
         \hline
-        $h_{TOC}$    & 0.00017 & $kg_{water}/kg_{air}$ & humidity ratio at TOC \cite{Kalnay1996}         \\
-        $h_{CRZ}$    & 0.00017 & $kg_{water}/kg_{air}$ & humidity ratio at CRZ \cite{Kalnay1996}         \\
-        $h_{RTO}$    & 0.009   & $kg_{water}/kg_{air}$ & humidity ratio at RTO \cite{Kalnay1996}         \\
-        $h_{SLS}$    & 0.009   & $kg_{water}/kg_{air}$ & humidity ratio at SLS \cite{Kalnay1996}         \\
-        $LHV_{JetA}$ & 18564.0 & $BTU/lbm$             & Lower heating value of Jet-A \cite{Lawicki2002} \\
-        $LHV_{H2}$   & 51591.0 & $BTU/lbm$             & Lower heating value of H2 \cite{toolbox2003}    \\
+        $h_{\rm{TOC}}$         & 0.00017 & -              & humidity ratio at TOC \cite{Kalnay1996}         \\
+        $h_{\rm{CRZ}}$         & 0.00017 & -              & humidity ratio at CRZ \cite{Kalnay1996}         \\
+        $h_{\rm{RTO}}$         & 0.009   & -              & humidity ratio at RTO \cite{Kalnay1996}         \\
+        $h_{\rm{SLS}}$         & 0.009   & -              & humidity ratio at SLS \cite{Kalnay1996}         \\
+        $\rm{LHV}_{\rm{JetA}}$ & 18564.0 & \unit{BTU/lbm} & Lower heating value of Jet-A \cite{Lawicki2002} \\
+        $\rm{LHV}_{\rm{H2}}$   & 51591.0 & \unit{BTU/lbm} & Lower heating value of H2 \cite{toolbox2003}    \\
         \hline
     \end{tabular}
     \label{engine_params}
@@ -384,44 +393,44 @@ An XDSM diagram of the optimization problem with the multipoint formulation is s
 This optimization problem was run for both Jet-A and H2 fuels using the parameters given in Table \ref{engine_params}.
 The optimization problem objective function, design variables, and constraints are shown in Table \ref{tab:opt_problem} below.
 
-\begin{table}[h]
+% [ ] TODO: AL - PA, Define the T4 ratio with an equation and reference the equation in the table
+% [ ] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
+\begin{table}[hbt!]
     \centering
     \caption{
         Multipoint optimization problem definition.
         The 4 design variables are the water recovery fractions of the core exhaust stream at each operation condition.
-        The objective function is the fuel flow rate at the CRZ condition with a net thrust and fan diameter constraint at the design point, TOC.
+        The objective function is the thrust specific energy consumption at the cruise condition with a net thrust constraint at the design point, TOC.
     }
     \small
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l l l}
         \toprule
-                        & Variable/Function           & Description                                & Units           & Quantity \\
+                        & Variable/Function              & Description                                 & Units            & Quantity \\
         \hline
-        minimize        & $W_{fuel,CRZ}$              & Fuel flow rate at CRZ                      & $\frac{lbm}{s}$ & 1        \\
-                        &                             &                                            &                 &          \\
-        with respect to & $x_{H2O,TOC}$               & Water recovery fraction at TOC             & -               & 1        \\
-                        & $x_{H2O,RTO}$               & Water recovery fraction at RTO             & -               & 1        \\
-                        & $x_{H2O,SLS}$               & Water recovery fraction at SLS             & -               & 1        \\
-                        & $x_{H2O,CRZ}$               & Water recovery fraction at CRZ             & -               & 1        \\
-                        & $PR_{fan,TOC}$              & TOC fan pressure ratio                     & -               & 1        \\
-                        & $PR_{LPC,TOC}$              & TOC low-pressure compressor pressure ratio & -               & 1        \\
-                        & $PR_{OPR,TOC}$              & TOC overall pressure ratio                 & -               & 1        \\
-                        & $T_{4,TOC}/T_{4,RTO}$       & TOC-to-RTO temperature ratio               & -               & 1        \\
-                        & $T_{4,RTO}$                 & RTO combustor temperature                  & $^\circ$R       & 1        \\
-                        & $V_{ratio,CRZ}$             & Velocity exit ratio at CRZ                 &                 & 1        \\
+        minimize        & $ \dot{m}_{\rm{fuel,CRZ}} $    & Fuel flow rate at CRZ                       & \unit{lbm/s}     & 1        \\
+                        &                                &                                             &                  &          \\
+        with respect to & $X_{\rm{H2O,TOC}}$             & Water recovery fraction at TOC              & -                & 1        \\
+                        & $X_{\rm{H2O,RTO}}$             & Water recovery fraction at RTO              & -                & 1        \\
+                        & $X_{\rm{H2O,SLS}}$             & Water recovery fraction at SLS              & -                & 1        \\
+                        & $X_{\rm{H2O,CRZ}}$             & Water recovery fraction at CRZ              & -                & 1        \\
+                        & $\rm{PR}_{\rm{HPC,TOC}}$       & TOC high-pressure compressor pressure ratio & -                & 1        \\
+                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio  & -                & 1        \\
+                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                      & -                & 1        \\
+                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio                & -                & 1        \\
+                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                   & \unit{\degree R} & 1        \\
+                        & $V_{\rm{ratio,CRZ}}$           & RTO combustor temperature                   & \unit{\degree R} & 1        \\
         \cline{3-5}
-                        &                             & Total                                      &                 & 4        \\
-                        &                             &                                            &                 &          \\
-        subject to      & $F_{net,TOC} \geq 5800$ lbf & Target net thrust at TOC                   & lbf             & 1        \\
-                        & $D_{Fan} \leq 100$ $in^2$   & Maximum Fan Diameter                       & $in^2$          & 1        \\
+                        &                                & Total                                       &                  & 10       \\
+                        &                                &                                             &                  &          \\
+        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                    & \unit{lbf}       & 1        \\
+                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                        & \unit{inch^2}    & 1        \\
         \cline{3-5}
-                        &                             & Total                                      &                 & 1        \\
+                        &                                & Total                                       &                  & 2        \\
         \bottomrule
     \end{tabular}
     \label{tab:opt_problem}
 \end{table}
-
-
 
 % Blurb about PyOptSparse and SNOPT
 \subsection{Optimization Software}
@@ -465,7 +474,9 @@ The resulting values of the optimization problem for Jet-A and hydrogen without 
 Similarly, the resulting values of the optimization problem for Jet-A and hydrogen with water recovery are shown in Tables \ref{tab:res_full_opt_JetA} and \ref{tab:res_full_opt_H2}, respectively.
 
 % NOTE: PA - PA/AL replace this with a parallel axis plot?
-\begin{table}[h]
+% [ ] TODO: AL-PA, Yeah let's do the parallel axis plot for the basic thermodynamic parameters
+% AL-PA, We can make another plot for the water fractions and the dpQp study.
+\begin{table}[hbt!]
     \centering
     \caption{Optimization results of the N+3 engine with no water recovery using Jet-A as the fuel.
     }
@@ -490,7 +501,7 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \label{tab:res_thermo_opt_JetA}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[hbt!]
     \centering
     \caption{Optimization results of the N+3 engine with no water recovery using hydrogen as the fuel.
     }
@@ -515,7 +526,7 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \label{tab:res_thermo_opt_H2}
 \end{table}
 
-\begin{table}[h] % need to run for T4 = 3220.570
+\begin{table}[hbt!] % need to run for T4 = 3220.570
     \centering
     \caption{Optimization results of the N+3 engine with water recovery using Jet-A as the fuel.
     }
@@ -544,7 +555,7 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \label{tab:res_full_opt_JetA}
 \end{table}
 
-\begin{table}[h]
+\begin{table}[hbt!]
     \centering
     \caption{Optimization results of the N+3 engine with water recovery using hydrogen as the fuel.
     }
