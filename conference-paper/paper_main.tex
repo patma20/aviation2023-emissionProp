@@ -308,7 +308,7 @@ Additionally, the humidity conditions listed below are used in the flight condit
 \begin{table}[H]
     \centering
     \caption{
-        N3 engine model parameters.
+        N+3 engine model parameters.
         These parameters specify the engine design used for analysis in this report.
         Atmospheric parameters are presented that specify the flight conditions and humidity of the atmosphere.}
     \begin{tabular}{|c|c|c|c|}
@@ -339,6 +339,11 @@ Additionally, the humidity conditions listed below are used in the flight condit
 \label{sec:optprob}
 
 \subsection{Problem Statment}
+% Briefly discuss the optimization problem
+We will perform gradient-based design optimization of the engine model with a multi-point architecture that considers several flight conditions experienced by commercial aircraft.
+An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_xdsm_opt}.
+The objective is to minimize the TSEC at the cruise condition subject to constraints, thrust, max temperature, and engine diameter.
+We will perform a parameter sweep of the limiting constraint to understand the impact of different emissions and performance requirements on the design space.
 The optimization problem of the N3 engine and the vapor recovery loop are shown in Figure \ref{fig:N3_xdsm_opt}.
 
 \begin{figure}[!hbt]
@@ -351,60 +356,44 @@ The optimization problem of the N3 engine and the vapor recovery loop are shown 
 \end{figure}
 
 This optimization problem was run for both Jet-A and H2 fuels using the parameters given in Table \ref{engine_params}.
-The optimization problem for each fuel was specified as:
+% The optimization problem for each fuel was specified as:
 
 \begin{table}[h]
     \centering
     \caption{
         Multipoint optimization problem definition.
         The 4 design variables are the water recovery fractions of the core exhaust stream at each operation condition.
-        The objective function is the thrust specific energy consumption at the cruise condition with a net thrust constraint at the design point, TOC.
+        The objective function is the fuel flow rate at the CRZ condition with a net thrust and fan diameter constraint at the design point, TOC.
     }
     \small
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l l l}
         \toprule
-                        & Variable/Function           & Description                                 & Units           & Quantity \\
+                        & Variable/Function           & Description                                & Units           & Quantity \\
         \hline
-        minimize        & $ \dot{m}_{fuel,CRZ} $      & Fuel flow rate at CRZ                       & $\frac{lbm}{s}$ & 1        \\
-                        &                             &                                             &                 &          \\
-        with respect to & $x_{H2O,TOC}$               & Water recovery fraction at TOC              & -               & 1        \\
-                        & $x_{H2O,RTO}$               & Water recovery fraction at RTO              & -               & 1        \\
-                        & $x_{H2O,SLS}$               & Water recovery fraction at SLS              & -               & 1        \\
-                        & $x_{H2O,CRZ}$               & Water recovery fraction at CRZ              & -               & 1        \\
-                        & $PR_{HPC,TOC}$              & TOC high-pressure compressor pressure ratio & -               & 1        \\
-                        & $PR_{LPC,TOC}$              & TOC low-pressure compressor pressure ratio  & -               & 1        \\
-                        & $PR_{fan,TOC}$              & TOC fan pressure ratio                      & -               & 1        \\
-                        & $T_{4,TOC}/T_{4,RTO}$       & TOC-to-RTO temperature ratio                & -               & 1        \\
-                        & $T_{4,RTO}$                 & RTO combustor temperature                   & $^\circ$R       & 1        \\
-                        & $V_{ratio,CRZ}$             & RTO combustor temperature                   & $^\circ$R       & 1        \\
+        minimize        & $ \dot{m}_{fuel,CRZ} $      & Fuel flow rate at CRZ                      & $\frac{lbm}{s}$ & 1        \\
+                        &                             &                                            &                 &          \\
+        with respect to & $x_{H2O,TOC}$               & Water recovery fraction at TOC             & -               & 1        \\
+                        & $x_{H2O,RTO}$               & Water recovery fraction at RTO             & -               & 1        \\
+                        & $x_{H2O,SLS}$               & Water recovery fraction at SLS             & -               & 1        \\
+                        & $x_{H2O,CRZ}$               & Water recovery fraction at CRZ             & -               & 1        \\
+                        & $PR_{fan,TOC}$              & TOC fan pressure ratio                     & -               & 1        \\
+                        & $PR_{LPC,TOC}$              & TOC low-pressure compressor pressure ratio & -               & 1        \\
+                        & $PR_{OPR,TOC}$              & TOC overall pressure ratio                 & -               & 1        \\
+                        & $T_{4,TOC}/T_{4,RTO}$       & TOC-to-RTO temperature ratio               & -               & 1        \\
+                        & $T_{4,RTO}$                 & RTO combustor temperature                  & $^\circ$R       & 1        \\
+                        & $V_{ratio,CRZ}$             & Velocity exit ratio at CRZ                 &                 & 1        \\
         \cline{3-5}
-                        &                             & Total                                       &                 & 4        \\
-                        &                             &                                             &                 &          \\
-        subject to      & $F_{net,TOC} \geq 5800$ lbf & Target net thrust at TOC                    & lbf             & 1        \\
-                        & $D_{Fan} \leq 100$ $in^2$   & Maximum Fan Diameter                        & $in^2$          & 1        \\
+                        &                             & Total                                      &                 & 4        \\
+                        &                             &                                            &                 &          \\
+        subject to      & $F_{net,TOC} \geq 5800$ lbf & Target net thrust at TOC                   & lbf             & 1        \\
+                        & $D_{Fan} \leq 100$ $in^2$   & Maximum Fan Diameter                       & $in^2$          & 1        \\
         \cline{3-5}
-                        &                             & Total                                       &                 & 1        \\
+                        &                             & Total                                      &                 & 1        \\
         \bottomrule
     \end{tabular}
     \label{tab:opt_problem}
 \end{table}
-
-
-% Briefly discuss the optimization problem
-We will perform gradient-based design optimization of the engine model with a multi-point architecture that considers several flight conditions experienced by commercial aircraft.
-An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:opt_prob}.
-
-\begin{figure}[!hbt]
-    \centering
-    \includegraphics[width=0.75\textwidth]{N3_inject.pdf}
-    \caption{XDSM diagram of the multi-point optimization problem with constraints.
-        The XDSM diagram shows the variables and outputs within the optimization model and how each of these values is connected to the optimizer and design points.}
-    \label{fig:opt_prob}
-\end{figure}
-
-The objective is to minimize the TSEC at the cruise condition subject to constraints, thrust, max temperature, and engine diameter.
-We will perform a parameter sweep of the limiting constraint to understand the impact of different emissions and performance requirements on the design space.
 
 % Blurb about PyOptSparse and SNOPT
 \subsection{Optimization Software}
@@ -427,10 +416,10 @@ SNOPT is able to respond to these solver failures and backtrack to a region in t
 
 \begin{figure}[!hbt]
     \centering
-    \includegraphics[width=0.8\textwidth]{JetA-H2_bar_chart_diff.pdf}
+    \includegraphics[width=0.8\textwidth]{JetA-H2_TSEC_diff.pdf}
     \caption{Percent relative improvement in thrust specific energy consumption (TSEC) of an ultra-high bypass turbofan engine from water injection.
         Data was collected with and without water injected into the core stream of the engine for Jet-A and hydrogen fuels.}
-    \label{fig:results}
+    \label{fig:barchart}
 \end{figure}
 
 % results of parameter sweep
