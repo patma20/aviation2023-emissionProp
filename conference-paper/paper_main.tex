@@ -39,6 +39,11 @@
 \affil{University of Michigan, Ann Arbor, MI, 48109}
 
 
+% ==================================================
+%	OVERALL COMMENTS
+% ==================================================
+% 1. AL-PA, Fix the citation for Kalnay1996
+
 \begin{document}
 
 \maketitle
@@ -73,7 +78,7 @@ We introduce a closed-loop water recirculation model that demonstrates the possi
 Water recirculation is the process of extracting water from the exhaust stream of a propulsion system and injecting it upstream of the combustor as finely atomized droplets.
 NASA, Boeing, and Rolls-Royce studied this concept and suggested that this technique reduces the NOx emissions as much as 47 percent~\cite{Daggett2010}.
 Additionally, water recirculation improves fuel efficiency and thrust output with lower combustion temperatures that can improve the lifetime of turbine blades and reduce noise~\cite{Daggett2010}.
-% [ ]TODO: AL-PA, Should try to find a citation for this if one exists.
+% [ ] TODO: AL-PA, Should try to find a citation for this if one exists.
 Traditional propulsion systems that burn hydrocarbon fuels would require external water storage on the aircraft because they do not produce enough in the exhaust for recirculation.
 The added weight of tanks, pumping, and ducting makes this concept infeasible for a conventional aircraft.
 The main product of hydrogen combustion is water vapor and can thus be recovered from the exhaust stream.
@@ -102,7 +107,7 @@ Finally, we present the optimized results and discuss the design space in sectio
 \label{sec:method}
 \subsection{Engine Model Overview}
 % Engine Architecture: Describe the flow path of the engine and establish the mechanical coupling.
-The UHB turbfan model is the NASA advanced technology "N+3" engine \cite{Jones2017a}.
+The UHB turbofan model is the NASA advanced technology "N+3" engine \cite{Jones2017a}.
 The N+3 reference cycle represents a UHB ratio geared turbofan that could be available in the 2030 to 2040 time frame.
 % We selected the N+3 model because it has already been modeled in pyCycle as a robust example cycle and includes the advanced engine cycle improvements such as a large bypass ratio, high pressure ratio, and high combustion temperature.
 The flow path consists of an inlet that directs ambient air through a fan, followed by a duct that splits the flow into a core and a bypass stream, each ending in a core and bypass nozzle, respectively.
@@ -146,12 +151,17 @@ The component flow interface and mechanical connections, including the water inj
 \end{figure}
 
 \subsection{Water Recovery Loop Model}
-The closed-loop water recovery system is implemented into the cycle by placing a water injection component directly before the HPC.
-This component will inject pure water into the core stream which will reduce the combustion temperature due to heat absorption from vaporization.
-This location was chosen as it was one of the configurations chosen by the aforementioned NASA, Boeing, and Rolls-Royce study that did not require direct combustor injection \cite{Daggett2010}.
-The water vapor recovery component is placed directly before the core nozzle to extract water from the core stream and recycle it back to the water injector.
-Water is recovered from this location as it is the last possible location before the nozzle in which water can be extracted.
-In practice a water vapor recovery component requires a complex condenser model in the core stream, this work will only look at the potential benefits of extracting water vapor and not the recovery method specifically.
+We implemented the closed-loop water recovery system as a feedback system that extracts water from the exhaust stream and injects it upstream of the HPC.
+% The closed-loop water recovery system is implemented into the cycle by placing a water injection component directly before the HPC.
+% This component will inject pure water into the core stream which will reduce the combustion temperature due to heat absorption from vaporization.
+We chose this injection location based on claims from a study by NASA, Boeing, and Rolls-Royce~\cite{Daggett2010} that water injection directly into the combustor is unnecessary.
+% This location was chosen as it was one of the configurations chosen by the aforementioned NASA, Boeing, and Rolls-Royce study that did not require direct combustor injection \cite{Daggett2010}.
+The water vapor recovery component sits downstream of the LPT and extracts water from the flow before it exits the core nozzle.
+% The water vapor recovery component is placed directly before the core nozzle to extract water from the core stream and recycle it back to the water injector.
+% Water is recovered from this location as it is the last possible location before the nozzle in which water can be extracted.
+% [ ] TODO: AL-PA, add a sentence about the assumptions for the vapor recovery instead of the mentioning the condenser
+% NOTE: AL-PA, we will talk about the condenser when we discuss the results of the pressure recovery parameter sweep.
+% In practice a water vapor recovery component requires a complex condenser model in the core stream, this work will only look at the potential benefits of extracting water vapor and not the recovery method specifically.
 The component flow interface and mechanical connections, including the water injector and water extractor, are depicted in Figure \ref{fig:n3_cycle}.
 
 \begin{figure}[hbt!]
