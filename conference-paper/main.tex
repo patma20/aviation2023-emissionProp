@@ -25,8 +25,8 @@
 
 \hypersetup{
     pdfauthor={Peter Atma}, % insert author here
-	pdftitle={Aviation 2022 Abstract}, % insert title here
-	pdfsubject={Propulsion Analysis and Optimization of an Ultra Bypass Turbofan Engine}, % insert keywords here
+	pdftitle={Aviation 2023 Paper}, % insert title here
+	pdfsubject={Comparing Hydrogen and Jet-A for an N+3 Turbofan with Water Recirculation using Gradient-Based Optimization}, % insert keywords here
 }
 
 \graphicspath{{../figures/}}
@@ -40,8 +40,12 @@
 
 
 % ==================================================
-%	OVERALL COMMENTS
+%	OVERALL TODOS
 % ==================================================
+% [ ] TODO: AL-PA, Need to add equation labels
+% [ ] TODO: AL-PA, When you are citing things you should include a "~" to link the citation to the text.  i.e, "OpenMDAO~\cite{Gray2019a}" (See my edits in the introduction)
+% [ ] TODO: AL-PA, You should also use the "~" to link all equation, figure, and table references to the text.
+% [ ] TODO: AL-PA, Make sure all acronyms and subscripts that are longer than a single letter or represent words are shown as text using \rm{} in math mode
 
 \begin{document}
 
@@ -99,13 +103,13 @@ We develop pyCycle components for water injection and vapor recovery to quantify
 We use gradient-based optimization to minimize fuel burn subject to performance requirements using both jet-A and hydrogen at a range of flight conditions.
 The optimized results show the trade-off between complexity, performance, and efficiency for jet-A and hydrogen fuels.
 
-This work is organized as follows. First, in Section \ref{sec:method}, we introduce the turbofan model and explain the water injection and water recovery components.
-In section \ref{sec:optprob} the implementation of the multipoint optimization problem is discussed.
-Finally, we present the optimized results and discuss the design space in section \ref{sec:results}.
+This work is organized as follows. First, in Section~\ref{sec:method}, we introduce the turbofan model and explain the water injection and water recovery components.
+In section~\ref{sec:optprob} the implementation of the multipoint optimization problem is discussed.
+Finally, we present the optimized results and discuss the design space in section~\ref{sec:results}.
 
 \section{Methodology}
 \label{sec:method}
-\subsection{Engine Model Overview}
+
 % Engine Architecture: Describe the flow path of the engine and establish the mechanical coupling.
 The UHB turbofan model is the NASA advanced technology "N+3" engine \cite{Jones2017a}.
 The N+3 reference cycle represents a UHB ratio geared turbofan that could be available in the 2030 to 2040 time frame.
@@ -126,9 +130,9 @@ The vapor recovery component is placed directly before the core nozzle to extrac
 % NOTE: AL-PA, don't discredit your work before you even explain the model and methods.  We can make this point in the results or conclusion.
 % In practice a water vapor recovery component requires a complex condenser model in the core stream, this work will only look at the potential benefits of extracting water vapor and not the recovery method specifically.
 
-In this section we explain the implementation and assumptions of the water recovery model.
-We present the full engine layout and provide details on the multipoint zero-dimensional modeling approach.
-The component flow interface and mechanical connections, including the water injector and water extractor, are depicted in Figure \ref{fig:N3_original}.
+In this section we present the full engine layout and provide details on the multipoint zero-dimensional modeling approach.
+We explain the implementation and assumptions of the water recovery model and the coupling with the thermodynamic cycle.
+% The component flow interface and mechanical connections, including the water injector and water extractor, are depicted in Figure \ref{fig:N3_original}.
 % The propulsion model is constructed in pyCycle which is built on top of OpenMDAO to allow a modular design of the engine components and the coupling of other engineering disciplines for analysis \cite{Gray2019a}.
 % The engine model that was selected for this project is the NASA advanced technology UHB geared turbofan engine cycle, referred to as the "N+3" engine \cite{Jones2017a}.
 % The N+3 reference cycle represents a UHB ratio geared turbofan that could be available in the 2030–2040 time frame and was selected since it has already been modeled in pyCycle as a robust example cycle and includes the advanced engine cycle improvements such as a large bypass ratio, high pressure ratio, and high combustion temperature.
@@ -136,6 +140,19 @@ The component flow interface and mechanical connections, including the water inj
 % The fan and low pressure compressor (LPC) are connected to the low pressure turbine (LPT) by the low pressure shaft and the high pressure compressor (HPC) is connected to the high pressure turbine (HPT) by the high pressure shaft.
 % Along the axial flow path, the zero-dimensional thermodynamic connections are solved using CEA to ensure the first principle governing equations are satisfied.
 % Figure \ref{fig:N3_original} shows how the 25 elements in the N+3 cycle are connected together with the fluid flows in blue, the mechanical connections in red, and the performance elements in green \cite{Hendricks2019}.
+
+\subsection{Propulsion Model}
+The N+3 model is implemented in pyCycle~\cite{Hendricks2019}, a zero-dimensional thermodynamic cycle modeling library with analytical gradients.
+Zero-dimensional models are a collection of components that combine to form a unified thermodynamic cycle.
+The N+3 UHB geared turbofan model consists of twenty-five different elements that define the flow path and the mechanical systems.
+Thermodynamic quantities are exchanged at flow path boundaries represented by black arrows between blue flow path components in Figure~\ref{fig:N3_original}.
+The fan, gearbox, low pressure, and high pressure systems are connected by three mechanical shafts depicted in red in Figure~\ref{fig:N3_original}.
+% Three mechanical shafts, depicted in red in Figure~\ref{fig:N3_original}, connect the fan, low pressure, and high pressure systems.
+
+We impose \emph{balance} equations on the cycle to satisfy the physical governing equations, conservation laws, and design rules.
+\emph{Balance} relationships are formulated as equations in the form $r(u)=0$ where $r$ is a residual function and $u$ is an implicit state variable.
+We use Newton based solvers to find the value of the state variables that drive the set of balance residuals to zero.
+\citeauthor{Hendricks2019} provide the balance equations for the N+3 engine model and further detail the cycle setup.
 
 % [x] TODO: AL-PA, Remove the black box with the component descriptions from the bottom left of the figure.
 % [x] TODO: AL-PA, Add the description of the figure elements to the caption.
@@ -150,6 +167,23 @@ The component flow interface and mechanical connections, including the water inj
     }
     \label{fig:N3_original}
 \end{figure}
+
+% In pyCycle, the Cycle block contains all of the governing thermodynamic equations needed to model an engine such as CEA analysis, compressor and turbine models, and equations of state.
+% These equations allow any arbitrary engine design to be assembled using the modular cycle elements.
+% The Cycle block itself may not result in a valid model of the engine since some physical dependencies may not match.
+% These physical dependencies are handled by the Balance block which solves a set of implicit state variables and nonlinear physical residual equations in the form:
+
+% \noindent
+% where $x_i$ is some physical variable such as a mass or energy flow rate.
+% These residuals represent the physical conservation laws such as mass flow rate are converged to zero by the Solver.
+% In pyCycle, a direct solver is used for linear equations and a Newton solver is used for nonlinear equations which utilizes the analytic partial derivatives provided by each OpenMDAO component.
+% All residuals within the engine model are converged at the Cycle level for a given operation condition since all of the parameters downstream do not directly effect those upstream.
+% However, with introducing the extractor and injector components, we add a feedback loop into the model where mass is removed downstream and added upstream.
+% Therefore, the mass flow rates residuals of the closed-loop vapor recovery system shown below would need to be converged in the Multipoint Cycle explained in the next section.
+
+% \begin{equation}
+%     \mathcal{R}_{c,\dot{m}} = \dot{m}_{extractor} - \dot{m}_{injector} = 0
+% \end{equation}
 
 \subsection{Water Recovery Model}
 We implemented the closed-loop water recovery system as a feedback system that extracts water from the exhaust stream and injects it upstream of the HPC.
@@ -254,40 +288,39 @@ We illustrate the water recirculation loop and the nonlinear solver connections 
     \label{fig:n3_clvr}
 \end{figure}
 
-In pyCycle, the Cycle block contains all of the governing thermodynamic equations needed to model an engine such as CEA analysis, compressor and turbine models, and equations of state.
-These equations allow any arbitrary engine design to be assembled using the modular cycle elements.
-The Cycle block itself may not result in a valid model of the engine since some physical dependencies may not match.
-These physical dependencies are handled by the Balance block which solves a set of implicit state variables and nonlinear physical residual equations in the form:
-
-\begin{equation}
-    \mathcal{R}_c = \sum_{i=1}^{n} x_i = 0
-\end{equation}
-
-\noindent
-where $x_i$ is some physical variable such as a mass or energy flow rate.
-These residuals represent the physical conservation laws such as mass flow rate are converged to zero by the Solver.
-In pyCycle, a direct solver is used for linear equations and a Newton solver is used for nonlinear equations which utilizes the analytic partial derivatives provided by each OpenMDAO component.
-All residuals within the engine model are converged at the Cycle level for a given operation condition since all of the parameters downstream do not directly effect those upstream.
-However, with introducing the extractor and injector components, we add a feedback loop into the model where mass is removed downstream and added upstream.
-Therefore, the mass flow rates residuals of the closed-loop vapor recovery system shown below would need to be converged in the Multipoint Cycle explained in the next section.
-
-\begin{equation}
-    \mathcal{R}_{c,\dot{m}} = \dot{m}_{extractor} - \dot{m}_{injector} = 0
-\end{equation}
-
 \subsection{Multipoint Model}
+% NOTE: AL-PA, I added this blurb to introduce multipoint
+We operate the engine cycle in different modes depending on the desired conservation relationships, design rules, and flight conditions.
+In ``on-design'' mode, we prescribe important cycle inputs such as turbo machinery efficiencies, pressure ratios, and combustion temperatures.
+The ``off-design'' mode inherits the flow path areas and turbo machinery map scalars from the ``on-design'' analysis.
+We enforce design rules as balance equations between different design points to consider the performance of the engine cycle at limiting flight conditions.
+
+% [ ] TODO: AL-PA, Add a small table to show the mach and altitude of each flight condition
+The ``on-design'' point is top-of-climb (TOC) with ``off-design'' conditions at rolling takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
+Each flight condition is either critical to the performance or limits the design of the engine.
+% [ ] TODO: AL-PA, You should explain why each design point is important in a separate sentence for each.
+%   - For example, the SLS point is important for making sure the turbo machinery and flow paths are designed to meet a static thrust target
+%   - The RTO point is limiting for temperature, etc...
+
+% [ ] TODO: AL-PA, Consider re-writing this section using the comments from the previous TODO.  Be more concise and direct with the language here.
 The N+3 engine model as it is implemented in pyCycle has many complex thermodynamic and performance connections between different operating conditions.
 Therefore, the N+3 engine model computes the engine performance at 4 different operating conditions in order to resolve the complexities between each operating condition on the final design.
 The operating conditions that considered are top-of-climb (TOC), rotating takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
+% [ ] TODO: AL-PA, This is a big run-on sentence.  Consider breaking it up and being more specific about the requirements at each design point.  See previous comments.
 The SLS condition represents the static performance requirements for the engine, the RTO condition represents the performance and cooling requirements at the point of rotation during takeoff, the TOC operating condition represents the performance requirements during a climb, and the CRZ operation condition represents the criuse performance of the engine.
 To account for each of these operating conditions, the N+3 model uses a technique called Multipoint Design Point (MDP) modeling to converge the model to an engine design that satisfies the requirements at each of these operating conditions.
+% NOTE: AL-PA, Using a lot of extra words to say: "The TOC point is the on-design condition."
 One of these operating conditions is specified as the design point, which in this case is TOC, and the other operating conditions are considered the off-design points.
+% NOTE: AL-PA, The design point sizes the flow paths and scales the turbo machinery.  The off-design has the exact same flow path as the design mode cycle.  The turbo machinery maps are scaled using scalar quantities for off-design performance.
+% TODO: AL-PA, Don't say "generally" or "essentially" because it makes the method appear ambiguous.
 The design point for the model generally sets all of the engine sizing such as areas and pressure ratios across components.
 The off-design points are essentially the size of the engine at the design point but operating at the corresponding required thrust, cooling, and environmental conditions.
-The design point of the engine model is converged using a linear Newton solver which then passes the geometric sizing variables such as cross-sectional areas and map scalars to the off-design points and similarly converges those.
-Then, a nonlinear Newton solver is used to converge the overall model with respect to the variable connections between each operating condition.
+% [ ] TODO: AL-PA, We don't need to talk about the Newton or linear solver details.  Just explain the multipoint model structure with the Newton solver added for context.
+% The design point of the engine model is converged using a linear Newton solver which then passes the geometric sizing variables such as cross-sectional areas and map scalars to the off-design points and similarly converges those.
+% Then, a nonlinear Newton solver is used to converge the overall model with respect to the variable connections between each operating condition.
 An XDSM diagram of the nominal N+3 engine model is shown in Figure \ref{fig:N3_xdsm} \cite{Hendricks2019}.
 
+% [ ] TODO: AL-PA, I would remove this figure.  Not adding anything more than the detailed XDSM you provide later.
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.75\textwidth]{N3_xdsm.pdf}
@@ -298,14 +331,23 @@ An XDSM diagram of the nominal N+3 engine model is shown in Figure \ref{fig:N3_x
     \label{fig:N3_xdsm}
 \end{figure}
 
+% [ ] TODO: AL-PA, Don't talk about the objective function until the optimization problem section.
 In the optimization problem described later, we set the mass flow rate of fuel, $\dot{m}_{fuel}$, as the objective function.
+% [ ] TODO: AL-PA, Move the discussion about TSEC to the results.  You don't need to introduce the equation here because it has nothing to do with the details of the multipoint model.
 Our comparison metric is $TSEC_{CRZ}$ but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
+% [ ] TODO: AL-PA, Again, move this to the optimization problem section.  You should also try to make this sentence more concise.
 Therefore, the water mass fraction that will most impact the objective function the most is at the CRZ operating condition and we thus want to size the area of the injector and extractor at CRZ instead of TOC like the rest of the areas are.
+% [ ] TODO: You shouldn't say things "normally" occur.  Just tell the reader what you did.
+% I suggest re-writing this to plainly explain why we size the water recirculation at cruise instead of TOC
+% Example: We size the water recovery system at cruise because it is the most important phase for fuel burn reduction. etc...
 Normally, the cross-sectional areas are set at the design point (TOC) and are connected to the off-design points.
 To size the areas of the injector and extractor at CRZ, we only connect the state variables across these components at the corresponding operating condition and set the areas of both components at the CRZ point.
 These connections are shown graphically in the XDSM diagram in Figure \ref{fig:N3_xdsm_full}.
 
 % Explain Exit ratios and how BPR and OD net thrusts are set
+% [ ] TODO: AL-PA, I would include all four of the balance components here and explain how they effectively act as constraints on the multipoint model.
+% NOTE: AL-PA, See the pyCycle paper, they explain how using the balance residuals creates a reduced design space for the optimization problem.
+% NOTE: AL-PA, You can discuss how this makes the multipoint nonlinear solution more challenging, but improves the optimization problem conditioning.
 In the N+3 model implementation presented in the pyCycle paper, the bypass ratio (BPR) at TOC is computed using a Balance component.
 The Balance component for $BPR_{TOC}$ uses the exit velocity ratio of the core and bypass nozzles which is given as:
 
@@ -317,6 +359,7 @@ The Balance component for $BPR_{TOC}$ uses the exit velocity ratio of the core a
 where $V_{ideal}$ is the exit velocity of a nozzle and $C_v$ is the velocity coefficient of the nozzle which represents non-ideal effects.
 This adds a constraint where the core exit velocity is higher than the bypass exit velocity.
 
+% [ ] TODO: AL-PA, I'm not sure this subsection is necessary.  We will describe the performance metrics in the optimization problem section.  Consider moving it there.
 \subsection{Performance Metrics}
 Past implementations of engine cycles and example engine cycles in pyCycle generally have used either JetA or JP-7 as a fuel.
 However, in this work we are interested in comparing the performance of similar engines with different types of fuel, specifically hydrogen due to the many benefits it offers in terms of performance and thermal properties.
@@ -338,6 +381,8 @@ Therefore, a new metric for comparing the relative efficiencies of engine runnin
 
 With all of the sub-models of the N3 engine presented, the complete engine cycle XDSM diagram is shown in Figure \ref{fig:N3_xdsm_full}.
 
+% [ ] TODO: AL-PA, Already discussed, but this should be the only "fine-detail" XDSM in the paper.
+% [ ] TODO: AL-PA, Make the figure use the entire text width so that it's easier to read.  Might have to reposition a bit.
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.75\textwidth]{N3_xdsm_full.pdf}
@@ -349,14 +394,16 @@ With all of the sub-models of the N3 engine presented, the complete engine cycle
 \end{figure}
 
 % Update with table from Andrew
+% [ ] TODO: AL-PA, Why are some of the fist words in the descriptions capitalized but not others?  I think this should be consistent.
+% [ ] TODO: AL-PA, Change the lower heating value references to footnotes. i.e \footnote{\url{...}}
 \begin{table}[hbt!]
     \centering
     \caption{
         N+3 engine model parameters.
         Atmospheric parameters specify the flight conditions and humidity of the atmosphere and Lower Heating Values are given for each fuel to compute TSEC.}
-    \begin{tabular}{c c c c}
+    \begin{tabular}{r r r l}
         \hline
-        Parameter              & Value   & Units          & Comments                                        \\
+        Parameter              & Value   & Units          & Description                                     \\
         \hline
         $h_{\rm{TOC}}$         & 0.00017 & -              & humidity ratio at TOC \cite{Kalnay1996}         \\
         $h_{\rm{CRZ}}$         & 0.00017 & -              & humidity ratio at CRZ \cite{Kalnay1996}         \\
@@ -372,15 +419,22 @@ With all of the sub-models of the N3 engine presented, the complete engine cycle
 \section{Optimization Problem}
 \label{sec:optprob}
 
-\subsection{Problem Statment}
+% NOTE: AL-PA, No reason to have an extra subsection here so I removed it
+% \subsection{Problem Statment}
 % Briefly discuss the optimization problem
-We will perform gradient-based design optimization of the engine model with the multipoint architecture that considers each of the flight conditions experienced by commercial aircraft.
+% NOTE: AL-PA, "We will perform" makes it seem like we haven't done the work yet.
+We performed multipoint gradient-based design optimization of the N+3 engine model considering TOC, RTO, SLS, and CRZ flight conditions.
+% We will perform gradient-based design optimization of the engine model with the multipoint architecture that considers each of the flight conditions experienced by commercial aircraft.
 % We will perform a parameter sweep of the limiting constraint to understand the impact of different emissions and performance requirements on the design space.
-The objective is to minimize the TSEC since that is our performance metric for comparing the two types of fuels.
-However, since we are constraining net thrust at each operating condition this optimization problem becomes ill-posed.
-Therefore, we will minimize fuel flow rate, $W_{fuel}$ at the cruise condition subject to net thrust and engine diameter constraints since this will accomplish the same goal with a better posed problem.
+% NOTE: AL-PA, I re-wrote this to be more direct
+The objective is to minimize fuel burn subject to design and performance constraints at each flight condition.
+% The objective is to minimize the TSEC since that is our performance metric for comparing the two types of fuels.
+% However, since we are constraining net thrust at each operating condition this optimization problem becomes ill-posed.
+% Therefore, we will minimize fuel flow rate, $W_{fuel}$ at the cruise condition subject to net thrust and engine diameter constraints since this will accomplish the same goal with a better posed problem.
+% [ ] TODO: AL-PA, This is a good place to discuss the performance metrics and add the equations for TSEC and explain why it's better for this study than TSFC.
 An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_xdsm_opt}.
 
+% [ ] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
 \begin{figure}[!hbt]
     \centering
     \includegraphics[width=0.75\textwidth]{N3_xdsm_opt.pdf}
@@ -390,11 +444,15 @@ An XDSM diagram of the optimization problem with the multipoint formulation is s
     \label{fig:N3_xdsm_opt}
 \end{figure}
 
+% [ ] TODO: AL-PA, I would elaborate on this a bit more.  Are these the on-design parameters?  Are they constraints?
+% [ ] TODO: AL-PA, The N+3 model has a bunch of constraints imposed on the multipoint problem via balance comps.  This is a good place to talk about those.
+% [ ] TODO: AL-PA, Discuss how using balance comps instead of constraints represents a reduced space problem for the optimizer. (See pycycle paper for more information).
 This optimization problem was run for both Jet-A and H2 fuels using the parameters given in Table \ref{engine_params}.
 The optimization problem objective function, design variables, and constraints are shown in Table \ref{tab:opt_problem} below.
 
 % [ ] TODO: AL - PA, Define the T4 ratio with an equation and reference the equation in the table
 % [ ] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
+% [ ] TODO: AL-PA, Make sure you reference the equations for the DVs/cons in the descriptions so the reader can connect them.
 \begin{table}[hbt!]
     \centering
     \caption{
@@ -419,7 +477,7 @@ The optimization problem objective function, design variables, and constraints a
                         & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                      & -                & 1        \\
                         & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio                & -                & 1        \\
                         & $T_{4,\rm{RTO}}$               & RTO combustor temperature                   & \unit{\degree R} & 1        \\
-                        & $V_{\rm{ratio,CRZ}}$           & RTO combustor temperature                   & \unit{\degree R} & 1        \\
+                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ & \unit{\degree R} & 1        \\
         \cline{3-5}
                         &                                & Total                                       &                  & 10       \\
                         &                                &                                             &                  &          \\
@@ -433,19 +491,27 @@ The optimization problem objective function, design variables, and constraints a
 \end{table}
 
 % Blurb about PyOptSparse and SNOPT
-\subsection{Optimization Software}
-OpenMDAO supports the use of different optimization packages including Scipy and PyOptSparse.
-PyOptSparse is an object-oriented framework for formulating and solving nonlinear constrained optimization problems.
-PyOptSparse was chosen as the main optimization package for this problem due to its wide range of open-source gradient-based optimizers and integration with  \cite{Wu2020a}.
+% NOTE: AL-PA, This can all be part of the optimization problem section you don't need a new subsection
+% \subsection{Optimization Software}
+% NOTE: AL-PA, "pyOptSparse" not "PyOptSparse", i.e the first "p" is not capitalized.
+% [x] TODO: AL-AL, need to cite pyOptSparse, SNOPT, and OpenMDAO
+% NOTE: AL-PA, I re-wrote most of this to be more concise.
+OpenMDAO~\cite{Gray2019a} is a modular framework that enables multidisciplinary gradient-based optimization with analytic coupled derivatives.
+We use pyOptSparse~\cite{Wu2020a} to facilitate the use of state-of-the-art optimization software through a unified python interface.
+We solve the optimization problem listed in Table~\ref{tab:opt_problem} with SNOPT~\cite{Gill2005a}, a gradient-based sequential quadratic programming (SQP) algorithm for large-scale constrained problems.
 
-SNOPT (Sparse Nonlinear OPTimizer) was the optimizer chosen for this work.
-SNOPT is a state-of-the-art optimizer used to solve large-scale optimization problems (linear and nonlinear).
-The software uses a sparse SQP (sequential quadratic programming) algorithm with a limited-memory quasi-Newton approximation to the Hessian of the lagrangian.
-SNOPT is particularly useful for nonlinear problems whose functions and derivatives are expensive compute.
-An augmented Lagrangian merit function ensures convergence from an arbitrary point.
-SNOPT allows the nonlinear constraints to be violated (if necessary) and minimizes the sum of these violations.
-Due to the robustness of the algorithm, SNOPT is a perfect optimizer to solve the highly complex Multipoint systek since the pyCycle engine cycle would occasionally reach a point that is non-physical and would thus cause the solver to fail.
-SNOPT is able to respond to these solver failures and backtrack to a region in the design space that is physical and continue the optimization \cite{Gill2005a}.
+% OpenMDAO supports the use of different optimization packages including Scipy and PyOptSparse.
+% PyOptSparse is an object-oriented framework for formulating and solving nonlinear constrained optimization problems.
+% PyOptSparse was chosen as the main optimization package for this problem due to its wide range of open-source gradient-based optimizers and integration with  \cite{Wu2020a}.
+
+% SNOPT (Sparse Nonlinear OPTimizer) was the optimizer chosen for this work.
+% SNOPT is a state-of-the-art optimizer used to solve large-scale optimization problems (linear and nonlinear).
+% The software uses a sparse SQP (sequential quadratic programming) algorithm with a limited-memory quasi-Newton approximation to the Hessian of the lagrangian.
+% SNOPT is particularly useful for nonlinear problems whose functions and derivatives are expensive compute.
+% An augmented Lagrangian merit function ensures convergence from an arbitrary point.
+% SNOPT allows the nonlinear constraints to be violated (if necessary) and minimizes the sum of these violations.
+% Due to the robustness of the algorithm, SNOPT is a perfect optimizer to solve the highly complex Multipoint systek since the pyCycle engine cycle would occasionally reach a point that is non-physical and would thus cause the solver to fail.
+% SNOPT is able to respond to these solver failures and backtrack to a region in the design space that is physical and continue the optimization \cite{Gill2005a}.
 
 \section{Results}
 \label{sec:results}
