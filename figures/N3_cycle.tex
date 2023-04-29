@@ -67,6 +67,19 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \path [connection] (hpt) -- (lpt);
     \path [connection] (lpt) -- (corenozzle);
 
+    % Draw station label connections
+    \path [line] (inlet.west) -- (1.north);
+    \path [line] (fan.west) -- (12.north);
+    \path [line] (splitter.west) -- (13.north);
+    \path [line] (lpc.west) -- (2.north);
+    \path [line] (hpc.west) -- (25.north);
+    \path [line] (burner.west) -- (3.north);
+    \path [line] (hpt.west) -- (4.north);
+    \path [line] (lpt.west) -- (45.north);
+    \path [line] (corenozzle.west) -- (5.north);
+    \path [line] (bypnozzle.west) -- (18.north);
+    \path [line] (bypnozzle.west) -- (18.north);
+
     % Draw Shaft Connections
     \path [shaft] (fan) |- (fanshaft) -- (gearbox);
     \path [shaft] (gearbox) -| (lpc);

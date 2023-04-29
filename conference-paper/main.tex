@@ -121,7 +121,7 @@ Second, the gearbox attaches to the low-pressure shaft that connects to the low-
 % The low pressure system consists of a fan connected to a gearbox that attaches to the lo and low pressure compressor (LPC) are connected to the low pressure turbine (LPT) by the low pressure shaft.
 The high pressure compressor (HPC) is connected to the high pressure turbine (HPT) by the high pressure shaft.
 
-% [ ] TODO: AL-PA, potentially move the commented line below about CEA into the subsection discussing the propulsion model.  I think it's too much detail for the setup of this section.
+% [x] TODO: AL-PA, potentially move the commented line below about CEA into the subsection discussing the propulsion model.  I think it's too much detail for the setup of this section.
 % Thermodynamic equations of state are solved using CEA at the interface between components, shown as black arrows in Figure~\ref{fig:n3_cycle}.
 We introduce the closed-loop water recovery system as a feedback loop that transports water from the exhaust to upstream of the compressors.
 % The closed-loop water recovery system is implemented into the cycle by placing a water injection component directly before the HPC.
@@ -145,14 +145,16 @@ We explain the implementation and assumptions of the water recovery model and th
 The N+3 model is implemented in pyCycle~\cite{Hendricks2019}, a zero-dimensional thermodynamic cycle modeling library with analytical gradients.
 Zero-dimensional models are a collection of components that combine to form a unified thermodynamic cycle.
 The N+3 UHB geared turbofan model consists of twenty-five different elements that define the flow path and the mechanical systems.
-Thermodynamic quantities are exchanged at flow path boundaries represented by black arrows between blue flow path components in Figure~\ref{fig:N3_original}.
+Thermodynamic quantities are solved and exchanged using CEA at flow path boundaries represented by black arrows between blue flow path components in Figure~\ref{fig:N3_original}.
 The fan, gearbox, low pressure, and high pressure systems are connected by three mechanical shafts depicted in red in Figure~\ref{fig:N3_original}.
+
 % Three mechanical shafts, depicted in red in Figure~\ref{fig:N3_original}, connect the fan, low pressure, and high pressure systems.
 
 We impose \emph{balance} equations on the cycle to satisfy the physical governing equations, conservation laws, and design rules.
 \emph{Balance} relationships are formulated as equations in the form $r(u)=0$ where $r$ is a residual function and $u$ is an implicit state variable.
 We use Newton based solvers to find the value of the state variables that drive the set of balance residuals to zero.
 \citeauthor{Hendricks2019} provide the balance equations for the N+3 engine model and further detail the cycle setup.
+
 
 % [x] TODO: AL-PA, Remove the black box with the component descriptions from the bottom left of the figure.
 % [x] TODO: AL-PA, Add the description of the figure elements to the caption.
@@ -194,7 +196,8 @@ We chose this injection location based on claims from a study by NASA, Boeing, a
 The water vapor recovery component sits downstream of the LPT and extracts water from the flow before it exits the core nozzle.
 % The water vapor recovery component is placed directly before the core nozzle to extract water from the core stream and recycle it back to the water injector.
 % Water is recovered from this location as it is the last possible location before the nozzle in which water can be extracted.
-% [ ] TODO: AL-PA, add a sentence about the assumptions for the vapor recovery instead of the mentioning the condenser
+% [x] TODO: AL-PA, add a sentence about the assumptions for the vapor recovery instead of the mentioning the condenser
+In the model of the extractor, we are assuming that a fraction of the total water available in the exhaust stream is recovered and that there are no pressure or temperature losses associated with this process.
 % NOTE: AL-PA, we will talk about the condenser when we discuss the results of the pressure recovery parameter sweep.
 % In practice a water vapor recovery component requires a complex condenser model in the core stream, this work will only look at the potential benefits of extracting water vapor and not the recovery method specifically.
 The component flow interface and mechanical connections, including the water injector and water extractor, are depicted in Figure \ref{fig:n3_cycle}.
@@ -209,7 +212,7 @@ The component flow interface and mechanical connections, including the water inj
     \label{fig:n3_cycle}
 \end{figure}
 
-We modified the composition of the air mixture upstream of the combustor to account for humidity.
+To account for the humidity of the inlet air as well as the increased humidity after water injection, we modified the composition of the air mixture upstream of the combustor.
 % Since water is being used in the sections of the engine upstream of the combustor, this model was designed to take the humidity of the air into account.
 % To utilize water engine section infront of the combustor the N+3 engine model had to be modified to include $H_2O$ as a species.
 pyCycle provides a \texttt{wet-air} dataset that introduces $\mathrm{H_2O}$ molecules to the composition of air.
@@ -225,7 +228,7 @@ We introduce two new thermodynamic models for water recirculation in pyCycle.
 % To model the complicated water recirculation loop in pyCycle new components had to be developed.
 A water injector adds water to the flow upstream of the HPC, while a water extractor diverts a portion of the water in the flow away from the exhaust stream.
 % The two models are a water injector that adds water to the flow upstream of the HPC and a water extractor to divert a fraction of the water in the flow away from the exhaust stream.
-The injector operates similarly to fuel injection in the combustor.
+The injector operates similarly to fuel injection in the pyCycle combustor component.
 We determine a WAR that is analogous to the fuel-to-air (FAR) ratio in the combustor.
 % The injector component is based on the combustor component already included in pyCycle which operates by injecting a given fuel-to-air ratio (FAR) or fuel flow rate to determine the mass of fuel added to the incoming flow.
 This WAR is used to compute the chemical species present in the flow at the current thermodynamic state, determined by the incoming flow.
@@ -294,8 +297,25 @@ We operate the engine cycle in different modes depending on the desired conserva
 In ``on-design'' mode, we prescribe important cycle inputs such as turbo machinery efficiencies, pressure ratios, and combustion temperatures.
 The ``off-design'' mode inherits the flow path areas and turbo machinery map scalars from the ``on-design'' analysis.
 We enforce design rules as balance equations between different design points to consider the performance of the engine cycle at limiting flight conditions.
+Table
 
-% [ ] TODO: AL-PA, Add a small table to show the mach and altitude of each flight condition
+% [x] TODO: AL-PA, Add a small table to show the mach and altitude of each flight condition
+\begin{table}[hbt!]
+    \centering
+    \caption{Altitude and mach numbers at each of the flight conditions considered in the multipoint formulation.
+    }
+    \begin{tabular}{l r r r r l}
+        \hline
+        Parameter & TOC   & RTO  & SLS & CRZ   & Units   \\
+        \hline
+        Altitude  & 35000 & 0    & 0   & 35000 & \si{ft} \\
+        Mach      & 0.8   & 0.25 & 0.0 & 0.8   & -       \\
+        % Humidity      & 0.00017   & 0.009 & 0.009 & 0.00017   & -     \\
+        \hline
+    \end{tabular}
+    \label{flight_levels}
+\end{table}
+
 The ``on-design'' point is top-of-climb (TOC) with ``off-design'' conditions at rolling takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
 Each flight condition is either critical to the performance or limits the design of the engine.
 % [ ] TODO: AL-PA, You should explain why each design point is important in a separate sentence for each.
@@ -312,7 +332,7 @@ To account for each of these operating conditions, the N+3 model uses a techniqu
 % NOTE: AL-PA, Using a lot of extra words to say: "The TOC point is the on-design condition."
 One of these operating conditions is specified as the design point, which in this case is TOC, and the other operating conditions are considered the off-design points.
 % NOTE: AL-PA, The design point sizes the flow paths and scales the turbo machinery.  The off-design has the exact same flow path as the design mode cycle.  The turbo machinery maps are scaled using scalar quantities for off-design performance.
-% TODO: AL-PA, Don't say "generally" or "essentially" because it makes the method appear ambiguous.
+% [ ] TODO: AL-PA, Don't say "generally" or "essentially" because it makes the method appear ambiguous.
 The design point for the model generally sets all of the engine sizing such as areas and pressure ratios across components.
 The off-design points are essentially the size of the engine at the design point but operating at the corresponding required thrust, cooling, and environmental conditions.
 % [ ] TODO: AL-PA, We don't need to talk about the Newton or linear solver details.  Just explain the multipoint model structure with the Newton solver added for context.
@@ -320,16 +340,16 @@ The off-design points are essentially the size of the engine at the design point
 % Then, a nonlinear Newton solver is used to converge the overall model with respect to the variable connections between each operating condition.
 An XDSM diagram of the nominal N+3 engine model is shown in Figure \ref{fig:N3_xdsm} \cite{Hendricks2019}.
 
-% [ ] TODO: AL-PA, I would remove this figure.  Not adding anything more than the detailed XDSM you provide later.
-\begin{figure}[hbt!]
-    \centering
-    \includegraphics[width=0.75\textwidth]{N3_xdsm.pdf}
-    \caption{
-        N+3 engine multipoint setup XDSM diagram.
-        This XDSM diagram shows how each of the operating conditions is coupled with each other and how the outputs are computed.
-    }
-    \label{fig:N3_xdsm}
-\end{figure}
+% [x] TODO: AL-PA, I would remove this figure.  Not adding anything more than the detailed XDSM you provide later.
+% \begin{figure}[hbt!]
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{N3_xdsm.pdf}
+%     \caption{
+%         N+3 engine multipoint setup XDSM diagram.
+%         This XDSM diagram shows how each of the operating conditions is coupled with each other and how the outputs are computed.
+%     }
+%     \label{fig:N3_xdsm}
+% \end{figure}
 
 % [ ] TODO: AL-PA, Don't talk about the objective function until the optimization problem section.
 In the optimization problem described later, we set the mass flow rate of fuel, $\dot{m}_{fuel}$, as the objective function.
@@ -359,25 +379,8 @@ The Balance component for $BPR_{TOC}$ uses the exit velocity ratio of the core a
 where $V_{ideal}$ is the exit velocity of a nozzle and $C_v$ is the velocity coefficient of the nozzle which represents non-ideal effects.
 This adds a constraint where the core exit velocity is higher than the bypass exit velocity.
 
-% [ ] TODO: AL-PA, I'm not sure this subsection is necessary.  We will describe the performance metrics in the optimization problem section.  Consider moving it there.
-\subsection{Performance Metrics}
-Past implementations of engine cycles and example engine cycles in pyCycle generally have used either JetA or JP-7 as a fuel.
-However, in this work we are interested in comparing the performance of similar engines with different types of fuel, specifically hydrogen due to the many benefits it offers in terms of performance and thermal properties.
-Fortunately, pyCycle comes ready to use hydrogen with cataloged exhaust products for hydrogen fuel.
-The fuel type is simply changed from Jet-A to H2 in the pyCycle model.
+% [x] TODO: AL-PA, I'm not sure this subsection is necessary.  We will describe the performance metrics in the optimization problem section.  Consider moving it there.
 
-For measuring the efficiency of jet engines, thrust-specific fuel consumption (TSFC) is generally used since it is a represents how low the fuel burn is for a given level of thrust.
-However, when comparing Jet-A and hydrogen fuels this is not such a good metric since a given mass flow rate of hydrogen has an energy content almost 3 times that of Jet-A.
-% TODO: Update mdolab.bib
-Therefore, a new metric for comparing the relative efficiencies of engine running on Jet-A versus hydrogen is thrust-specific energy consumption (TSEC) which multiplies TSFC by the lower heating value (LHV) of the fuel %\cite{Adler2023}.
-
-\begin{equation}
-    TSFC = \frac{\Dot{m}_{fuel}}{F_{thrust}}
-\end{equation}
-
-\begin{equation}
-    TSEC = \frac{\Dot{m}_{fuel} LHV}{F_{thrust}} = TSFC \times LHV
-\end{equation}
 
 With all of the sub-models of the N3 engine presented, the complete engine cycle XDSM diagram is shown in Figure \ref{fig:N3_xdsm_full}.
 
@@ -394,23 +397,23 @@ With all of the sub-models of the N3 engine presented, the complete engine cycle
 \end{figure}
 
 % Update with table from Andrew
-% [ ] TODO: AL-PA, Why are some of the fist words in the descriptions capitalized but not others?  I think this should be consistent.
-% [ ] TODO: AL-PA, Change the lower heating value references to footnotes. i.e \footnote{\url{...}}
+% [x] TODO: AL-PA, Why are some of the fist words in the descriptions capitalized but not others?  I think this should be consistent.
+% [x] TODO: AL-PA, Change the lower heating value references to footnotes. i.e \footnote{\url{...}}
 \begin{table}[hbt!]
     \centering
     \caption{
         N+3 engine model parameters.
-        Atmospheric parameters specify the flight conditions and humidity of the atmosphere and Lower Heating Values are given for each fuel to compute TSEC.}
+        Atmospheric parameters specify the flight conditions and humidity of the atmosphere and lower heating values are given for each fuel to compute TSEC.}
     \begin{tabular}{r r r l}
         \hline
-        Parameter              & Value   & Units          & Description                                     \\
+        Parameter              & Value   & Units        & Description                                                                                                            \\
         \hline
-        $h_{\rm{TOC}}$         & 0.00017 & -              & humidity ratio at TOC \cite{Kalnay1996}         \\
-        $h_{\rm{CRZ}}$         & 0.00017 & -              & humidity ratio at CRZ \cite{Kalnay1996}         \\
-        $h_{\rm{RTO}}$         & 0.009   & -              & humidity ratio at RTO \cite{Kalnay1996}         \\
-        $h_{\rm{SLS}}$         & 0.009   & -              & humidity ratio at SLS \cite{Kalnay1996}         \\
-        $\rm{LHV}_{\rm{JetA}}$ & 18564.0 & \unit{BTU/lbm} & Lower heating value of Jet-A \cite{Lawicki2002} \\
-        $\rm{LHV}_{\rm{H2}}$   & 51591.0 & \unit{BTU/lbm} & Lower heating value of H2 \cite{toolbox2003}    \\
+        $HR_{\rm{TOC}}$        & 0.00017 & -            & humidity ratio at TOC \cite{Kalnay1996}                                                                                \\
+        $HR_{\rm{CRZ}}$        & 0.00017 & -            & humidity ratio at CRZ \cite{Kalnay1996}                                                                                \\
+        $HR_{\rm{RTO}}$        & 0.009   & -            & humidity ratio at RTO \cite{Kalnay1996}                                                                                \\
+        $HR_{\rm{SLS}}$        & 0.009   & -            & humidity ratio at SLS \cite{Kalnay1996}                                                                                \\
+        $\rm{LHV}_{\rm{JetA}}$ & 18564.0 & \si{BTU/lbm} & Lower heating value of Jet-A \footnote{\url{https://www.smartcockpit.com/docs/Jet_Fuel_Characteristics.pdf}}           \\
+        $\rm{LHV}_{\rm{H2}}$   & 51591.0 & \si{BTU/lbm} & Lower heating value of H2 \footnote{\url{https://www.engineeringtoolbox.com/fuels-higher-calorific-values-d_169.html}} \\
         \hline
     \end{tabular}
     \label{engine_params}
@@ -431,7 +434,25 @@ The objective is to minimize fuel burn subject to design and performance constra
 % The objective is to minimize the TSEC since that is our performance metric for comparing the two types of fuels.
 % However, since we are constraining net thrust at each operating condition this optimization problem becomes ill-posed.
 % Therefore, we will minimize fuel flow rate, $W_{fuel}$ at the cruise condition subject to net thrust and engine diameter constraints since this will accomplish the same goal with a better posed problem.
-% [ ] TODO: AL-PA, This is a good place to discuss the performance metrics and add the equations for TSEC and explain why it's better for this study than TSFC.
+% [x] TODO: AL-PA, This is a good place to discuss the performance metrics and add the equations for TSEC and explain why it's better for this study than TSFC.
+
+For measuring the efficiency of jet engines, thrust-specific fuel consumption (TSFC) is generally used since it is a represents how much fuel is burned at a given thrust level.
+However, when comparing Jet-A and hydrogen fuels this is not such a good metric since a given mass flow rate of hydrogen has an energy content almost 3 times that of Jet-A.
+% TODO: Update mdolab.bib
+A better metric for comparing the relative efficiencies of an engine running on Jet-A versus hydrogen is thrust-specific energy consumption (TSEC) %\cite{Adler2023}.
+TSEC is TSFC multipied by the lower heating value (LHV) of the fuel shown in Equation~\eqref{eq:tsec}.
+
+\begin{equation}
+    TSFC = \frac{\Dot{m}_{fuel}}{F_{thrust}}
+    \label{eq:tsfc}
+\end{equation}
+
+\begin{equation}
+    TSEC = \frac{\Dot{m}_{fuel} LHV}{F_{thrust}} = TSFC \times LHV
+    \label{eq:tsec}
+\end{equation}
+
+Therefore, TSEC is the objective function we are minimizing in the optimzation problem.
 An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_xdsm_opt}.
 
 % [ ] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
@@ -462,29 +483,29 @@ The optimization problem objective function, design variables, and constraints a
     }
     \small
     \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{r l l l l}
+    \begin{tabular}{r l l r l}
         \toprule
-                        & Variable/Function              & Description                                 & Units            & Quantity \\
+                        & Variable/Function              & Description                                 & Units          & Quantity \\
         \hline
-        minimize        & $ \dot{m}_{\rm{fuel,CRZ}} $    & Fuel flow rate at CRZ                       & \unit{lbm/s}     & 1        \\
-                        &                                &                                             &                  &          \\
-        with respect to & $X_{\rm{H2O,TOC}}$             & Water recovery fraction at TOC              & -                & 1        \\
-                        & $X_{\rm{H2O,RTO}}$             & Water recovery fraction at RTO              & -                & 1        \\
-                        & $X_{\rm{H2O,SLS}}$             & Water recovery fraction at SLS              & -                & 1        \\
-                        & $X_{\rm{H2O,CRZ}}$             & Water recovery fraction at CRZ              & -                & 1        \\
-                        & $\rm{PR}_{\rm{HPC,TOC}}$       & TOC high-pressure compressor pressure ratio & -                & 1        \\
-                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio  & -                & 1        \\
-                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                      & -                & 1        \\
-                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio                & -                & 1        \\
-                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                   & \unit{\degree R} & 1        \\
-                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ & \unit{\degree R} & 1        \\
+        minimize        & $ \dot{m}_{\rm{fuel,CRZ}} $    & Fuel flow rate at CRZ                       & \si{lbm/s}     & 1        \\
+                        &                                &                                             &                &          \\
+        with respect to & $X_{\rm{H2O,TOC}}$             & Water recovery fraction at TOC              & -              & 1        \\
+                        & $X_{\rm{H2O,RTO}}$             & Water recovery fraction at RTO              & -              & 1        \\
+                        & $X_{\rm{H2O,SLS}}$             & Water recovery fraction at SLS              & -              & 1        \\
+                        & $X_{\rm{H2O,CRZ}}$             & Water recovery fraction at CRZ              & -              & 1        \\
+                        & $\rm{PR}_{\rm{HPC,TOC}}$       & TOC high-pressure compressor pressure ratio & -              & 1        \\
+                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio  & -              & 1        \\
+                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                      & -              & 1        \\
+                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio                & -              & 1        \\
+                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                   & \si{\degree R} & 1        \\
+                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ & \si{\degree R} & 1        \\
         \cline{3-5}
-                        &                                & Total                                       &                  & 10       \\
-                        &                                &                                             &                  &          \\
-        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                    & \unit{lbf}       & 1        \\
-                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                        & \unit{inch^2}    & 1        \\
+                        &                                & Total                                       &                & 10       \\
+                        &                                &                                             &                &          \\
+        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                    & \si{lbf}       & 1        \\
+                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                        & \si{inch^2}    & 1        \\
         \cline{3-5}
-                        &                                & Total                                       &                  & 2        \\
+                        &                                & Total                                       &                & 2        \\
         \bottomrule
     \end{tabular}
     \label{tab:opt_problem}

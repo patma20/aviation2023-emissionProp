@@ -36,10 +36,10 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
 \begin{tikzpicture}[node distance = 2cm, auto]
     % Create elements
     % \node [element] (fc) {Flight Conditions};
-    \node [element] (inlet) {Inlet};
-    \node [element, right=4em of inlet] (fan) {Fan};
-    \node [element, right=4em of fan] (splitter) {Splitter};
-    \node [element, right=4em of splitter] (lpc) {Low Pressure Compressor};
+    % \node [element] (inlet) {Inlet};
+    % \node [element, right=4em of inlet] (fan) {Fan};
+    % \node [element, right=4em of fan] (splitter) {Splitter};
+    \node [element] (lpc) {Low Pressure Compressor};
     \node [element, right=4em of lpc ] (injector) {Water Injector};
     \node [element, right=4em of injector ] (hpc) {High Pressure Compressor};
     \node [element, right=4em of hpc] (burner) {Burner};
@@ -48,22 +48,22 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \node [element, right=4em of lpt] (extractor) {Water Extractor};
     \node [element, right=4em of extractor] (corenozzle) {Core Nozzle};
     \node [element, below=4em of burner] (vrl) {Vapor Recovery Loop};
-    \node [element, below=12em of burner] (bypduct) {Bypass Duct};
-    \node [element, below=12em of corenozzle] (bypnozzle) {Bypass Nozzle};
+    % \node [element, below=12em of burner] (bypduct) {Bypass Duct};
+    % \node [element, below=12em of corenozzle] (bypnozzle) {Bypass Nozzle};
 
     % Add shaft elements
-    \node [shaft_element, above=8em of $(hpc)!0.5!(hpt)$] (hpshaft) {High Pressure Shaft};
-    \node [shaft_element, above=16em of $(lpc)!0.5!(lpt)$] (lpshaft) {Low Pressure Shaft};
-    \node [shaft_element, above=16em of $(fan)!0.28!(lpc)$] (fanshaft) {Fan Shaft};
-    \node [shaft_element, above=16em of $(fan)!0.72!(lpc)$] (gearbox) {Gearbox};
+    % \node [shaft_element, above=8em of $(hpc)!0.5!(hpt)$] (hpshaft) {High Pressure Shaft};
+    % \node [shaft_element, above=16em of $(lpc)!0.5!(lpt)$] (lpshaft) {Low Pressure Shaft};
+    % \node [shaft_element, above=16em of $(fan)!0.28!(lpc)$] (fanshaft) {Fan Shaft};
+    % \node [shaft_element, above=16em of $(fan)!0.72!(lpc)$] (gearbox) {Gearbox};
 
     % Draw element connections
     % \path [connection] (fc) -- (inlet);
-    \path [connection] (inlet) -- (fan);
-    \path [connection] (fan) -- (splitter);
-    \path [connection] (splitter) -- (lpc);
-    \path [connection] (splitter) |- (bypduct);
-    \path [connection] (bypduct) -- (bypnozzle);
+    % \path [connection] (inlet) -- (fan);
+    % \path [connection] (fan) -- (splitter);
+    % \path [connection] (splitter) -- (lpc);
+    % \path [connection] (splitter) |- (bypduct);
+    % \path [connection] (bypduct) -- (bypnozzle);
     \path [connection] (lpc) -- (injector);
     \path [connection] (injector) -- (hpc);
     \path [connection] (hpc) -- (burner);
@@ -75,10 +75,10 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \path [connection] (vrl) -| (injector);
 
     % Draw Shaft Connections
-    \path [shaft] (fan) |- (fanshaft) -- (gearbox);
-    \path [shaft] (gearbox) -| (lpc);
-    \path [shaft] (lpc) |- (lpshaft) -| (lpt);
-    \path [shaft] (hpc) |- (hpshaft) -| (hpt);
+    % \path [shaft] (fan) |- (fanshaft) -- (gearbox);
+    % \path [shaft] (gearbox) -| (lpc);
+    % \path [shaft] (lpc) |- (lpshaft) -| (lpt);
+    % \path [shaft] (hpc) |- (hpshaft) -| (hpt);
 
     % \matrix[draw, ultra thick, rounded corners, matrix of nodes, text width=30em, font=\LARGE, row sep=3mm, below=25em of current page.south west, anchor=west] (key) {
     %     $\bullet$ Black arrows are flow connections    \\
