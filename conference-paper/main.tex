@@ -622,114 +622,124 @@ From this plot we can visually check that each optimization achieved optimality 
 
 % Results of optimization problems
 The optimization problems with both types of fuel but no water recovery ran smoothly and finished with 0/1 SNOPT exit codes meaning that the optimization finished successfully and met the optimiality conditions.
-The resulting values of the optimization problem for Jet-A and hydrogen without water recovery are shown in Tables \ref{tab:res_thermo_opt_JetA} and \ref{tab:res_thermo_opt_H2}, respectively.
-Similarly, the resulting values of the optimization problem for Jet-A and hydrogen with water recovery are shown in Tables \ref{tab:res_full_opt_JetA} and \ref{tab:res_full_opt_H2}, respectively.
+The resulting values of the optimization problems is shown in Figure \ref{fig:parallel_coords}.
+% The resulting values of the optimization problem for Jet-A and hydrogen without water recovery are shown in Tables \ref{tab:res_thermo_opt_JetA} and \ref{tab:res_thermo_opt_H2}, respectively.
+% Similarly, the resulting values of the optimization problem for Jet-A and hydrogen with water recovery are shown in Tables \ref{tab:res_full_opt_JetA} and \ref{tab:res_full_opt_H2}, respectively.
 
 % NOTE: PA - PA/AL replace this with a parallel axis plot?
 % [ ] TODO: AL-PA, Yeah let's do the parallel axis plot for the basic thermodynamic parameters
 % AL-PA, We can make another plot for the water fractions and the dpQp study.
-% PA-AL, currently working on this plot, Matplotlib scaling between parameters is being troublesome
-\begin{table}[hbt!]
+% NOTE: PA-AL, currently working on this plot, Matplotlib scaling between parameters is being troublesome. Tried using Plotly but formatting documentation is scarce.
+\begin{figure}[hbt!]
     \centering
-    \caption{Optimization results of the N+3 engine with no water recovery using Jet-A as the fuel.
-    }
-    \small
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
-        \toprule
-        objective   & $TSEC_{\rm{CRZ}} $    & 8186.255 & -      & -     & $\frac{lbm}{s}$ \\
-        \hline
-        variables   & $PR_{fan,TOC}$        & 1.285    & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 61.012   & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.913    & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3220.570 & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-        \hline
-        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-        \bottomrule
-    \end{tabular}
-    \label{tab:res_thermo_opt_JetA}
-\end{table}
+    \includegraphics[width=0.8\textwidth]{N3_parallel_coords.pdf}
+    \caption{Optimization results of the N+3 engine with and without no water recovery using Jet-A and H2 as the fuel.
+        The red lines show Jet-A fuel and the blue lines show H2 fuel.
+        The solid lines show the models without water recovery and the dashed lines show the models with water recovery.}
+    \label{fig:parallel_coords}
+\end{figure}
 
-\begin{table}[hbt!]
-    \centering
-    \caption{Optimization results of the N+3 engine with no water recovery using hydrogen as the fuel.
-    }
-    \small
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
-        \toprule
-        objective   & $TSEC_{\rm{CRZ}} $    & 8295.236 & -      & -     & $\frac{lbm}{s}$ \\
-        \hline
-        variables   & $PR_{fan,TOC}$        & 1.288    & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 60.660   & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.918    & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3204.07  & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-        \hline
-        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-        \bottomrule
-    \end{tabular}
-    \label{tab:res_thermo_opt_H2}
-\end{table}
+% \begin{table}[hbt!]
+%     \centering
+%     \caption{Optimization results of the N+3 engine with no water recovery using Jet-A as the fuel.
+%     }
+%     \small
+%     \renewcommand{\arraystretch}{1.2}
+%     \begin{tabular}{r l l l l l}
+%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
+%         \toprule
+%         objective   & $TSEC_{\rm{CRZ}} $    & 8186.255 & -      & -     & $\frac{lbm}{s}$ \\
+%         \hline
+%         variables   & $PR_{fan,TOC}$        & 1.285    & 1.2    & 1.4   & -               \\
+%                     & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
+%                     & $PR_{OPR,TOC}$        & 61.012   & 40.0   & 70.0  & -               \\
+%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.913    & 0.8    & 0.95  & -               \\
+%                     & $T_{4,RTO}$           & 3220.570 & -      & -     & $^\circ$R       \\
+%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
+%         \hline
+%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
+%         \bottomrule
+%     \end{tabular}
+%     \label{tab:res_thermo_opt_JetA}
+% \end{table}
 
-\begin{table}[hbt!]
-    \centering
-    \caption{Optimization results of the N+3 engine with water recovery using Jet-A as the fuel.
-    }
-    \small
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
-        \toprule
-        objective   & $TSEC_{\rm{CRZ}} $    & 7766.339 & -      & -     & $\frac{lbm}{s}$ \\
-        \hline
-        variables   & $x_{H2O,CRZ}$         & 0.3      & 0.0    & 0.3   & -               \\
-                    & $PR_{fan,TOC}$        & 1.292    & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 61.188   & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.911    & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3220.574 & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-        \hline
-        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-        \bottomrule
-    \end{tabular}
-    \label{tab:res_full_opt_JetA}
-\end{table}
+% \begin{table}[hbt!]
+%     \centering
+%     \caption{Optimization results of the N+3 engine with no water recovery using hydrogen as the fuel.
+%     }
+%     \small
+%     \renewcommand{\arraystretch}{1.2}
+%     \begin{tabular}{r l l l l l}
+%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
+%         \toprule
+%         objective   & $TSEC_{\rm{CRZ}} $    & 8295.236 & -      & -     & $\frac{lbm}{s}$ \\
+%         \hline
+%         variables   & $PR_{fan,TOC}$        & 1.288    & 1.2    & 1.4   & -               \\
+%                     & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
+%                     & $PR_{OPR,TOC}$        & 60.660   & 40.0   & 70.0  & -               \\
+%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.918    & 0.8    & 0.95  & -               \\
+%                     & $T_{4,RTO}$           & 3204.07  & -      & -     & $^\circ$R       \\
+%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
+%         \hline
+%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
+%         \bottomrule
+%     \end{tabular}
+%     \label{tab:res_thermo_opt_H2}
+% \end{table}
 
-\begin{table}[hbt!]
-    \centering
-    \caption{Optimization results of the N+3 engine with water recovery using hydrogen as the fuel.
-    }
-    \small
-    \renewcommand{\arraystretch}{1.2}
-    \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
-        \toprule
-        objective   & $TSEC_{\rm{CRZ}} $    & 7859.635 & -      & -     & $\frac{lbm}{s}$ \\
-        \hline
-        variables   & $x_{H2O,CRZ}$         & 0.17     & 0.0    & 0.17  & -               \\
-                    & $PR_{fan,TOC}$        & 1.297    & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 61.952   & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.916    & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3204.071 & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-        \hline
-        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-        \bottomrule
-    \end{tabular}
-    \label{tab:res_full_opt_H2}
-\end{table}
+% \begin{table}[hbt!]
+%     \centering
+%     \caption{Optimization results of the N+3 engine with water recovery using Jet-A as the fuel.
+%     }
+%     \small
+%     \renewcommand{\arraystretch}{1.2}
+%     \begin{tabular}{r l l l l l}
+%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
+%         \toprule
+%         objective   & $TSEC_{\rm{CRZ}} $    & 7766.339 & -      & -     & $\frac{lbm}{s}$ \\
+%         \hline
+%         variables   & $x_{H2O,CRZ}$         & 0.3      & 0.0    & 0.3   & -               \\
+%                     & $PR_{fan,TOC}$        & 1.292    & 1.2    & 1.4   & -               \\
+%                     & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
+%                     & $PR_{OPR,TOC}$        & 61.188   & 40.0   & 70.0  & -               \\
+%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.911    & 0.8    & 0.95  & -               \\
+%                     & $T_{4,RTO}$           & 3220.574 & -      & -     & $^\circ$R       \\
+%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
+%         \hline
+%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
+%         \bottomrule
+%     \end{tabular}
+%     \label{tab:res_full_opt_JetA}
+% \end{table}
+
+% \begin{table}[hbt!]
+%     \centering
+%     \caption{Optimization results of the N+3 engine with water recovery using hydrogen as the fuel.
+%     }
+%     \small
+%     \renewcommand{\arraystretch}{1.2}
+%     \begin{tabular}{r l l l l l}
+%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
+%         \toprule
+%         objective   & $TSEC_{\rm{CRZ}} $    & 7859.635 & -      & -     & $\frac{lbm}{s}$ \\
+%         \hline
+%         variables   & $x_{H2O,CRZ}$         & 0.17     & 0.0    & 0.17  & -               \\
+%                     & $PR_{fan,TOC}$        & 1.297    & 1.2    & 1.4   & -               \\
+%                     & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
+%                     & $PR_{OPR,TOC}$        & 61.952   & 40.0   & 70.0  & -               \\
+%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.916    & 0.8    & 0.95  & -               \\
+%                     & $T_{4,RTO}$           & 3204.071 & -      & -     & $^\circ$R       \\
+%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
+%         \hline
+%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
+%         \bottomrule
+%     \end{tabular}
+%     \label{tab:res_full_opt_H2}
+% \end{table}
 
 \begin{figure}[hbt!]
     \centering
@@ -782,6 +792,15 @@ This table shows the resulting net thrust, gross thrust, and ram drag of each en
         The figure shows the optimized TSEC values for varying levels of pressure loss due to the condensation of water compared to the optimzation problem without water recovery.
         This shows the working space available for designing a water condensor while still gaining the benefits of water recovery.}
     \label{fig:dpqp_sweep}
+\end{figure}
+
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{N3_wdot.pdf}
+    \caption{Pressure loss sweep of Duct5 which is just upstream of the water vapor extractor component.
+        The figure shows the resulting total available water in the exhaust stream for varying levels of pressure loss in the extractor flow path.
+    }
+    \label{fig:dpqp_wdot}
 \end{figure}
 
 % Motivation: space to work with hydrogen, benefits of water injection, benefits of H2 (a lot of water, no tanks, de-mineralized water)
