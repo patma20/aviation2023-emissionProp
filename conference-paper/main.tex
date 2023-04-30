@@ -276,6 +276,9 @@ A simple schematic of the extractor is shown in Figure \ref{fig:extractor} where
 We connect one outflow stream of the extractor to the inflow stream of the injector to complete the water recirculation system.
 The model results in a mismatch between the mass flow rate upstream of the HPC and the mass flow rate exiting the core nozzle.
 To preserve conservation of mass, we treat the water recirculation as a nonlinear cycle that must converge before the engine calculation is physically balanced.
+In this model, we are assuming the water molelues are removed from the exhaust stream with no pressure or temperature losses.
+Additionlly, the model assumes the injected water molecules are at the same pressure and temperature as the air flow just before the HPC.
+Therefore, we are just capturing the effect of adding pure water to the stream since zero-dimentional analysis cannot reproduce the effect of evaporation.
 % This is because the pyCycle model is solved sequentially component to component during each Newton iteration.
 % So a Nonlinear Block Gauss-Seidel solver would be sufficient to solve this feedback loop.
 % However, the N+3 model already has a nonlinear Newton solver at the Multipoint Design level, so the extractor mass flow rate and injector mass flow rate variables are connected for each design point and use this nonlinear solver to converge the water streams.
@@ -420,14 +423,15 @@ This adds a constraint where the core exit velocity is higher than the bypass ex
 % [x] TODO: AL-PA, I'm not sure this subsection is necessary.  We will describe the performance metrics in the optimization problem section.  Consider moving it there.
 
 With all of the sub-models of the N3 engine presented, the complete engine cycle XDSM diagram is shown in Figure \ref{fig:N3_xdsm_full}.
+This is the multidisciplinary design analysis block of the model.
 
 % [x] TODO: AL-PA, Already discussed, but this should be the only "fine-detail" XDSM in the paper.
 % [ ] TODO: AL-PA, Make the figure use the entire text width so that it's easier to read.  Might have to reposition a bit.
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=0.75\textwidth]{N3_xdsm_full.pdf}
+    \includegraphics[width=1.0\textwidth]{N3_xdsm_full.pdf}
     \caption{
-        Full model N+3 XDSM diagram.
+        Full multidisciplinary design analysis (MDA) model N+3 XDSM diagram.
         This XDSM diagram shows the multipoint coupling between the different operation conditions and shows how the water recovery fractions are used to solve for water mass flow rates.
     }
     \label{fig:N3_xdsm_full}
@@ -440,7 +444,7 @@ With all of the sub-models of the N3 engine presented, the complete engine cycle
 % \subsection{Problem Statment}
 % Briefly discuss the optimization problem
 % NOTE: AL-PA, "We will perform" makes it seem like we haven't done the work yet.
-We performed multipoint gradient-based design optimization of the N+3 engine model considering TOC, RTO, SLS, and CRZ flight conditions.
+We performed multipoint gradient-based design optimization of the N+3 engine model considering the TOC, RTO, SLS, and CRZ flight conditions.
 % We will perform gradient-based design optimization of the engine model with the multipoint architecture that considers each of the flight conditions experienced by commercial aircraft.
 % We will perform a parameter sweep of the limiting constraint to understand the impact of different emissions and performance requirements on the design space.
 % NOTE: AL-PA, I re-wrote this to be more direct
@@ -450,7 +454,7 @@ The objective is to minimize fuel burn subject to design and performance constra
 % Therefore, we will minimize fuel flow rate, $W_{fuel}$ at the cruise condition subject to net thrust and engine diameter constraints since this will accomplish the same goal with a better posed problem.
 % [x] TODO: AL-PA, This is a good place to discuss the performance metrics and add the equations for TSEC and explain why it's better for this study than TSFC.
 
-For measuring the efficiency of jet engines, thrust-specific fuel consumption (TSFC) is generally used since it is a represents how much fuel is burned at a given thrust level.
+For measuring the efficiency of jet engines, thrust-specific fuel consumption (TSFC) is used in cycle analysis since it represents how much fuel is burned at a given thrust level.
 However, when comparing Jet-A and hydrogen fuels this is not such a good metric since a given mass flow rate of hydrogen has an energy content almost 3 times that of Jet-A.
 % TODO: Update mdolab.bib
 A better metric for comparing the relative efficiencies of an engine running on Jet-A versus hydrogen is thrust-specific energy consumption (TSEC). %\cite{Adler2023}.
@@ -469,13 +473,13 @@ TSEC is TSFC multipied by the lower heating value (LHV) of the fuel shown in Equ
 Therefore, TSEC at the cruise condition is the objective function in the optimzation problem.
 An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_opt_xdsm}.
 
-% [ ] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
+% [x] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
 \begin{figure}[!hbt]
     \centering
-    \includegraphics[width=0.75\textwidth]{N3_opt_XDSM.pdf}
+    \includegraphics[width=1.0\textwidth]{N3_opt_XDSM.pdf}
     \caption{
-        XDSM diagram of the multipoint optimization problem with constraints.
-        The XDSM diagram shows the variables and outputs within the optimization model and how each of these values is connected to the optimizer and design points.}
+        XDSM diagram of the multipoint optimization problem with objective, constraints, and MDA block.
+        The XDSM diagram shows the variables and outputs within the optimization model and how each of these values is connected to the optimizer and MDA block.}
     \label{fig:N3_opt_xdsm}
 \end{figure}
 
@@ -517,13 +521,13 @@ The optimization problem objective function, design variables, and constraints a
 
 % [x] TODO: AL - PA, Define the T4 ratio with an equation and reference the equation in the table
 % [x] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
-% [ ] TODO: AL-PA, Make sure you reference the equations for the DVs/cons in the descriptions so the reader can connect them.
+% [x] TODO: AL-PA, Make sure you reference the equations for the DVs/cons in the descriptions so the reader can connect them.
 \begin{table}[hbt!]
     \centering
     \caption{
         Multipoint optimization problem definition.
-        The 4 design variables are the water recovery fractions of the core exhaust stream at each operation condition.
-        The objective function is the thrust specific energy consumption at the cruise condition with a net thrust constraint at the design point, TOC.
+        The objective function is the thrust specific energy consumption at the cruise condition.
+        The constraints are net thrust and engine diameter constraint at the design point, TOC.
     }
     \small
     \renewcommand{\arraystretch}{1.2}
@@ -624,6 +628,7 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
 % NOTE: PA - PA/AL replace this with a parallel axis plot?
 % [ ] TODO: AL-PA, Yeah let's do the parallel axis plot for the basic thermodynamic parameters
 % AL-PA, We can make another plot for the water fractions and the dpQp study.
+% PA-AL, currently working on this plot, Matplotlib scaling between parameters is being troublesome
 \begin{table}[hbt!]
     \centering
     \caption{Optimization results of the N+3 engine with no water recovery using Jet-A as the fuel.
@@ -779,7 +784,7 @@ This table shows the resulting net thrust, gross thrust, and ram drag of each en
     \label{fig:dpqp_sweep}
 \end{figure}
 
-% Motivation: space to work with hydrogen, benefits of water injection, benefits of H2
+% Motivation: space to work with hydrogen, benefits of water injection, benefits of H2 (a lot of water, no tanks, de-mineralized water)
 \section{Conclusion}
 \label{sec:conc}
 % Message 1: Re-state the problem
