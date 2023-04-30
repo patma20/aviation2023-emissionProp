@@ -297,7 +297,28 @@ We operate the engine cycle in different modes depending on the desired conserva
 In ``on-design'' mode, we prescribe important cycle inputs such as turbo machinery efficiencies, pressure ratios, and combustion temperatures.
 The ``off-design'' mode inherits the flow path areas and turbo machinery map scalars from the ``on-design'' analysis.
 We enforce design rules as balance equations between different design points to consider the performance of the engine cycle at limiting flight conditions.
-Table
+Table \ref{flight_conds} shows the different altitudes and mach numbers at each flight condition.
+
+
+
+The ``on-design'' point is top-of-climb (TOC) with ``off-design'' conditions at rolling takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
+Each flight condition is either critical to the performance or limits the design of the engine.
+% [x] TODO: AL-PA, You should explain why each design point is important in a separate sentence for each.
+%   - For example, the SLS point is important for making sure the turbo machinery and flow paths are designed to meet a static thrust target
+%   - The RTO point is limiting for temperature, etc...
+
+% [x] TODO: AL-PA, Consider re-writing this section using the comments from the previous TODO.  Be more concise and direct with the language here.
+The N+3 engine model has many complex thermodynamic and performance connections between the different operating conditions such as temperature ratios and cooling requirements.
+Therefore, the N+3 engine model computes the engine performance at the four different operating conditions in order to resolve these connections.
+% The operating conditions that considered are top-of-climb (TOC), rotating takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
+% [x] TODO: AL-PA, This is a big run-on sentence.  Consider breaking it up and being more specific about the requirements at each design point.  See previous comments.
+The SLS operating condition is important for ensuring that the turbomachinery and flow paths are designed to a meet static thrust target.
+The RTO operating condition is important for specifying the upper limit of the combustor temperature and cooling requirements for a thrust target during take-off.
+The TOC operating condition is important for specifying the required thrust during the climb at the design altitude.
+Finally, the CRZ operation condition is important for specifying that the turbomachinery and flow paths are designed to meet cruise target thrust.
+To account for each of these operating conditions, the N+3 model uses a technique called Multipoint Design Point (MDP) modeling to converge the model to an engine design.
+This final design must satisfies the requirements at each of these operating conditions.
+The altitude and mach number of each of the operating conditions is shown in Table \ref{flight_conds}.
 
 % [x] TODO: AL-PA, Add a small table to show the mach and altitude of each flight condition
 \begin{table}[hbt!]
@@ -306,73 +327,90 @@ Table
     }
     \begin{tabular}{l r r r r l}
         \hline
-        Parameter & TOC   & RTO  & SLS & CRZ   & Units   \\
+        Parameter      & TOC     & RTO   & SLS   & CRZ     & Units      \\
         \hline
-        Altitude  & 35000 & 0    & 0   & 35000 & \si{ft} \\
-        Mach      & 0.8   & 0.25 & 0.0 & 0.8   & -       \\
-        % Humidity      & 0.00017   & 0.009 & 0.009 & 0.00017   & -     \\
+        Altitude       & 35000   & 0     & 0     & 35000   & \si{ft}    \\
+        Mach           & 0.8     & 0.25  & 0.0   & 0.8     & -          \\
+        Humidity Ratio & 0.00017 & 0.009 & 0.009 & 0.00017 & \si{kg/kg} \\
         \hline
     \end{tabular}
-    \label{flight_levels}
+    \label{flight_conds}
 \end{table}
 
-The ``on-design'' point is top-of-climb (TOC) with ``off-design'' conditions at rolling takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
-Each flight condition is either critical to the performance or limits the design of the engine.
-% [ ] TODO: AL-PA, You should explain why each design point is important in a separate sentence for each.
-%   - For example, the SLS point is important for making sure the turbo machinery and flow paths are designed to meet a static thrust target
-%   - The RTO point is limiting for temperature, etc...
-
-% [ ] TODO: AL-PA, Consider re-writing this section using the comments from the previous TODO.  Be more concise and direct with the language here.
-The N+3 engine model as it is implemented in pyCycle has many complex thermodynamic and performance connections between different operating conditions.
-Therefore, the N+3 engine model computes the engine performance at 4 different operating conditions in order to resolve the complexities between each operating condition on the final design.
-The operating conditions that considered are top-of-climb (TOC), rotating takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
-% [ ] TODO: AL-PA, This is a big run-on sentence.  Consider breaking it up and being more specific about the requirements at each design point.  See previous comments.
-The SLS condition represents the static performance requirements for the engine, the RTO condition represents the performance and cooling requirements at the point of rotation during takeoff, the TOC operating condition represents the performance requirements during a climb, and the CRZ operation condition represents the criuse performance of the engine.
-To account for each of these operating conditions, the N+3 model uses a technique called Multipoint Design Point (MDP) modeling to converge the model to an engine design that satisfies the requirements at each of these operating conditions.
 % NOTE: AL-PA, Using a lot of extra words to say: "The TOC point is the on-design condition."
-One of these operating conditions is specified as the design point, which in this case is TOC, and the other operating conditions are considered the off-design points.
+The TOC point is the ``on-design'' condition since it is desireable to specify combustor temperatures and pressure ratios at this point.
 % NOTE: AL-PA, The design point sizes the flow paths and scales the turbo machinery.  The off-design has the exact same flow path as the design mode cycle.  The turbo machinery maps are scaled using scalar quantities for off-design performance.
-% [ ] TODO: AL-PA, Don't say "generally" or "essentially" because it makes the method appear ambiguous.
-The design point for the model generally sets all of the engine sizing such as areas and pressure ratios across components.
-The off-design points are essentially the size of the engine at the design point but operating at the corresponding required thrust, cooling, and environmental conditions.
+% [x] TODO: AL-PA, Don't say "generally" or "essentially" because it makes the method appear ambiguous.
+The design point for the model sets all of the engine sizing such as areas and pressure ratios across components.
+The off-design points inherit the size of the engine in terms of the cross-sectional areas from the design point but operate at the corresponding required thrust, cooling, and environmental conditions.
 % [ ] TODO: AL-PA, We don't need to talk about the Newton or linear solver details.  Just explain the multipoint model structure with the Newton solver added for context.
 % The design point of the engine model is converged using a linear Newton solver which then passes the geometric sizing variables such as cross-sectional areas and map scalars to the off-design points and similarly converges those.
 % Then, a nonlinear Newton solver is used to converge the overall model with respect to the variable connections between each operating condition.
-An XDSM diagram of the nominal N+3 engine model is shown in Figure \ref{fig:N3_xdsm} \cite{Hendricks2019}.
+% An XDSM diagram of the nominal N+3 engine model is shown in Figure \ref{fig:N3_xdsm} \cite{Hendricks2019}.
 
 % [x] TODO: AL-PA, I would remove this figure.  Not adding anything more than the detailed XDSM you provide later.
-% \begin{figure}[hbt!]
-%     \centering
-%     \includegraphics[width=0.75\textwidth]{N3_xdsm.pdf}
-%     \caption{
-%         N+3 engine multipoint setup XDSM diagram.
-%         This XDSM diagram shows how each of the operating conditions is coupled with each other and how the outputs are computed.
-%     }
-%     \label{fig:N3_xdsm}
-% \end{figure}
 
-% [ ] TODO: AL-PA, Don't talk about the objective function until the optimization problem section.
-In the optimization problem described later, we set the mass flow rate of fuel, $\dot{m}_{fuel}$, as the objective function.
-% [ ] TODO: AL-PA, Move the discussion about TSEC to the results.  You don't need to introduce the equation here because it has nothing to do with the details of the multipoint model.
-Our comparison metric is $TSEC_{CRZ}$ but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
-% [ ] TODO: AL-PA, Again, move this to the optimization problem section.  You should also try to make this sentence more concise.
-Therefore, the water mass fraction that will most impact the objective function the most is at the CRZ operating condition and we thus want to size the area of the injector and extractor at CRZ instead of TOC like the rest of the areas are.
-% [ ] TODO: You shouldn't say things "normally" occur.  Just tell the reader what you did.
+% [x] TODO: AL-PA, Don't talk about the objective function until the optimization problem section.
+% [x] TODO: AL-PA, Move the discussion about TSEC to the results.  You don't need to introduce the equation here because it has nothing to do with the details of the multipoint model.
+% Our comparison metric is $TSEC_{CRZ}$ but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
+% [x] TODO: AL-PA, Again, move this to the optimization problem section.  You should also try to make this sentence more concise.
+% Therefore, the water mass fraction that will most impact the objective function the most is at the CRZ operating condition and we thus want to size the area of the injector and extractor at CRZ instead of TOC like the rest of the areas are.
+% [x] TODO: You shouldn't say things "normally" occur.  Just tell the reader what you did.
 % I suggest re-writing this to plainly explain why we size the water recirculation at cruise instead of TOC
 % Example: We size the water recovery system at cruise because it is the most important phase for fuel burn reduction. etc...
-Normally, the cross-sectional areas are set at the design point (TOC) and are connected to the off-design points.
-To size the areas of the injector and extractor at CRZ, we only connect the state variables across these components at the corresponding operating condition and set the areas of both components at the CRZ point.
+% The cross-sectional areas are set at the design point (TOC) and are connected to the off-design points.
+We size the water recovery system at the cruise condition because it is the longest and most important phase of flight for fuel burn reduction.
+To size the areas of the injector and extractor at CRZ, we only connect the thermodynamic state variables across these components at the corresponding operating condition and set the areas of both components at the CRZ point.
 These connections are shown graphically in the XDSM diagram in Figure \ref{fig:N3_xdsm_full}.
 
 % Explain Exit ratios and how BPR and OD net thrusts are set
-% [ ] TODO: AL-PA, I would include all four of the balance components here and explain how they effectively act as constraints on the multipoint model.
+% [x] TODO: AL-PA, I would include all four of the balance components here and explain how they effectively act as constraints on the multipoint model.
 % NOTE: AL-PA, See the pyCycle paper, they explain how using the balance residuals creates a reduced design space for the optimization problem.
 % NOTE: AL-PA, You can discuss how this makes the multipoint nonlinear solution more challenging, but improves the optimization problem conditioning.
-In the N+3 model implementation presented in the pyCycle paper, the bypass ratio (BPR) at TOC is computed using a Balance component.
-The Balance component for $BPR_{TOC}$ uses the exit velocity ratio of the core and bypass nozzles which is given as:
+The N+3 multipoint model has many constraints on the model that set conservation and design values using \emph{balance} components.
+A Newton solver is used to converge these conservation an design values such $r=0$.
+The conservation \emph{balance} residuals are associated with each of the three shafts at each design condition.
+The state variables that set the shaft conservation residuals are the turbomachinery pressure ratios ($PR_{Fan}$, $PR_{LPC}$, $PR_{HPC}$) at TOC and shaft speeds ($N_{Fan}$, $N_{LPC}$, $N_{HPC}$) and engine mass flow rate ($\dot{m}$) at the ``off-design'' points.
+The design constraints are also set using \emph{balance} residuals.
+For the TOC point, $T_{4}$ is set by the fuel-to-air ratio (FAR) of the burner and $OPR$ is set by $HPC_{PR}$.
+Additionally, a constraint on the turbomachinery polytropic efficiency is set based on technological assumptions.
+These TOC balance residuals are summarized in Equation \eqref{des_resid} \cite{Hendricks2019}.
+
+\begin{equation}
+    r_{des} \rightarrow
+    \begin{cases}
+        T_{4,TOC} = T_{4,des}                 \\
+        OPR_{TOC} = OPR_{des}                 \\
+        \eta_{poly,i,TOC} = \eta_{poly,i,des} \\
+    \end{cases}
+    \label{des_resid}
+\end{equation}
+
+The outputs for the TOC point based on these design constraints are TSFC and $F_{net}$.
+For the ``off-design'' points, the target fan stall margin is set by the bypass ratio (BPR) and target net thrust is mainly set by FAR.
+Additionally, the engine cooling mass flow rate residuals are set by cooling needs at RTO using a perscibed value.
+These ``off-design'' residuals are summarized in Equation \eqref{od_resid} \cite{Hendricks2019}.
+
+\begin{equation}
+    r_{od} \rightarrow
+    \begin{cases}
+        R_{Fan} = R_{Fan,target}      \\
+        F_{net} = F_{net,target}      \\
+        \dot{m}_{cooling, err, k} = 0 \\
+    \end{cases}
+    \label{od_resid}
+\end{equation}
+
+Solving for all of the state and design variables while satisfying constraints could be accomplish with only an optimizer to simplify the problem.
+However, using a solver to converge constraints using \emph{balance} components creates a reduced-space problem with few design variables for the optimizer.
+This increases the complexity of the multipoint nonlinear solution but simplifies the problem for the optimizer and is the preferred method in cycle analysis.
+
+In the N+3 model implementation presented in the pyCycle paper, the bypass ratio (BPR) at TOC is computed using a \emph{balance} component.
+The \emph{balance} component for $BPR_{TOC}$ uses the exit velocity ratio of the core and bypass nozzles which is given as:
 
 \begin{equation}
     V_{ratio} = \frac{V_{core,ideal}C_{v,core}}{V_{bypass,ideal}C_{v,bypass}}
+    \label{vratio}
 \end{equation}
 
 \noindent
@@ -381,10 +419,9 @@ This adds a constraint where the core exit velocity is higher than the bypass ex
 
 % [x] TODO: AL-PA, I'm not sure this subsection is necessary.  We will describe the performance metrics in the optimization problem section.  Consider moving it there.
 
-
 With all of the sub-models of the N3 engine presented, the complete engine cycle XDSM diagram is shown in Figure \ref{fig:N3_xdsm_full}.
 
-% [ ] TODO: AL-PA, Already discussed, but this should be the only "fine-detail" XDSM in the paper.
+% [x] TODO: AL-PA, Already discussed, but this should be the only "fine-detail" XDSM in the paper.
 % [ ] TODO: AL-PA, Make the figure use the entire text width so that it's easier to read.  Might have to reposition a bit.
 \begin{figure}[hbt!]
     \centering
@@ -395,29 +432,6 @@ With all of the sub-models of the N3 engine presented, the complete engine cycle
     }
     \label{fig:N3_xdsm_full}
 \end{figure}
-
-% Update with table from Andrew
-% [x] TODO: AL-PA, Why are some of the fist words in the descriptions capitalized but not others?  I think this should be consistent.
-% [x] TODO: AL-PA, Change the lower heating value references to footnotes. i.e \footnote{\url{...}}
-\begin{table}[hbt!]
-    \centering
-    \caption{
-        N+3 engine model parameters.
-        Atmospheric parameters specify the flight conditions and humidity of the atmosphere and lower heating values are given for each fuel to compute TSEC.}
-    \begin{tabular}{r r r l}
-        \hline
-        Parameter              & Value   & Units        & Description                                                                                                            \\
-        \hline
-        $HR_{\rm{TOC}}$        & 0.00017 & -            & humidity ratio at TOC \cite{Kalnay1996}                                                                                \\
-        $HR_{\rm{CRZ}}$        & 0.00017 & -            & humidity ratio at CRZ \cite{Kalnay1996}                                                                                \\
-        $HR_{\rm{RTO}}$        & 0.009   & -            & humidity ratio at RTO \cite{Kalnay1996}                                                                                \\
-        $HR_{\rm{SLS}}$        & 0.009   & -            & humidity ratio at SLS \cite{Kalnay1996}                                                                                \\
-        $\rm{LHV}_{\rm{JetA}}$ & 18564.0 & \si{BTU/lbm} & Lower heating value of Jet-A \footnote{\url{https://www.smartcockpit.com/docs/Jet_Fuel_Characteristics.pdf}}           \\
-        $\rm{LHV}_{\rm{H2}}$   & 51591.0 & \si{BTU/lbm} & Lower heating value of H2 \footnote{\url{https://www.engineeringtoolbox.com/fuels-higher-calorific-values-d_169.html}} \\
-        \hline
-    \end{tabular}
-    \label{engine_params}
-\end{table}
 
 \section{Optimization Problem}
 \label{sec:optprob}
@@ -439,7 +453,7 @@ The objective is to minimize fuel burn subject to design and performance constra
 For measuring the efficiency of jet engines, thrust-specific fuel consumption (TSFC) is generally used since it is a represents how much fuel is burned at a given thrust level.
 However, when comparing Jet-A and hydrogen fuels this is not such a good metric since a given mass flow rate of hydrogen has an energy content almost 3 times that of Jet-A.
 % TODO: Update mdolab.bib
-A better metric for comparing the relative efficiencies of an engine running on Jet-A versus hydrogen is thrust-specific energy consumption (TSEC) %\cite{Adler2023}.
+A better metric for comparing the relative efficiencies of an engine running on Jet-A versus hydrogen is thrust-specific energy consumption (TSEC). %\cite{Adler2023}.
 TSEC is TSFC multipied by the lower heating value (LHV) of the fuel shown in Equation~\eqref{eq:tsec}.
 
 \begin{equation}
@@ -452,27 +466,57 @@ TSEC is TSFC multipied by the lower heating value (LHV) of the fuel shown in Equ
     \label{eq:tsec}
 \end{equation}
 
-Therefore, TSEC is the objective function we are minimizing in the optimzation problem.
-An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_xdsm_opt}.
+Therefore, TSEC at the cruise condition is the objective function in the optimzation problem.
+An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_opt_xdsm}.
 
 % [ ] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
 \begin{figure}[!hbt]
     \centering
-    \includegraphics[width=0.75\textwidth]{N3_xdsm_opt.pdf}
+    \includegraphics[width=0.75\textwidth]{N3_opt_XDSM.pdf}
     \caption{
         XDSM diagram of the multipoint optimization problem with constraints.
         The XDSM diagram shows the variables and outputs within the optimization model and how each of these values is connected to the optimizer and design points.}
-    \label{fig:N3_xdsm_opt}
+    \label{fig:N3_opt_xdsm}
 \end{figure}
 
-% [ ] TODO: AL-PA, I would elaborate on this a bit more.  Are these the on-design parameters?  Are they constraints?
-% [ ] TODO: AL-PA, The N+3 model has a bunch of constraints imposed on the multipoint problem via balance comps.  This is a good place to talk about those.
-% [ ] TODO: AL-PA, Discuss how using balance comps instead of constraints represents a reduced space problem for the optimizer. (See pycycle paper for more information).
-This optimization problem was run for both Jet-A and H2 fuels using the parameters given in Table \ref{engine_params}.
+% [x] TODO: AL-PA, I would elaborate on this a bit more.  Are these the on-design parameters?  Are they constraints?
+% [x] TODO: AL-PA, The N+3 model has a bunch of constraints imposed on the multipoint problem via balance comps.  This is a good place to talk about those.
+% [x] TODO: AL-PA, Discuss how using balance comps instead of constraints represents a reduced space problem for the optimizer. (See pycycle paper for more information).
+The TOC point constraints shown in Figure \ref{fig:N3_opt_xdsm} are only the constraints imposed on the model at optimizer level.
+
+
+The design variables for this problem are water recovery fraction at CRZ ($X_{\rm{H2O,CRZ}}$), fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), low pressure compressor pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), overall pressure ratio at CRZ ($\rm{OPR}_{\rm{TOC}}$), burner temperature at RTO ($T_{4,\rm{RTO}}$), TOC-RTO burner temperature ratio ($T_{4,\rm{ratio}}$), and the nozzle velocity ratio at CRZ ($V_{\rm{ratio,CRZ}}$).
+Only the water recovery fraction at CRZ is a design variable since we are optimizing $TSEC_{\rm{CRZ}}$.
+TOC-to-RTO burner temperature ratio ($T_{4,\rm{ratio}}$) is shown in Equation \eqref{t4ratio}.
+\begin{equation}
+    T_{4,\rm{ratio}} = \frac{T_{4,\rm{TOC}}}{T_{4,\rm{RTO}}}
+    \label{t4ratio}
+\end{equation}
+
+This optimization problem was run for both Jet-A and H2 fuels using the fuel properties in \ref{fuel_props} and flight conditions in Table \ref{flight_conds}.
+
+% [x] TODO: AL-PA, Why are some of the fist words in the descriptions capitalized but not others?  I think this should be consistent.
+% [x] TODO: AL-PA, Change the lower heating value references to footnotes. i.e \footnote{\url{...}}
+\begin{table}[hbt!]
+    \centering
+    \caption{
+        N+3 model fuel properties.
+        The lower heating values are given for each fuel used to compute TSEC.}
+    \begin{tabular}{r r r l}
+        \hline
+        Parameter              & Value   & Units        & Description                                                                                                            \\
+        \hline                                                                                                                                                                   \\
+        $\rm{LHV}_{\rm{JetA}}$ & 18564.0 & \si{BTU/lbm} & Lower heating value of Jet-A \footnote{\url{https://www.smartcockpit.com/docs/Jet_Fuel_Characteristics.pdf}}           \\
+        $\rm{LHV}_{\rm{H2}}$   & 51591.0 & \si{BTU/lbm} & Lower heating value of H2 \footnote{\url{https://www.engineeringtoolbox.com/fuels-higher-calorific-values-d_169.html}} \\
+        \hline
+    \end{tabular}
+    \label{fuel_props}
+\end{table}
+
 The optimization problem objective function, design variables, and constraints are shown in Table \ref{tab:opt_problem} below.
 
-% [ ] TODO: AL - PA, Define the T4 ratio with an equation and reference the equation in the table
-% [ ] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
+% [x] TODO: AL - PA, Define the T4 ratio with an equation and reference the equation in the table
+% [x] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
 % [ ] TODO: AL-PA, Make sure you reference the equations for the DVs/cons in the descriptions so the reader can connect them.
 \begin{table}[hbt!]
     \centering
@@ -485,27 +529,24 @@ The optimization problem objective function, design variables, and constraints a
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l r l}
         \toprule
-                        & Variable/Function              & Description                                 & Units          & Quantity \\
+                        & Variable/Function              & Description                                                           & Units          & Quantity \\
         \hline
-        minimize        & $ \dot{m}_{\rm{fuel,CRZ}} $    & Fuel flow rate at CRZ                       & \si{lbm/s}     & 1        \\
-                        &                                &                                             &                &          \\
-        with respect to & $X_{\rm{H2O,TOC}}$             & Water recovery fraction at TOC              & -              & 1        \\
-                        & $X_{\rm{H2O,RTO}}$             & Water recovery fraction at RTO              & -              & 1        \\
-                        & $X_{\rm{H2O,SLS}}$             & Water recovery fraction at SLS              & -              & 1        \\
-                        & $X_{\rm{H2O,CRZ}}$             & Water recovery fraction at CRZ              & -              & 1        \\
-                        & $\rm{PR}_{\rm{HPC,TOC}}$       & TOC high-pressure compressor pressure ratio & -              & 1        \\
-                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio  & -              & 1        \\
-                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                      & -              & 1        \\
-                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio                & -              & 1        \\
-                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                   & \si{\degree R} & 1        \\
-                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ & \si{\degree R} & 1        \\
+        minimize        & $TSEC_{\rm{CRZ}} $             & Thrust-specific energy consumption at CRZ (Equation \eqref{eq:tsec})  & \si{lbm/s}     & 1        \\
+                        &                                &                                                                       &                &          \\
+        with respect to & $X_{\rm{H2O,CRZ}}$             & Water recovery fraction at CRZ                                        & -              & 1        \\
+                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                                                & -              & 1        \\
+                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio                            & -              & 1        \\
+                        & $\rm{OPR}_{\rm{TOC}}$          & TOC overall pressure ratio                                            & -              & 1        \\
+                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                                             & \si{\degree R} & 1        \\
+                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio (Equation \eqref{t4ratio})               & -              & 1        \\
+                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ (Equation \eqref{vratio}) & -              & 1        \\
         \cline{3-5}
-                        &                                & Total                                       &                & 10       \\
-                        &                                &                                             &                &          \\
-        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                    & \si{lbf}       & 1        \\
-                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                        & \si{inch^2}    & 1        \\
+                        &                                & Total                                                                 &                & 7        \\
+                        &                                &                                                                       &                &          \\
+        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                                              & \si{lbf}       & 1        \\
+                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                                                  & \si{inch^2}    & 1        \\
         \cline{3-5}
-                        &                                & Total                                       &                & 2        \\
+                        &                                & Total                                                                 &                & 2        \\
         \bottomrule
     \end{tabular}
     \label{tab:opt_problem}
@@ -536,24 +577,44 @@ We solve the optimization problem listed in Table~\ref{tab:opt_problem} with SNO
 
 \section{Results}
 \label{sec:results}
+
+Our comparison metric is $TSEC$ but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
+Therefore, the fuel flow rate at CRZ, $\dot{m}_{fuel,CRZ}$, was set as the objective.
+
+When $T4_{RTO}$ and $X_{\rm{H2O,CRZ}}$ are design variables at the same time it was found that the optimizer pushes $T4_{RTO}$ down and $X_{\rm{H2O,CRZ}}$ up.
+Since these two variables are at odds with each other and the upper limit for $X_{\rm{H2O,CRZ}}$ is where the model breaks, $T4_{RTO}$ was set as the optimal value from the optimizations with no water recirulation.
+
 The 4 optimizations mentioned in the optimation problem section were run and solved.
-The optimality, feasibility, and merit function for each optimization is shown plotted in Figure \ref{fig:history_clvr}.
+The optimality, feasibility, and merit function for each optimization is shown plotted in Figure \ref{fig:history_summary}.
 
-% results of parameter sweep
-
-% Feasibility, Optimality, Merit Func (all 4 on same plot)
-% NOTE: need to clean up this plot
+% Feasibility, Optimality, Merit Func history
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.8\textwidth]{opt_summary.pdf}
-    \caption{The optimality, feasibility, and merit fuction for each optimization problem.
+    \caption{The optimality, feasibility, and merit fuction history for each optimization problem.
         Jet-A without water recovery is shown with the solid lines, the Jet-A with water recovery is shown with dashed lines, hydrogen without water recovery is shown with dash-dot lines, and hydrogen with water recovery is shown with dotted lines.}
-    \label{fig:history_clvr}
+    \label{fig:history_summary}
 \end{figure}
 
 From this plot we can visually check that each optimization achieved optimality and feasibility, and that the merit function reached a steady-state value.
 
-% DV and Constraints over each iteration
+% DV history
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{dvs.pdf}
+    \caption{The design variable history for each optimization problem.
+        Jet-A without water recovery is shown with the solid lines, the Jet-A with water recovery is shown with dashed lines, hydrogen without water recovery is shown with dash-dot lines, and hydrogen with water recovery is shown with dotted lines.}
+    \label{fig:history_dvs}
+\end{figure}
+
+% Constraint history
+\begin{figure}[hbt!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{cons.pdf}
+    \caption{The constraint history for each optimization problem.
+        Jet-A without water recovery is shown with the solid lines, the Jet-A with water recovery is shown with dashed lines, hydrogen without water recovery is shown with dash-dot lines, and hydrogen with water recovery is shown with dotted lines.}
+    \label{fig:history_cons}
+\end{figure}
 
 % Results of optimization problems
 The optimization problems with both types of fuel but no water recovery ran smoothly and finished with 0/1 SNOPT exit codes meaning that the optimization finished successfully and met the optimiality conditions.
@@ -572,17 +633,17 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \begin{tabular}{r l l l l l}
                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
         \toprule
-        objective   & $W_{fuel,CRZ}$        & 0.6394   & -      & -     & $\frac{lbm}{s}$ \\
+        objective   & $TSEC_{\rm{CRZ}} $    & 8186.255 & -      & -     & $\frac{lbm}{s}$ \\
         \hline
         variables   & $PR_{fan,TOC}$        & 1.285    & 1.2    & 1.4   & -               \\
                     & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 59.495   & 40.0   & 70.0  & -               \\
+                    & $PR_{OPR,TOC}$        & 61.012   & 40.0   & 70.0  & -               \\
                     & $T_{4,TOC}/T_{4,RTO}$ & 0.913    & 0.8    & 0.95  & -               \\
                     & $T_{4,RTO}$           & 3220.570 & -      & -     & $^\circ$R       \\
                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
         \hline
         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0    & 100    & -     & $in^2$          \\
+                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
         \bottomrule
     \end{tabular}
     \label{tab:res_thermo_opt_JetA}
@@ -595,48 +656,45 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \small
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value   & Lower  & Upper & Units           \\
+                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
         \toprule
-        objective   & $W_{fuel,CRZ}$        & 0.2331  & -      & -     & $\frac{lbm}{s}$ \\
+        objective   & $TSEC_{\rm{CRZ}} $    & 8295.236 & -      & -     & $\frac{lbm}{s}$ \\
         \hline
-        variables   & $PR_{fan,TOC}$        & 1.288   & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.000   & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 59.153  & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.918   & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3204.07 & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35    & 1.35   & 1.45  &                 \\
+        variables   & $PR_{fan,TOC}$        & 1.288    & 1.2    & 1.4   & -               \\
+                    & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
+                    & $PR_{OPR,TOC}$        & 60.660   & 40.0   & 70.0  & -               \\
+                    & $T_{4,TOC}/T_{4,RTO}$ & 0.918    & 0.8    & 0.95  & -               \\
+                    & $T_{4,RTO}$           & 3204.07  & -      & -     & $^\circ$R       \\
+                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
         \hline
-        constraints & $F_{net,TOC}$         & 5800.0  & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0   & 100    & -     & $in^2$          \\
+        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
         \bottomrule
     \end{tabular}
     \label{tab:res_thermo_opt_H2}
 \end{table}
 
-\begin{table}[hbt!] % need to run for T4 = 3220.570
+\begin{table}[hbt!]
     \centering
     \caption{Optimization results of the N+3 engine with water recovery using Jet-A as the fuel.
     }
     \small
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value  & Lower  & Upper & Units           \\
+                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
         \toprule
-        objective   & $W_{fuel,CRZ}$        & 0.6037 & -      & -     & $\frac{lbm}{s}$ \\
+        objective   & $TSEC_{\rm{CRZ}} $    & 7766.339 & -      & -     & $\frac{lbm}{s}$ \\
         \hline
-        variables   & $x_{H2O,TOC}$         & 0.115  & 0.0    & -     & -               \\
-                    & $x_{H2O,RTO}$         & 0.0    & 0.0    & -     & -               \\
-                    & $x_{H2O,SLS}$         & 0.0    & 0.0    & -     & -               \\
-                    & $x_{H2O,CRZ}$         & 0.3    & 0.0    & 0.3   & -               \\
-                    & $PR_{fan,TOC}$        & 1.291  & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.0    & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 54.218 & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.923  & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3400.0 & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35   & 1.35   & 1.45  &                 \\
+        variables   & $x_{H2O,CRZ}$         & 0.3      & 0.0    & 0.3   & -               \\
+                    & $PR_{fan,TOC}$        & 1.292    & 1.2    & 1.4   & -               \\
+                    & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
+                    & $PR_{OPR,TOC}$        & 61.188   & 40.0   & 70.0  & -               \\
+                    & $T_{4,TOC}/T_{4,RTO}$ & 0.911    & 0.8    & 0.95  & -               \\
+                    & $T_{4,RTO}$           & 3220.574 & -      & -     & $^\circ$R       \\
+                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
         \hline
-        constraints & $F_{net,TOC}$         & 5800.0 & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0  & 100    & -     & $in^2$          \\
+        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
         \bottomrule
     \end{tabular}
     \label{tab:res_full_opt_JetA}
@@ -649,23 +707,20 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \small
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l l l l}
-                    & Variable/Function     & Value   & Lower  & Upper & Units           \\
+                    & Variable/Function     & Value    & Lower  & Upper & Units           \\
         \toprule
-        objective   & $W_{fuel,CRZ}$        & -       & -      & -     & $\frac{lbm}{s}$ \\
+        objective   & $TSEC_{\rm{CRZ}} $    & 7859.635 & -      & -     & $\frac{lbm}{s}$ \\
         \hline
-        variables   & $x_{H2O,TOC}$         & 0.066   & 0.0    & -     & -               \\
-                    & $x_{H2O,RTO}$         & 0.0     & 0.0    & -     & -               \\
-                    & $x_{H2O,SLS}$         & 0.0     & 0.0    & -     & -               \\
-                    & $x_{H2O,CRZ}$         & 0.17    & 0.0    & 0.17  & -               \\
-                    & $PR_{fan,TOC}$        & 1.291   & 1.2    & 1.4   & -               \\
-                    & $PR_{LPC,TOC}$        & 4.0     & 2.5    & 4.0   & -               \\
-                    & $PR_{OPR,TOC}$        & 55.132  & 40.0   & 70.0  & -               \\
-                    & $T_{4,TOC}/T_{4,RTO}$ & 0.927   & 0.8    & 0.95  & -               \\
-                    & $T_{4,RTO}$           & 3204.07 & -      & -     & $^\circ$R       \\
-                    & $V_{ratio,CRZ}$       & 1.35    & 1.35   & 1.45  &                 \\
+        variables   & $x_{H2O,CRZ}$         & 0.17     & 0.0    & 0.17  & -               \\
+                    & $PR_{fan,TOC}$        & 1.297    & 1.2    & 1.4   & -               \\
+                    & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
+                    & $PR_{OPR,TOC}$        & 61.952   & 40.0   & 70.0  & -               \\
+                    & $T_{4,TOC}/T_{4,RTO}$ & 0.916    & 0.8    & 0.95  & -               \\
+                    & $T_{4,RTO}$           & 3204.071 & -      & -     & $^\circ$R       \\
+                    & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
         \hline
-        constraints & $F_{net,TOC}$         & 5800.0  & 5800.0 & -     & lbf             \\
-                    & $D_{Fan}$             & 100.0   & 100    & -     & $in^2$          \\
+        constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
+                    & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
         \bottomrule
     \end{tabular}
     \label{tab:res_full_opt_H2}
@@ -679,11 +734,42 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
     \label{fig:barchart}
 \end{figure}
 
+The breakdown of thrust for each point is shown in Table \ref{tab:thrust}.
+This table shows the resulting net thrust, gross thrust, and ram drag of each engine design for the four optimizations performed.
+
 % Thrust splits
-% TODO PA - PA: Add thrust splits for each opt
+% [x] TODO: PA-PA: Add thrust splits for each opt
+\begin{table}[hbt!]
+    \centering
+    \caption{Thrust breakdown for each flight operating condition.
+        The net thrust, gross thrust, and ram drag are shown for each optimization result.
+    }
+    \small
+    \renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{r l l l l l}
+        Point & Parameter              & Jet-A Dry & Jet-A Wet & H2 Dry  & H2 Wet  \\
+        \toprule
+              & Net Thrust, \si{lbf}   & 5800.0    & 5800.0    & 5800.0  & 5800.0  \\
+        TOC   & Ram Drag, \si{lbf}     & 19623.4   & 19623.4   & 19623.4 & 19623.4 \\
+              & Gross Thrust, \si{lbf} & 25423.4   & 25423.4   & 25423.4 & 25423.4 \\
+        \hline
+              & Net Thrust, \si{lbf}   & 22800.0   & 22800.0   & 22800.0 & 22800.0 \\
+        RTO   & Ram Drag, \si{lbf}     & 17089.7   & 17043.5   & 17070.8 & 17014.6 \\
+              & Gross Thrust, \si{lbf} & 39889.7   & 39843.5   & 39870.8 & 39814.6 \\
+        \hline
+              & Net Thrust, \si{lbf}   & 28620.8   & 28620.8   & 28620.8 & 28620.8 \\
+        SLS   & Ram Drag, \si{lbf}     & 61.8      & 61.7      & 61.8    & 61.6    \\
+              & Gross Thrust, \si{lbf} & 28682.7   & 28682.5   & 28682.6 & 28682.4 \\
+        \hline
+              & Net Thrust, \si{lbf}   & 5220.0    & 5220.0    & 5220.0  & 5220.0  \\
+        CRZ   & Ram Drag, \si{lbf}     & 19194.0   & 19152.9   & 19190.3 & 19144.1 \\
+              & Gross Thrust, \si{lbf} & 24414.0   & 24372.9   & 24410.3 & 24364.1 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:thrust}
+\end{table}
 
 % TSEC as a function of dPqP
-% NOTE: need to clean up this plot
 \begin{figure}[hbt!]
     \centering
     \includegraphics[width=0.8\textwidth]{N3_dpqp.pdf}
@@ -694,7 +780,6 @@ Similarly, the resulting values of the optimization problem for Jet-A and hydrog
 \end{figure}
 
 % Motivation: space to work with hydrogen, benefits of water injection, benefits of H2
-
 \section{Conclusion}
 \label{sec:conc}
 % Message 1: Re-state the problem
