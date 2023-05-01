@@ -75,18 +75,20 @@ However, hydrogen is a versatile fuel with advantageous chemical and thermodynam
 We introduce a closed-loop water recirculation model that demonstrates the possible efficiency gain when hydrogen is used for purposes other than combustion.
 % In this study, we investigate the tradeoff between burning hydrocarbon fuels like Jet-A versus hydrogen for UHBR ratio turbofan engines.
 % We will look at new ideas with water recirculation to further squeeze performance and efficiency from Jet-A and hydrogen combustion using gradient-based design optimization.
-% [ ] TODO: PA-PA, add section about MAUD and cite.
+% [x] TODO: PA-PA, add section about MAUD and cite.
 
 % Message 2: Background and references to support using H2 and water injection in HBTF engines
 % [ ] TODO: AL-PA, Need to find a journal/conference paper to cite for the following statement.  Maybe find one or more papers other than just the NASA report?
-Water recirculation is the process of extracting water from the exhaust stream of a propulsion system and injecting it upstream of the combustor as finely atomized droplets.
+Water injection is the process of injecting water upstream of the combustor as finely atomized droplets.
 NASA, Boeing, and Rolls-Royce studied this concept and suggested that this technique reduces the NOx emissions as much as 47 percent~\cite{Daggett2010}.
-Additionally, water recirculation improves fuel efficiency and thrust output with lower combustion temperatures that can improve the lifetime of turbine blades and reduce noise~\cite{Daggett2010}.
-% [ ] TODO: AL-PA, Should try to find a citation for this if one exists.
-Traditional propulsion systems that burn hydrocarbon fuels would require external water storage on the aircraft because they do not produce enough in the exhaust for recirculation.
+Additionally, water injection improves fuel efficiency and thrust output with lower combustion temperatures that can improve the lifetime of turbine blades and reduce noise~\cite{Daggett2010}.
+% [x] TODO: AL-PA, Should try to find a citation for this if one exists.
+Traditional propulsion systems that burn hydrocarbon fuels would require external water storage on the aircraft for water injection~\cite{Mourouzidis2015}.
 The added weight of tanks, pumping, and ducting makes this concept infeasible for a conventional aircraft.
-The main product of hydrogen combustion is water vapor and can thus be recovered from the exhaust stream.
-Recirculating water vapor from the exhaust of hydrogen combustion reduces the requirement for storage tanks and allows for the creation of a closed loop system inside the propulsion cycle.
+The main product of hydrogen combustion is water vapor and can thus be recovered from the exhaust stream~\cite{Strom2002}.
+Condensing water vapor from the exhaust stream of hydrogen combustion and recirculating it elimiates the requirement for storage tanks.
+This allows for the theoretical design of a closed loop water feedback system inside the propulsion cycle.
+Indeed, the aerospace industry is starting to look into this technology to make hydrogen-powered aircraft economical~\footnote{https://arpa-e.energy.gov/technologies/projects/hydrogen-steam-and-inter-cooled-turbine-engine-hysite}{}.
 
 Zero-dimensional cycle modeling is an efficient tool for predicting the initial design, performance, and emissions of new propulsion concepts.
 % [x] TODO: AL-AL, Need to cite CEA paper.
@@ -96,6 +98,7 @@ The industry standard for thermodynamic cycle analysis is the Numerical Propulsi
 NPSS is a modular object-oriented library that models engine components as individual blocks with several thermodynamic solvers.
 \citet{Hendricks2019} created a new tool called pyCycle with the same functionality as NPSS with analytical derivatives for each engine component and thermodynamic solver~\cite{Gray2017b}.
 pyCycle is built on top of the OpenMDAO framework~\cite{Gray2019a} to enable gradient-based optimization and leverage hierarchical nonlinear solver structures for robustness.
+OpenMDAO provides a framework for computing coupled derivatives efficiently using the modular analysis and unified derivatives (MAUD) architecture which supports a large number of design variables~\cite{Hwang2018a}.
 
 % Message 3: Introduce the extension of the HBTF and propose novel contributions
 In this work, we analyze the thermodynamic benefits of a closed-loop water vapor recovery and water injection system in a high-bypass turbofan engine.
@@ -489,7 +492,7 @@ An XDSM diagram of the optimization problem with the multipoint formulation is s
 The TOC point constraints shown in Figure \ref{fig:N3_opt_xdsm} are only the constraints imposed on the model at optimizer level.
 
 
-The design variables for this problem are water recovery fraction at CRZ ($X_{\rm{H2O,CRZ}}$), fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), low pressure compressor pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), overall pressure ratio at CRZ ($\rm{OPR}_{\rm{TOC}}$), burner temperature at RTO ($T_{4,\rm{RTO}}$), TOC-RTO burner temperature ratio ($T_{4,\rm{ratio}}$), and the nozzle velocity ratio at CRZ ($V_{\rm{ratio,CRZ}}$).
+The design variables for this problem are water recovery fraction at CRZ ($X_{\rm{H_2O,CRZ}}$), fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), low pressure compressor pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), overall pressure ratio at CRZ ($\rm{OPR}_{\rm{TOC}}$), burner temperature at RTO ($T_{4,\rm{RTO}}$), TOC-RTO burner temperature ratio ($T_{4,\rm{ratio}}$), and the nozzle velocity ratio at CRZ ($V_{\rm{ratio,CRZ}}$).
 Only the water recovery fraction at CRZ is a design variable since we are optimizing $TSEC_{\rm{CRZ}}$.
 TOC-to-RTO burner temperature ratio ($T_{4,\rm{ratio}}$) is shown in Equation \eqref{t4ratio}.
 \begin{equation}
@@ -537,7 +540,7 @@ The optimization problem objective function, design variables, and constraints a
         \hline
         minimize        & $\rm{TSEC}_{\rm{CRZ}} $        & Thrust-specific energy consumption at CRZ (Equation \eqref{eq:tsec})  & \si{lbm/s}     & 1        \\
                         &                                &                                                                       &                &          \\
-        with respect to & $X_{\rm{H2O,CRZ}}$             & Water recovery fraction at CRZ                                        & -              & 1        \\
+        with respect to & $X_{\rm{H_2O,CRZ}}$            & Water recovery fraction at CRZ                                        & -              & 1        \\
                         & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                                                & -              & 1        \\
                         & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio                            & -              & 1        \\
                         & $\rm{OPR}_{\rm{TOC}}$          & TOC overall pressure ratio                                            & -              & 1        \\
@@ -582,12 +585,12 @@ We solve the optimization problem listed in Table~\ref{tab:opt_problem} with SNO
 \section{Results}
 \label{sec:results}
 
-Our comparison metric is TSEC but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
+Our fuel performance metric is TSEC but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
 Therefore, the fuel flow rate at CRZ, $\dot{m}_{fuel,CRZ}$, was set as the objective.
 
-When $T4_{RTO}$ and $X_{\rm{H2O,CRZ}}$ are design variables at the same time it was found that the optimizer pushes $T4_{RTO}$ down and $X_{\rm{H2O,CRZ}}$ up.
-Since these two variables are at odds with each other and the upper limit for $X_{\rm{H2O,CRZ}}$ is where the model breaks, $T4_{RTO}$ was set as the optimal value from the optimizations with no water recirulation.
-The upper bound on $X_{\rm{H2O,CRZ}}$ was found to be around 30\% for Jet-A and 17\% for H2.
+When $T_{4,\rm{RTO}}$ and $X_{\rm{H_2O,CRZ}}$ are design variables at the same time it was found that the optimizer pushes $T_{4,\rm{RTO}}$ down and $X_{\rm{H_2O,CRZ}}$ up.
+Since these two variables are at odds with each other and the upper limit for $X_{\rm{H_2O,CRZ}}$ is where the model breaks, $T_{4,\rm{RTO}}$ was set as the optimal value from the optimizations with no water recirulation.
+The upper bound on $X_{\rm{H_2O,CRZ}}$ was found to be around 30\% for Jet-A and 17\% for H2.
 
 % Results of optimization problems
 The 4 optimizations mentioned in the section \ref{sec:optprob} were run and solved.
@@ -615,8 +618,8 @@ The design variable history for each optmization problem is shown in Figure \ref
     \label{fig:history_dvs}
 \end{figure}
 
-From this figure we see that the design variables start at their initial value and converge toward their optimal value.
-Note that the $RTO_{T4}$ variables are only present for the optimzations without water recovery and the $X_{\rm{H2O,CRZ}}$ variables are present only for the optimizations with water recovery.
+From this figure we see that the design variables start at the initial values and converge toward their optimal value.
+Note that the $T_{4,\rm{RTO}}$ variables are only present for the optimzations without water recovery and the $X_{\rm{{H_2O},CRZ}}$ variables are present only for the optimizations with water recovery.
 The constraint history for each optmization problem is shown in Figure \ref{fig:history_cons}.
 
 % Constraint history
@@ -634,15 +637,14 @@ The resulting optimal values from the optimization problems are shown in Figure 
 % Similarly, the resulting values of the optimization problem for Jet-A and hydrogen with water recovery are shown in Tables \ref{tab:res_full_opt_JetA} and \ref{tab:res_full_opt_H2}, respectively.
 
 % NOTE: PA - PA/AL replace this with a parallel axis plot?
-% [ ] TODO: AL-PA, Yeah let's do the parallel axis plot for the basic thermodynamic parameters
+% [x] TODO: AL-PA, Yeah let's do the parallel axis plot for the basic thermodynamic parameters
 % AL-PA, We can make another plot for the water fractions and the dpQp study.
-% NOTE: PA-AL, currently working on this plot, Matplotlib scaling between parameters is being troublesome. Tried using Plotly but formatting documentation is scarce.
 \begin{figure}[hbt!]
     \centering
-    \includegraphics[width=0.8\textwidth]{N3_parallel_coords.pdf}
+    \includegraphics[width=1.0\textwidth]{N3_parallel_coords.pdf}
     \caption{Optimization results of the N+3 engine with and without no water recovery using Jet-A and H2 as the fuel.
         The red lines show Jet-A fuel and the blue lines show H2 fuel.
-        The solid lines show the models without water recovery and the dashed lines show the models with water recovery.}
+        The solid lines show the engine without water recovery and the dashed lines show the engine with water recovery.}
     \label{fig:parallel_coords}
 \end{figure}
 
@@ -653,115 +655,13 @@ Given that more water is present in the exhaust stream of the H2 engine, the H2 
 The water recovery flow rates for the Jet-A and H2 engines was 0.324 $\si{lbm/s}$ and 0.405 $\si{lbm/s}$, respectively.
 Therefore, the H2 has the benefit of being able to recover more water at a lower fraction of the overall core exhaust stream water.
 With water recovery, we see slightly higher pressure ratios across the fan and overall pressure ratio while the LPC pressure ratio is pushed to its technological upperbound.
-We only see differences in $RTO_{T4}$ without water recovery due to these values are fixed for water recovery.
-The $RTO_{T4}$ value for Jet-A is slightly higher than that of H2.
+We only see differences in $T_{4,\rm{RTO}}$ without water recovery due to these values are fixed for water recovery.
+The $T_{4,\rm{RTO}}$ value for Jet-A is slightly higher than that of H2.
 Furthermore, adding water recovery slightly decreases the $T_{4,\rm{ratio}}$ value.
 Therefore, temperatures at cooler with the H2 fuel and barely cooler when adding water recovery.
 Both fuels have similar efficiencies at the optimal design with Jet-A having a slight advantage in thems of TSEC.
 Given that most of the design variables change only slightly between designs, most of the efficiency gains are driven by water injection.
 In fact, we can see the $\rm{TSEC}_{\rm{CRZ}}$ improvement due to water recovery relative to no water recovery for both fuels in Figure \ref{fig:barchart}.
-
-% \begin{table}[hbt!]
-%     \centering
-%     \caption{Optimization results of the N+3 engine with no water recovery using Jet-A as the fuel.
-%     }
-%     \small
-%     \renewcommand{\arraystretch}{1.2}
-%     \begin{tabular}{r l l l l l}
-%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
-%         \toprule
-%         objective   & $TSEC_{\rm{CRZ}} $    & 8186.255 & -      & -     & $\frac{lbm}{s}$ \\
-%         \hline
-%         variables   & $PR_{fan,TOC}$        & 1.285    & 1.2    & 1.4   & -               \\
-%                     & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
-%                     & $PR_{OPR,TOC}$        & 61.012   & 40.0   & 70.0  & -               \\
-%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.913    & 0.8    & 0.95  & -               \\
-%                     & $T_{4,RTO}$           & 3220.570 & -      & -     & $^\circ$R       \\
-%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-%         \hline
-%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-%         \bottomrule
-%     \end{tabular}
-%     \label{tab:res_thermo_opt_JetA}
-% \end{table}
-
-% \begin{table}[hbt!]
-%     \centering
-%     \caption{Optimization results of the N+3 engine with no water recovery using hydrogen as the fuel.
-%     }
-%     \small
-%     \renewcommand{\arraystretch}{1.2}
-%     \begin{tabular}{r l l l l l}
-%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
-%         \toprule
-%         objective   & $TSEC_{\rm{CRZ}} $    & 8295.236 & -      & -     & $\frac{lbm}{s}$ \\
-%         \hline
-%         variables   & $PR_{fan,TOC}$        & 1.288    & 1.2    & 1.4   & -               \\
-%                     & $PR_{LPC,TOC}$        & 4.000    & 2.5    & 4.0   & -               \\
-%                     & $PR_{OPR,TOC}$        & 60.660   & 40.0   & 70.0  & -               \\
-%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.918    & 0.8    & 0.95  & -               \\
-%                     & $T_{4,RTO}$           & 3204.07  & -      & -     & $^\circ$R       \\
-%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-%         \hline
-%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-%         \bottomrule
-%     \end{tabular}
-%     \label{tab:res_thermo_opt_H2}
-% \end{table}
-
-% \begin{table}[hbt!]
-%     \centering
-%     \caption{Optimization results of the N+3 engine with water recovery using Jet-A as the fuel.
-%     }
-%     \small
-%     \renewcommand{\arraystretch}{1.2}
-%     \begin{tabular}{r l l l l l}
-%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
-%         \toprule
-%         objective   & $TSEC_{\rm{CRZ}} $    & 7766.339 & -      & -     & $\frac{lbm}{s}$ \\
-%         \hline
-%         variables   & $x_{H2O,CRZ}$         & 0.3      & 0.0    & 0.3   & -               \\
-%                     & $PR_{fan,TOC}$        & 1.292    & 1.2    & 1.4   & -               \\
-%                     & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
-%                     & $PR_{OPR,TOC}$        & 61.188   & 40.0   & 70.0  & -               \\
-%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.911    & 0.8    & 0.95  & -               \\
-%                     & $T_{4,RTO}$           & 3220.574 & -      & -     & $^\circ$R       \\
-%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-%         \hline
-%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-%         \bottomrule
-%     \end{tabular}
-%     \label{tab:res_full_opt_JetA}
-% \end{table}
-
-% \begin{table}[hbt!]
-%     \centering
-%     \caption{Optimization results of the N+3 engine with water recovery using hydrogen as the fuel.
-%     }
-%     \small
-%     \renewcommand{\arraystretch}{1.2}
-%     \begin{tabular}{r l l l l l}
-%                     & Variable/Function     & Value    & Lower  & Upper & Units           \\
-%         \toprule
-%         objective   & $TSEC_{\rm{CRZ}} $    & 7859.635 & -      & -     & $\frac{lbm}{s}$ \\
-%         \hline
-%         variables   & $x_{H2O,CRZ}$         & 0.17     & 0.0    & 0.17  & -               \\
-%                     & $PR_{fan,TOC}$        & 1.297    & 1.2    & 1.4   & -               \\
-%                     & $PR_{LPC,TOC}$        & 4.0      & 2.5    & 4.0   & -               \\
-%                     & $PR_{OPR,TOC}$        & 61.952   & 40.0   & 70.0  & -               \\
-%                     & $T_{4,TOC}/T_{4,RTO}$ & 0.916    & 0.8    & 0.95  & -               \\
-%                     & $T_{4,RTO}$           & 3204.071 & -      & -     & $^\circ$R       \\
-%                     & $V_{ratio,CRZ}$       & 1.35     & 1.35   & 1.45  &                 \\
-%         \hline
-%         constraints & $F_{net,TOC}$         & 5800.0   & 5800.0 & -     & lbf             \\
-%                     & $D_{Fan}$             & 100.0    & -      & 100   & $in^2$          \\
-%         \bottomrule
-%     \end{tabular}
-%     \label{tab:res_full_opt_H2}
-% \end{table}
 
 \begin{figure}[hbt!]
     \centering
@@ -773,15 +673,15 @@ In fact, we can see the $\rm{TSEC}_{\rm{CRZ}}$ improvement due to water recovery
 
 Based on this analysis and model, we see an improvement greater than 5\% at CRZ for TSEC for both fuels.
 This level of improvement would have a significant reduction in fuel costs over the course of an engine's lifecycle.
-Due to the relatively small amount of water in the exhaust stream for Jet-A, the Jet-A engine would require a larger condenser.
+Due to the comparatively small amount of water in the exhaust stream for Jet-A, the Jet-A engine would require a larger condenser~\cite{Strom2002}.
 This would incure larger condenser mass and pressure penalties compared to the H2 engine which would have more water and requires a smaller fraction of that water.
 Therefore, H2 is a much more appealing fuel to use with the proposed closed-loop water recovery system.
 Since no large-scale water condensers have been designed to fit inside a turbofan engine, a relatively low pressure loss condenser would need to be developed for this system to work.
 Given the lack of knowledge of the type of condenser that would need to be require, we performed a pressure loss sweep of the H2 engine.
-pyCycle handles pressure loss in a duct by specifyign a pressure loss coefficient, dPqP.
-This coefficient is the ratio of change in pressure to the inlet pressure of the engine duct.
+pyCycle handles pressure losses in ducts by specifyign a pressure loss coefficient, dPqP.
+This coefficient is the ratio of change in pressure normalized by the inlet pressure of the duct.
 The pressure loss of the duct just upstream of the extractor was varied while the rest of the engine design variables were optimized.
-Figure \ref{fig:dpqp_sweep} shows $\rm{TSEC}_{\rm{CRZ}}$ of this sweep relative to no water recovery.
+Figure \ref{fig:dpqp_sweep} shows $\rm{TSEC}_{\rm{CRZ}}$ of this sweep relative to and engine with no water recovery.
 
 % TSEC as a function of dPqP
 \begin{figure}[hbt!]
@@ -794,7 +694,7 @@ Figure \ref{fig:dpqp_sweep} shows $\rm{TSEC}_{\rm{CRZ}}$ of this sweep relative 
 \end{figure}
 
 From this figure, we can see the design area in which the closed-loop water recovery model is beneficial.
-This model will offer efficiency benefits up until about $dPqP = 0.16$ which means a 16\% loss of pressure from the condenser.
+This model will offer efficiency benefits up until about $\rm{dPqP} = 0.16$ which means a 16\% loss of pressure from the condenser.
 Furthermore, Figure \ref{fig:dpqp_wdot} shows the total water available in the core stream as a function of the same pressure loss.
 
 \begin{figure}[hbt!]
