@@ -70,7 +70,7 @@
 The effects of climate change are pushing the aviation industry towards hydrogen-fueled propulsion systems as a solution to reduce emissions.
 N+3 technology estimates for turbofan engines that burn hydrocarbon fuels suggest that higher efficiency can be achieved by designing ultra high bypass ratio (UHBR) engines with small cores and high overall pressure ratios (OPR).
 Higher OPR and smaller cores challenge the limits of compressor and turbine design, placing an upper bound on potential performance and emissions improvements.
-Switching to hydrogen as the primary fuel source reduces carbon dioxide emissions immediately, but adds complexity and weight that offset the benefits.
+Switching to hydrogen as the primary fuel source reduces carbon dioxide emissions immediately, but adds complexity and weight that offset the benefits%~\cite{Adler2023}.
 However, hydrogen is a versatile fuel with advantageous chemical and thermodynamic properties that can be exploited to increase the performance and reduce emissions.
 We introduce a closed-loop water recirculation model that demonstrates the possible efficiency gain when hydrogen is used for purposes other than combustion.
 % In this study, we investigate the tradeoff between burning hydrocarbon fuels like Jet-A versus hydrogen for UHBR ratio turbofan engines.
@@ -169,6 +169,7 @@ We use Newton based solvers to find the value of the state variables that drive 
     \caption{
         Simplified layout of the N+3 engine cycle, adapted from~\citet{Hendricks2019}.
         Black arrows are flow connections, red lines are mechanical connections, blue boxes are cycle elements, red boxes are shaft elements.
+        Flow stations are identified with bubble text
     }
     \label{fig:N3_original}
 \end{figure}
@@ -210,14 +211,14 @@ The component flow interface and mechanical connections, including the water inj
     \includegraphics[width=0.75\textwidth]{turbofan_wvr.pdf}
     \caption{
         The configuration of a high-bypass turbofan model with an integrated closed-loop water vapor recovery and injection system.
-        The water vapor recovery system (extractor) extracts a fraction of the water in the core stream and reinjects it upstream of the high-pressure compressor.
+        The water vapor recovery system (extractor) extracts a fraction of the water in the core stream and re-injects it upstream of the high-pressure compressor.
         This diagram illustrates the feedback effect that this implementation has on the overall core flow.}
     \label{fig:n3_cycle}
 \end{figure}
 
 To account for the humidity of the inlet air as well as the increased humidity after water injection, we modified the composition of the air mixture upstream of the combustor.
 % Since water is being used in the sections of the engine upstream of the combustor, this model was designed to take the humidity of the air into account.
-% To utilize water engine section infront of the combustor the N+3 engine model had to be modified to include $H_2O$ as a species.
+% To utilize water engine section in front of the combustor the N+3 engine model had to be modified to include $H_2O$ as a species.
 pyCycle provides a \texttt{wet-air} dataset that introduces $\mathrm{H_2O}$ molecules to the composition of air.
 % The \texttt{wet-air} dataset inherits the NPSS \texttt{JANAF} data from the original model but removes a couple troublesome hydrocarbons from the product species as they can cause numerical issues.
 % The FlightConditions() pyCycle subsystem can then have a reactant and mixture ratio specified when implemented.
@@ -292,7 +293,8 @@ We illustrate the water recirculation loop and the nonlinear solver connections 
     \includegraphics[width=1.0\textwidth]{N3_CLVR_cycle.pdf}
     \caption{
         Simplified layout of the N+3 engine cycle with the closed-loop vapor recovery.
-        Black arrows are flow connections, red lines are mechanical connections, blue boxes are cycle elements, red boxes are shaft elements.
+        Black arrows are flow connections, blue boxes are cycle elements
+        Flow stations are identified with bubble text.
     }
     \label{fig:n3_clvr}
 \end{figure}
@@ -473,7 +475,8 @@ TSEC is TSFC multipied by the lower heating value (LHV) of the fuel shown in Equ
     \label{eq:tsec}
 \end{equation}
 
-Therefore, TSEC at the cruise condition is the objective function in the optimzation problem.
+For this work we are concerned with minimizing fuel burn of the engine subject to known thrust constraints.
+Therefore, we will use TSEC at the cruise condition to compare the two fuels but will use $\dot{m}_{\rm{fuel,CRZ}}$ as the objective function in the optimzation problem.
 An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure \ref{fig:N3_opt_xdsm}.
 
 % [x] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
@@ -491,9 +494,8 @@ An XDSM diagram of the optimization problem with the multipoint formulation is s
 % [x] TODO: AL-PA, Discuss how using balance comps instead of constraints represents a reduced space problem for the optimizer. (See pycycle paper for more information).
 The TOC point constraints shown in Figure \ref{fig:N3_opt_xdsm} are only the constraints imposed on the model at optimizer level.
 
-
 The design variables for this problem are water recovery fraction at CRZ ($X_{\rm{H_2O,CRZ}}$), fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), low pressure compressor pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), overall pressure ratio at CRZ ($\rm{OPR}_{\rm{TOC}}$), burner temperature at RTO ($T_{4,\rm{RTO}}$), TOC-RTO burner temperature ratio ($T_{4,\rm{ratio}}$), and the nozzle velocity ratio at CRZ ($V_{\rm{ratio,CRZ}}$).
-Only the water recovery fraction at CRZ is a design variable since we are optimizing $TSEC_{\rm{CRZ}}$.
+Only the water recovery fraction at CRZ is a design variable since we are optimizing $\dot{m}_{\rm{fuel,CRZ}} $.
 TOC-to-RTO burner temperature ratio ($T_{4,\rm{ratio}}$) is shown in Equation \eqref{t4ratio}.
 \begin{equation}
     T_{4,\rm{ratio}} = \frac{T_{4,\rm{TOC}}}{T_{4,\rm{RTO}}}
@@ -521,11 +523,13 @@ This optimization problem was run for both Jet-A and H2 fuels using the fuel pro
 \end{table}
 
 The optimization problem objective function, design variables, and constraints are shown in Table \ref{tab:opt_problem} below.
+The thermodynamic cycle design variable ranges are determined from the expected N+3 technology limits~\cite{Hendricks2019}.
+Additionally, the design variable ranges are shown in Table \ref{tab:dv_table}.
 
-% [x] TODO: AL - PA, Define the T4 ratio with an equation and reference the equation in the table
+% [x] TODO: AL-PA, Define the T4 ratio with an equation and reference the equation in the table
 % [x] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
 % [x] TODO: AL-PA, Make sure you reference the equations for the DVs/cons in the descriptions so the reader can connect them.
-% [ ] TODO: PA-PA, explain variable ranges
+% [x] TODO: PA-PA, explain variable ranges
 \begin{table}[hbt!]
     \centering
     \caption{
@@ -537,24 +541,24 @@ The optimization problem objective function, design variables, and constraints a
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{r l l r l}
         \toprule
-                        & Variable/Function              & Description                                                           & Units          & Quantity \\
+                        & Variable/Function              & Description                                                           & Units           & Quantity \\
         \hline
-        minimize        & $\rm{TSEC}_{\rm{CRZ}} $        & Thrust-specific energy consumption at CRZ (Equation \eqref{eq:tsec})  & \si{lbm/s}     & 1        \\
-                        &                                &                                                                       &                &          \\
-        with respect to & $X_{\rm{H_2O,CRZ}}$            & Water recovery fraction at CRZ                                        & -              & 1        \\
-                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                                                & -              & 1        \\
-                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio                            & -              & 1        \\
-                        & $\rm{OPR}_{\rm{TOC}}$          & TOC overall pressure ratio                                            & -              & 1        \\
-                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                                             & \si{\degree R} & 1        \\
-                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio (Equation \eqref{t4ratio})               & -              & 1        \\
-                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ (Equation \eqref{vratio}) & -              & 1        \\
+        minimize        & $\dot{m}_{\rm{fuel,CRZ}} $     & Thrust-specific energy consumption at CRZ (Equation \eqref{eq:tsec})  & \si{lbm/hr/lbf} & 1        \\
+                        &                                &                                                                       &                 &          \\
+        with respect to & $X_{\rm{H_2O,CRZ}}$            & Water recovery fraction at CRZ                                        & -               & 1        \\
+                        & $\rm{PR}_{\rm{fan,TOC}}$       & TOC fan pressure ratio                                                & -               & 1        \\
+                        & $\rm{PR}_{\rm{LPC,TOC}}$       & TOC low-pressure compressor pressure ratio                            & -               & 1        \\
+                        & $\rm{OPR}_{\rm{TOC}}$          & TOC overall pressure ratio                                            & -               & 1        \\
+                        & $T_{4,\rm{RTO}}$               & RTO combustor temperature                                             & \si{\degree R}  & 1        \\
+                        & $T_{4,\rm{ratio}}$             & TOC-to-RTO temperature ratio (Equation \eqref{t4ratio})               & -               & 1        \\
+                        & $V_{\rm{ratio,CRZ}}$           & Core-to-bypass nozzle velocity ratio at CRZ (Equation \eqref{vratio}) & -               & 1        \\
         \cline{3-5}
-                        &                                & Total                                                                 &                & 7        \\
-                        &                                &                                                                       &                &          \\
-        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                                              & \si{lbf}       & 1        \\
-                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                                                  & \si{inch^2}    & 1        \\
+                        &                                & Total                                                                 &                 & 7        \\
+                        &                                &                                                                       &                 &          \\
+        subject to      & $F_{\rm{net,TOC}} \geq 5800.0$ & Target net thrust at TOC                                              & \si{lbf}        & 1        \\
+                        & $D_{\rm{fan}} \leq 100$        & Maximum Fan Diameter                                                  & \si{inch^2}     & 1        \\
         \cline{3-5}
-                        &                                & Total                                                                 &                & 2        \\
+                        &                                & Total                                                                 &                 & 2        \\
         \bottomrule
     \end{tabular}
     \label{tab:opt_problem}
@@ -567,18 +571,18 @@ The optimization problem objective function, design variables, and constraints a
     \small
     \renewcommand{\arraystretch}{1.2}
     \begin{tabular}{l l l l}
-        Design Variable       & Lower  & Upper  & Units     \\
+        Design Variable          & Lower  & Upper  & Units     \\
         \toprule
-        $x_{H2O,CRZ}$         & 0.0    & -      & -         \\
-        $PR_{fan,TOC}$        & 1.2    & 1.4    & -         \\
-        $PR_{LPC,TOC}$        & 2.5    & 4.0    & -         \\
-        $PR_{OPR,TOC}$        & 40.0   & 70.0   & -         \\
-        $T_{4,TOC}/T_{4,RTO}$ & 0.5    & 0.95   & -         \\
-        $T_{4,RTO}$           & 3000.0 & 3600.0 & $^\circ$R \\
-        $V_{ratio,CRZ}$       & 1.35   & 1.45   &           \\
+        $X_{\rm{H_2O,CRZ}}$      & 0.0    & 1.0    & -         \\
+        $\rm{PR}_{\rm{fan,TOC}}$ & 1.2    & 1.4    & -         \\
+        $\rm{PR}_{\rm{LPC,TOC}}$ & 2.5    & 4.0    & -         \\
+        $\rm{OPR}_{\rm{TOC}}$    & 40.0   & 70.0   & -         \\
+        $T_{4,\rm{ratio}}$       & 0.5    & 0.95   & -         \\
+        $T_{4,RTO}$              & 3000.0 & 3600.0 & $^\circ$R \\
+        $V_{ratio,CRZ}$          & 1.35   & 1.45   & -         \\
         \bottomrule
     \end{tabular}
-    \label{tab:res_full_opt_H2}
+    \label{tab:dv_table}
 \end{table}
 
 % Blurb about PyOptSparse and SNOPT
@@ -607,8 +611,8 @@ We solve the optimization problem listed in Table~\ref{tab:opt_problem} with SNO
 \section{Results}
 \label{sec:results}
 
-Our fuel performance metric is TSEC but minimizing $\dot{m}_{fuel}$ is a better posed optimization problem since we will also have thrust constraints.
-Therefore, the fuel flow rate at CRZ, $\dot{m}_{fuel,CRZ}$, was set as the objective.
+Our fuel performance metric is TSEC but minimizing $\dot{m}_{\rm{fuel}}$ is a more relavent problem since we will have known thrust constraints and want to compare fuel economy.
+Therefore, the fuel flow rate at CRZ, $\dot{m}_{\rm{fuel,CRZ}}$, was set as the objective function.
 
 When $T_{4,\rm{RTO}}$ and $X_{\rm{H_2O,CRZ}}$ are design variables at the same time it was found that the optimizer pushes $T_{4,\rm{RTO}}$ down and $X_{\rm{H_2O,CRZ}}$ up.
 Since these two variables are at odds with each other and the upper limit for $X_{\rm{H_2O,CRZ}}$ is where the model breaks, $T_{4,\rm{RTO}}$ was set as the optimal value from the optimizations with no water recirulation.
@@ -787,8 +791,9 @@ We have presented the results of four optimization problems demonstrating the us
 The recirculation system is implemented by introducing two new custom pyCycle components, the water extractor and injector, which form a continuous closed-loop feedback water flow in the engine.
 We then described the multipoint design problem and how it is used to design an aircraft engine to meet the operating requirements at different flight regimes.
 System-level \emph{balance} constraints on the engine are described to show how a reduced-space optimization problem can be developed.
-The optimization problem is then introduced with constraints on the design point thrust and overall engine size with thermodynamic design variables describing the temperatures, presusres and velocities within the engine.
+The optimization problem is then introduced with constraints on the design point thrust and overall engine size with thermodynamic design variables describing the temperatures, pressures, and velocities within the engine.
 An additional design variable controlling how much water is recirulated is added at the CRZ point to improve the fuel burn.
+The optimization problem is then solved for four cases: with Jet-A or hydrogen fuel and with and without water recirculation.
 
 The results from the optimization problems show temperature, thrust, and efficiency improvements when using hydrogen as a fuel with water circulation.
 Thermal reductions will improve the lifetime of the engine which impact maintanence and overall costs.
@@ -803,6 +808,8 @@ The results from this work outline the working space available for the design of
 % heavier engine due to condensor, but less fuel needed
 
 \section{Acknowledgements}
+We would like to thank Justin Grey for his help with the pyCycle components of this work.
+Since there is very little pyCycle documentation, his expertise and knowledge of the tool helped make the development of the custom pyCycle components possible.
 
 \bibliography{mdolab,references}
 

@@ -30,7 +30,8 @@ text width=10em, text centered, font=\LARGE, rounded corners, minimum height=4em
 text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
 \tikzstyle{connection} = [draw, -latex', ultra thick]
 \tikzstyle{shaft} = [draw, line width=0.1cm, color=shaftcolor]
-\tikzstyle{heat_flow} = [draw, -latex', ultra thick, color=heatcolor]
+\tikzstyle{station_label} = [circle, draw, text width=2em, text centered, font=\LARGE]
+\tikzstyle{line} = [draw]
 
 
 \begin{tikzpicture}[node distance = 2cm, auto]
@@ -45,14 +46,26 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \node [element, right=4em of burner] (hpt) {High-Pressure Turbine};
     \node [element, right=4em of hpt] (lpt) {Low-Pressure Turbine};
     \node [element, right=4em of lpt] (corenozzle) {Core Nozzle};
-    \node [element, below=4em of burner] (bypduct) {Bypass Duct};
-    \node [element, below=4em of corenozzle] (bypnozzle) {Bypass Nozzle};
+    \node [element, below=8em of burner] (bypduct) {Bypass Duct};
+    \node [element, below=8em of corenozzle] (bypnozzle) {Bypass Nozzle};
 
     % Add shaft elements
     \node [shaft_element, above=8em of $(hpc)!0.5!(hpt)$] (hpshaft) {High Pressure Shaft};
     \node [shaft_element, above=16em of $(lpc)!0.5!(lpt)$] (lpshaft) {Low Pressure Shaft};
     \node [shaft_element, above=16em of $(fan)!0.28!(lpc)$] (fanshaft) {Fan Shaft};
     \node [shaft_element, above=16em of $(fan)!0.72!(lpc)$] (gearbox) {Gearbox};
+
+    % Create station labels
+    % \node [station_label, below=8em of inlet.west] (1) {1};
+    \node [station_label, below=6em of fan.west] (1) {1};
+    % \node [station_label, below=8em of splitter.west] (13) {13};
+    \node [station_label, below=6em of lpc.west] (2) {2};
+    \node [station_label, below=6em of hpc.west] (25) {25};
+    \node [station_label, below=6em of burner.west] (3) {3};
+    \node [station_label, below=6em of hpt.west] (4) {4};
+    \node [station_label, below=6em of lpt.west] (45) {45};
+    \node [station_label, below=6em of corenozzle.west] (5) {5};
+    \node [station_label, below=6em of bypnozzle.west] (17) {17};
 
     % Draw element connections
     % \path [connection] (fc) -- (inlet);
@@ -68,17 +81,16 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \path [connection] (lpt) -- (corenozzle);
 
     % Draw station label connections
-    \path [line] (inlet.west) -- (1.north);
-    \path [line] (fan.west) -- (12.north);
-    \path [line] (splitter.west) -- (13.north);
+    % \path [line] (inlet.west) -- (1.north);
+    \path [line] (fan.west) -- (1.north);
+    % \path [line] (splitter.west) -- (13.north);
     \path [line] (lpc.west) -- (2.north);
     \path [line] (hpc.west) -- (25.north);
     \path [line] (burner.west) -- (3.north);
     \path [line] (hpt.west) -- (4.north);
     \path [line] (lpt.west) -- (45.north);
     \path [line] (corenozzle.west) -- (5.north);
-    \path [line] (bypnozzle.west) -- (18.north);
-    \path [line] (bypnozzle.west) -- (18.north);
+    \path [line] (bypnozzle.west) -- (17.north);
 
     % Draw Shaft Connections
     \path [shaft] (fan) |- (fanshaft) -- (gearbox);
