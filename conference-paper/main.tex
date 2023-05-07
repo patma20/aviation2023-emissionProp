@@ -732,32 +732,36 @@ This effect helps the engine increase the feasible design space in Figure~\ref{f
 % Motivation: space to work with hydrogen, benefits of water injection, benefits of H2 (a lot of water, no tanks, de-mineralized water)
 \section{Conclusion}
 \label{sec:conc}
-In this paper, we describe a how a novel closed-loop water recirculation system would be integrated in a commercial aviation setting.
-The water recirculation system comprised was designed and implemented into the N+3 ultra-high bypass engine model.
+In this paper, we describe a novel closed-loop water recirculation system for commercial aviation engines.
+The water recirculation system was designed and implemented into the N+3 ultra-high bypass engine model.
 We have presented the results of four optimization problems demonstrating the use of this technology using the pyCycle cycle modeling tool for Jet-A and hydrogen fuel.
 
 The recirculation system is implemented by introducing two new custom pyCycle components, the water extractor and injector, which form a continuous closed-loop feedback water flow in the engine.
 We then described the multipoint design problem and how it is used to design an aircraft engine to meet the operating requirements at different flight regimes.
-System-level \emph{balance} constraints on the engine are described to show how a reduced-space optimization problem can be developed.
-The optimization problem is then introduced with constraints on the design point thrust and overall engine size with thermodynamic design variables describing the temperatures, pressures, and velocities within the engine.
-An additional design variable controlling how much water is recirculated is added at the CRZ point to improve the fuel burn.
-The optimization problem is then solved for four cases: with Jet-A or hydrogen fuel and with and without water recirculation.
+The optimization problem is then introduced with constraints on the thrust and overall engine size at the design point.
+The design variables used are thermodynamic design variables describing the temperatures, pressures, and velocities within the engine.
+An additional design variable controlling how much water is recirculated is added at the cruise point to improve the fuel burn.
+The optimization problem was solved for four cases: with Jet-A or hydrogen fuel, and with or without water recirculation.
 
-The results from the optimization problems show temperature, thrust, and efficiency improvements when using hydrogen as a fuel with water circulation.
-Thermal reductions will improve the lifetime of the engine which impact maintenance and overall costs.
-Between the two fuels, we see similar values of TSEC.
-Significant energy efficiency gains are seen with water recirculation and injection.
-This would lead to lower operating costs over the lifetime of the engine.
+The results from the optimization problems show temperature, thrust, and efficiency improvements when using hydrogen as a fuel and even further improvements with water circulation.
+Thermal reductions with hydrogen and water recirculation will improve the lifetime of the engine which would reduce maintenance and overall costs.
+Between the two fuels, we see similar values of the engine performance metric, TSEC.
+Significant energy efficiency gains are seen with water recirculation which would improve the overall costs of the engine during its operational lifecycle.
+At the same water recovery fraction, hydrogen with water recirculation could achieve a lower TSEC value.
 
-Technological problems do exist such as how to design a condenser that can recover a large portion of the exhaust water without large pressure losses.
-However, the thermal properties of hydrogen provide a heat sink and thus a readily available resource for condensation.
-Furthermore, using the exhaust stream to heat the hydrogen fuel has been proposed as an additional avenue to improve engine efficiency%~\cite{}.
-The results from this work outline the working space available for the design of such a condenser.
-% heavier engine due to condenser, but less fuel needed
+There are technological obstacles to overcome in order to implement this water recirculation system in a modern turbofan engine.
+The main obstacle would be how to design a condenser that can recover a portion of the exhaust water without a excessive drag pressure losses.
+Therefore, a condenser design space study was completed to show the feasible design space for such a condenser.
+The results showed that at the maximum possible water recovery fraction for hydrogen quite a large pressure loss can be imposed before the improvements are canceled out.
+Furthermore, using hydrogen as the fuel allows for designs that are not available for an engine using Jet-A.
+The thermal properties of hydrogen provide a heat sink and thus a readily available resource for water condensation within the condenser.
+The hydrogen fuel absorbs heat and is then used in the combustion process, further improving engine efficiency.
+The novel water recovery system with shows promising efficiency results when used with hydrogen fuel.
+This water recovery system provides a potential avenue for hydrogen engine design that could help overcome the technological issues associated with hydrogen as a fuel.
 
 \section{Acknowledgements}
 We would like to thank Justin Grey for his help with the pyCycle components of this work.
-Since there is very little pyCycle documentation, his expertise and knowledge of the tool helped make the development of the custom pyCycle components possible.
+Justin's expertise and knowledge of pyCycle tool helped make the development of the custom pyCycle components possible.
 
 \bibliography{mdolab,references}
 
