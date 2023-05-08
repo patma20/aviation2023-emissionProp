@@ -57,7 +57,7 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
 
     % Create station labels
     % \node [station_label, below=8em of inlet.west] (1) {1};
-    \node [station_label, below=6em of fan.west] (1) {1};
+    \node [station_label, below=6em of fan.west] (12) {12};
     % \node [station_label, below=8em of splitter.west] (13) {13};
     \node [station_label, below=6em of lpc.west] (2) {2};
     \node [station_label, below=6em of hpc.west] (25) {25};
@@ -65,7 +65,7 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \node [station_label, below=6em of hpt.west] (4) {4};
     \node [station_label, below=6em of lpt.west] (45) {45};
     \node [station_label, below=6em of corenozzle.west] (5) {5};
-    \node [station_label, below=6em of bypnozzle.west] (17) {17};
+    \node [station_label, below=6em of bypnozzle.west] (18) {18};
 
     % Draw element connections
     % \path [connection] (fc) -- (inlet);
@@ -82,7 +82,7 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
 
     % Draw station label connections
     % \path [line] (inlet.west) -- (1.north);
-    \path [line] (fan.west) -- (1.north);
+    \path [line] (fan.west) -- (12.north);
     % \path [line] (splitter.west) -- (13.north);
     \path [line] (lpc.west) -- (2.north);
     \path [line] (hpc.west) -- (25.north);
@@ -90,7 +90,7 @@ text width=9em, text centered, font=\LARGE, rounded corners, minimum height=6em]
     \path [line] (hpt.west) -- (4.north);
     \path [line] (lpt.west) -- (45.north);
     \path [line] (corenozzle.west) -- (5.north);
-    \path [line] (bypnozzle.west) -- (17.north);
+    \path [line] (bypnozzle.west) -- (18.north);
 
     % Draw Shaft Connections
     \path [shaft] (fan) |- (fanshaft) -- (gearbox);
