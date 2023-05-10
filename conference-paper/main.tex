@@ -2,7 +2,6 @@
 \documentclass[conf]{new-aiaa}
 
 \usepackage[utf8]{inputenc}
-\usepackage{hyperref}
 \usepackage{graphicx}
 \usepackage{siunitx}
 \sisetup{group-separator = {,}}
@@ -21,6 +20,7 @@
 \usepackage[sort&compress,numbers]{natbib} % For bibtex \citet, \citep
 \usepackage{hypernat} % To get natbib to play nicely with hyperref
 \usepackage{doi} % For getting hyperlinked DOI in the references
+\usepackage{hyperref}
 
 %% Custom modifications of hyperlinks.
 % This is not from the AIAA template standard
@@ -40,7 +40,7 @@
 
 % [x] TODO: AL-PA, Consider changing the title to "Comparing Hydrogen and Jet-A for an N+3 Turbofan with Water Recirculation using Gradient-Based Optimization"
 \title{Comparing Hydrogen and Jet-A for an N+3 Turbofan with Water Recirculation using Gradient-Based Optimization} % change
-\author{Peter N. Atma\footnote{MSE Student, Department of Aerospace Engineering, AIAA Student Member}}
+\author{Peter N.~Atma\footnote{MSE Student, Department of Aerospace Engineering, AIAA Student Member}}
 \author{Andrew H~.R.~Lamkin\footnote{Ph.D.~Candidate, Department of Aerospace Engineering, AIAA Student Member}}
 \author{Joaquim R.~R.~A.~Martins\footnote{Professor, Department of Aerospace Engineering, AIAA Fellow}}
 \affil{University of Michigan, Ann Arbor, MI, 48109}
@@ -70,13 +70,13 @@
   We perform a gradient-based optimization parameter sweep to explore the trade-offs between performance and emissions using both fuels with water recirculation.
   The results quantify the design space for next-generation propulsion concepts that can take advantage of hydrogen fuel's advantageous thermodynamic properties to reduce emissions and improve performance.
   % Advances in commercial propulsion technology are pushing the development of efficient high bypass ratio turbofan engines with larger overall pressure ratios and internal temperatures.
-  Current trends suggest that geared ultra high bypass ratio turbofans are the next generation of commercial propulsion systems.
-  These engines pose a difficult design problem due to high internal temperatures, large overall pressure ratios, and increasingly smaller cores.
-  Furthermore, the emphasis on decreasing emissions has driven the exploration of hydrogen-powered aircraft, adding to the already challenging design space.
-  Carrying and burning hydrogen introduces complexity and weight penalties that we must offset using the fuel's thermodynamic and chemical properties.
-  In this study, we create a closed-loop water recirculation system with a zero-dimensional thermodynamic model and compare the benefits between Jet-A and hydrogen fuels.
-  We perform a gradient-based optimization parameter sweep to explore the trade-offs between performance and emissions using both fuels with water recirculation.
-  The results quantify the design space for next-generation propulsion concepts that can benefit from hydrogen fuel's advantageous properties to reduce emissions and improve performance.
+  % Current trends suggest that geared ultra high bypass ratio turbofans are the next generation of commercial propulsion systems.
+  % These engines pose a difficult design problem due to high internal temperatures, large overall pressure ratios, and increasingly smaller cores.
+  % Furthermore, the emphasis on decreasing emissions has driven the exploration of hydrogen-powered aircraft, adding to the already challenging design space.
+  % Carrying and burning hydrogen introduces complexity and weight penalties that we must offset using the fuel's thermodynamic and chemical properties.
+  % In this study, we create a closed-loop water recirculation system with a zero-dimensional thermodynamic model and compare the benefits between Jet-A and hydrogen fuels.
+  % We perform a gradient-based optimization parameter sweep to explore the trade-offs between performance and emissions using both fuels with water recirculation.
+  % The results quantify the design space for next-generation propulsion concepts that can benefit from hydrogen fuel's advantageous properties to reduce emissions and improve performance.
   % The results quantify the design space for next-generation propulsion concepts that can take advantage of hydrogen fuel's advantageous thermodynamic properties to reduce emissions and improve performance.
 \end{abstract}
 
@@ -216,8 +216,8 @@ A schematic of the injector is shown in Figure~\ref{fig:injector} where \ce{Y_{\
   \begin{subfigure}[t]{0.49\textwidth}
     \includegraphics[width=\textwidth]{extractor.pdf}
     \caption{
-      We extract a fraction of the moles of water from the out flow of duct 5.
-      The extracted water is routed back upstream to the injector and the rest is exhausted out the nozzle.
+      We extract a fraction of the mass flow of water determined by the molar composition.
+      The extracted water is routed from duct 5 back upstream to the injector and the rest is exhausted out the nozzle.
     }
     \label{fig:extractor}
   \end{subfigure}
@@ -231,7 +231,7 @@ The water extractor model diverts a fraction of a specific species from one flow
 The CEA solver calculates the inflow composition and the extractor separates a specific species based on a mass fraction input.
 The composition of the core stream is updated to represent the remaining mixture after the extractor model removes the species from the incoming flow.
 We then solve for the thermodynamic state and flow path areas at the outflow of both extractor streams.
-A simple schematic of the extractor is shown in Figure~\ref{fig:extractor} where \ce{Y_{\ce{H2O}}} is the mole fraction of water molecules and \ce{X_{\ce{H2O}}} is the fraction of water that is recovered from the core stream.
+A simple schematic of the extractor is shown in Figure~\ref{fig:extractor} where \ce{Y_{\ce{H2O}}} is the mole fraction of water molecules and \ce{X_{\ce{H2O}}} is the mass fraction of water that is recovered from the core stream.
 We connect one outflow stream of the extractor to the inflow stream of the injector to complete the water recirculation system.
 
 % NOTE: AL-PA, I made this a new paragraph (no content change)
@@ -369,10 +369,10 @@ The fuel properties used in the engine model are given in~\ref{fuel_props}.
     The lower heating values are given for each fuel used to compute TSEC.}
   \begin{tabular}{r r r l}
     \hline
-    Parameter              & Value   & Units        & Description                                                                                                            \\
-    \hline                                                                                                                                                                   \\
-    $\rm{LHV}_{\rm{JetA}}$ & 18564.0 & \si{BTU/lbm} & Lower heating value of Jet-A \footnote{\url{https://www.smartcockpit.com/docs/Jet_Fuel_Characteristics.pdf}}           \\
-    $\rm{LHV}_{\rm{H2}}$   & 51591.0 & \si{BTU/lbm} & Lower heating value of H2 \footnote{\url{https://www.engineeringtoolbox.com/fuels-higher-calorific-values-d_169.html}} \\
+    Parameter              & Value & Units        & Description                                                                                                            \\
+    \hline
+    $\rm{LHV}_{\rm{JetA}}$ & 18564 & \si{BTU/lbm} & Lower heating value of Jet-A~\footnote{\url{https://www.smartcockpit.com/docs/Jet_Fuel_Characteristics.pdf}}           \\
+    $\rm{LHV}_{\rm{H2}}$   & 51591 & \si{BTU/lbm} & Lower heating value of H2~\footnote{\url{https://www.engineeringtoolbox.com/fuels-higher-calorific-values-d_169.html}} \\
     \hline
   \end{tabular}
   \label{fuel_props}
@@ -427,7 +427,7 @@ The nozzle velocity ratio is defined as
   V_{\rm{ratio}} = \frac{V_{\rm{core,ideal}}C_{v,\rm{core}}}{V_{\rm{bypass,ideal}}C_{v,\rm{bypass}}}
   \label{eq:vratio}
 \end{equation}
-where $V_\text{ideal}$ is the ideal nozzle exit velocity and $C_v$ is the nozzle velocity coefficient that accounts for non-ideal effects.
+where $V_\text{ideal}$ is the ideal nozzle exit velocity and $C_v$ is the nozzle velocity coefficient that accounts for non-ideal nozzle effects.
 The final design variable is the water recovery fraction at CRZ ($X_{\rm{H_2O,CRZ}}$).
 % [x] TODO: AL-PA, optimizing for fuel burn subject to net thrust constraint...
 % [x] TODO: AL-PA, this isn't the only reason we consider just the water recovery at cruise.  It's also the longest flight segment and contributes the most to long-term performance.
@@ -480,7 +480,7 @@ We summarize the constraints as residuals (r) and the associated implicit states
   \centering
   \caption{
     Multipoint optimization problem definition.
-    The objective function is the thrust specific energy consumption at the cruise condition.
+    The objective function is the fuel flow rate at the cruise condition.
     The constraints are net thrust and engine diameter constraint at the design point, TOC.
   }
   \small
@@ -705,31 +705,31 @@ $V_\text{ratio,CRZ}$ is at the lower bound for all four cases to maximize the am
 % [x] TODO: PA-PA: Add thrust splits for each opt
 % [x] TODO: AL-PA: I think this should be showing gross thrust from the fan divided by gross thrust from the core.
 %                  The idea here is to show percentages of thrust generated by fan/core and how that changes with water recovery.
-\begin{table}[hbt!]
-  \centering
-  \caption{Thrust breakdown for each flight operating condition.
-    The net thrust, gross thrust, and ram drag are shown for each optimization result.
-  }
-  \small
-  \renewcommand{\arraystretch}{1.2}
-  \begin{tabular}{r l l l l l}
-    Point & Thrust Fraction & Jet-A Dry & Jet-A Wet & H2 Dry  & H2 Wet  \\
-    \toprule
-    TOC   & Core            & 6.47\%    & 6.05\%    & 5.95\%  & 5.47\%  \\
-          & Bypass          & 93.53\%   & 93.95\%   & 94.05\% & 94.53\% \\
-    \hline
-    RTO   & Core            & 6.31\%    & 5.87\%    & 5.77\%  & 5.26\%  \\
-          & Bypass          & 93.69\%   & 94.13\%   & 94.23\% & 94.74\% \\
-    \hline
-    SLS   & Core            & 6.11\%    & 5.68\%    & 5.58\%  & 5.09\%  \\
-          & Bypass          & 93.89\%   & 94.32\%   & 94.42\% & 94.91\% \\
-    \hline
-    CRZ   & Core            & 6.02\%    & 5.42\%    & 5.53\%  & 4.71\%  \\
-          & Bypass          & 93.98\%   & 94.58\%   & 94.47\% & 95.29\% \\
-    \bottomrule
-  \end{tabular}
-  \label{tab:thrust}
-\end{table}
+% \begin{table}[hbt!]
+%   \centering
+%   \caption{Thrust breakdown for each flight operating condition.
+%     The net thrust, gross thrust, and ram drag are shown for each optimization result.
+%   }
+%   \small
+%   \renewcommand{\arraystretch}{1.2}
+%   \begin{tabular}{r l l l l l}
+%     Point & Thrust Fraction & Jet-A Dry & Jet-A Wet & H2 Dry  & H2 Wet  \\
+%     \toprule
+%     TOC   & Core            & 6.47\%    & 6.05\%    & 5.95\%  & 5.47\%  \\
+%           & Bypass          & 93.53\%   & 93.95\%   & 94.05\% & 94.53\% \\
+%     \hline
+%     RTO   & Core            & 6.31\%    & 5.87\%    & 5.77\%  & 5.26\%  \\
+%           & Bypass          & 93.69\%   & 94.13\%   & 94.23\% & 94.74\% \\
+%     \hline
+%     SLS   & Core            & 6.11\%    & 5.68\%    & 5.58\%  & 5.09\%  \\
+%           & Bypass          & 93.89\%   & 94.32\%   & 94.42\% & 94.91\% \\
+%     \hline
+%     CRZ   & Core            & 6.02\%    & 5.42\%    & 5.53\%  & 4.71\%  \\
+%           & Bypass          & 93.98\%   & 94.58\%   & 94.47\% & 95.29\% \\
+%     \bottomrule
+%   \end{tabular}
+%   \label{tab:thrust}
+% \end{table}
 
 % [x] TODO: AL-PA, Again, this table might not be directly above this text in the PDF so you need to use \ref{tab:thrust}.
 % [x] TODO: AL-PA, You already showed the constraint values and that the design is feasible, the reader knows what the net thrust should be from that information.
@@ -760,10 +760,10 @@ Achieving a 5\% reduction in TSEC represents a large fuel savings over the lifec
 % [x] TODO: AL-PA, Add a sentence that introduces this citation and paraphrases the claim.  Then relate it to your findings.
 As~\citeauthor{Strom2002} point out, a hydrogen-fueled engine would have close to 3 times more water in the exhaust than a similar Jet-A fueled counterpart.
 % [x] TODO: AL-PA, I think we need to add some numbers here for the mass flow rate of water for jet-a and hydrogen to help this claim.
-The engine designs with water recovery showed that there was about 2.38\si{lbm/s} and 1.08\si{lbm/s} of water in the core stream for \ce{H2} and Jet-A, respectively
+The engine designs with water recovery showed that there was about 2.38 \si{lbm/s} and 1.08 \si{lbm/s} of water in the core stream for \ce{H2} and Jet-A, respectively.
 % Therefore, \ce{H2} is a much more appealing fuel to use with the proposed closed-loop water recovery system.
 Hydrogen combustion offers an immediate reduction in emissions and produces more water in the exhaust stream.
-With an advanced water recovery system, we can achieve better TSEC with hydrogen fuel than Jet-A.
+With an advanced water recovery system, we can achieve better TSEC with hydrogen fuel than a standard Jet-A engine without water recovery.
 To make hydrogen fueled engines a reality, we need to take advantage of the additional benefits of hydrogen combustion.
 \subsection{Condenser Design Space Study}
 \label{sub:dpqp_sweep}
