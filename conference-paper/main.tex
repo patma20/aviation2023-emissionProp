@@ -781,33 +781,36 @@ This pressure loss coefficient (dPqP) is the difference in total pressure across
 % [x] TODO: AL-PA, Elaborate on why we re-optimized the design.  It is because we want to see how the optimal amount of water recovery changes based on the drag incurred by the condenser.
 We varied the total pressure loss across the duct to simulate an increasingly larger condenser jutting out into the duct.
 We ran an optimization to minimize fuel mass flow rate of hydrogen at each pressure loss value using the formulation for water recovery in Table~\ref{tab:opt_problem}.
+The mass fraction of extracted water is held constant at 17\% to make a fair comparison at each pressure loss point.
+
+\begin{figure}[hbt!]
+    \centering
+    \begin{subfigure}[t]{0.48\textwidth}
+        % [x] TODO: AL-PA, I don't think its benefit vs no-benefit.  The message here is that the blue region is the design space where we can potentially design condenser.
+        \includegraphics[width=\textwidth]{N3_dpqp.pdf}
+        \caption{
+            The figure shows the optimized TSEC values for varying levels of pressure loss due to the condensation of water compared to the optimization problem without water recovery.
+            This shows the feasible space available for designing a water condenser while still benefiting from water recovery.}
+        \label{fig:dpqp_sweep}
+    \end{subfigure}
+    \hspace{2pt}
+    \begin{subfigure}[t]{0.48\textwidth}
+        % [x] TODO: AL-PA, Rotate the y-axis label to go vertically to save space
+        \includegraphics[width=\textwidth]{N3_wdot.pdf}
+        \caption{
+            The figure shows the optimal mass flow rate of water extracted at each pressure loss value.
+        }
+        \label{fig:dpqp_wdot}
+    \end{subfigure}
+    \caption{Pressure loss sweep of Duct5.
+        Duct5 is just upstream of the water vapor extractor component.}
+    \label{fig:dpqp_study}
+\end{figure}
+
 % The rest of the engine design variables were optimized during this pressure loss sweep to determine the how the optimal amount of water recovery changed based on drag losses from the condenser.
 Figure~\ref{fig:dpqp_sweep} shows the $\rm{TSEC}_{\rm{CRZ}}$ of the optimal engine cycles plotted against dPqP.
 The red horizontal line is the $\text{TSEC}_\text{CRZ}$ value of the optimized engine with no water recovery.
 The blue region represents the feasible space for potential condenser technology.
-\begin{figure}[hbt!]
-    \centering
-    \begin{subfigure}[t]{0.49\textwidth}
-        % [x] TODO: AL-PA, I don't think its benefit vs no-benefit.  The message here is that the blue region is the design space where we can potentially design condenser.
-        \includegraphics[width=\textwidth]{N3_dpqp.pdf}
-        \caption{Pressure loss sweep of Duct5 which is just upstream of the water vapor extractor component.
-            The figure shows the optimized TSEC values for varying levels of pressure loss due to the condensation of water compared to the optimization problem without water recovery.
-            This shows the working space available for designing a water condenser while still gaining the benefits of water recovery.}
-        \label{fig:dpqp_sweep}
-    \end{subfigure}
-    \hspace{2pt}
-    \begin{subfigure}[t]{0.49\textwidth}
-        % [x] TODO: AL-PA, Rotate the y-axis label to go vertically to save space
-        \includegraphics[width=\textwidth]{N3_wdot.pdf}
-        \caption{Pressure loss sweep of Duct5 which is just upstream of the water vapor extractor component.
-            The figure shows the resulting total available water in the exhaust stream for varying levels of pressure loss in the extractor flow path.
-            The engine was optimized with the water recovery upper bound of 17\%.
-        }
-        \label{fig:dpqp_wdot}
-    \end{subfigure}
-    \caption{}
-    \label{fig:dpqp_study}
-\end{figure}
 % From Figure~\ref{fig:dpqp_sweep}, we can see the design space in which the closed-loop water recovery model is feasible.
 The breakeven point where water recovery is no longer beneficial occurs at a pressure loss of roughly 0.16, or 16\%.
 This estimate is based on an ideal condenser that can achieve the optimal water extraction for a given pressure loss.
@@ -816,10 +819,11 @@ In reality, losses due to inefficiencies further reduce the size of the feasible
 % A value of $\rm{dPqP} = 0.16$ means that a 16\% loss of pressure from the condenser is allowed assuming the maximum water recovery fraction of 17\% for \ce{H2}.
 % This improvement design space would be reduced if only a smaller fraction of water recovered could be obtained.
 % [x] TODO: AL-PA, Re-write this part to match the new figure that shows the mass flow of water extracted (per our slack convo)
-The water flow rate extracted from the core stream as a function of the same pressure loss is shown in Figure~\ref{fig:dpqp_wdot}.
+The sensitivity of water extraction with respect to pressure loss is shown in Figure~\ref{fig:dpqp_wdot}.
 % Figure~\ref{fig:dpqp_wdot} shows that the optimizer finds designs that increase the available water in the core stream.
-Since the water recovery fraction is always pushed to 17\%, the optimizer increases the recovered water mass flow rate to overcome the pressure loss.
-This effect helps the engine increase the feasible design space in Figure~\ref{fig:dpqp_sweep}.
+The optimizer increases the amount of water extraction to compensate for the increasing pressure loss.
+% Since the water recovery fraction is always pushed to 17\%, the optimizer increases the recovered water mass flow rate to overcome the pressure loss.
+This represents a benchmark for designing condenser technology that can operate within the proposed water recirculation system.
 The hydrogen fuel would serve a double purpose in this cycle.
 The cold hydrogen fuel can be used as a heat sink for the condenser and then injected into the combustor at a higher temperature, further improving efficiency~\cite{Boggia2002}.
 
