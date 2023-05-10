@@ -16,12 +16,19 @@
 \usepackage{multirow}
 \usepackage{booktabs}
 \usepackage{latexsym}
+\usepackage{multicol}
 \usepackage{subcaption}
-\usepackage{latexsym}
 \usepackage[sort&compress,numbers]{natbib} % For bibtex \citet, \citep
 \usepackage{hypernat} % To get natbib to play nicely with hyperref
 \usepackage{doi} % For getting hyperlinked DOI in the references
 
+%% Custom modifications of hyperlinks.
+% This is not from the AIAA template standard
+\usepackage{xcolor}
+\colorlet{mblue}{blue!40!black}
+\hypersetup{bookmarksnumbered=true,colorlinks=true,linkcolor=mblue,citecolor=mblue,urlcolor=mblue}
+
+\setlength\LTleft{0pt} 
 
 \hypersetup{
     pdfauthor={Peter Atma}, % insert author here
@@ -62,12 +69,22 @@
   In this study, we create a closed-loop water recirculation system with a zero-dimensional thermodynamic model and compare the benefits between Jet-A and hydrogen fuels.
   We perform a gradient-based optimization parameter sweep to explore the trade-offs between performance and emissions using both fuels with water recirculation.
   The results quantify the design space for next-generation propulsion concepts that can take advantage of hydrogen fuel's advantageous thermodynamic properties to reduce emissions and improve performance.
+  % Advances in commercial propulsion technology are pushing the development of efficient high bypass ratio turbofan engines with larger overall pressure ratios and internal temperatures.
+  Current trends suggest that geared ultra high bypass ratio turbofans are the next generation of commercial propulsion systems.
+  These engines pose a difficult design problem due to high internal temperatures, large overall pressure ratios, and increasingly smaller cores.
+  Furthermore, the emphasis on decreasing emissions has driven the exploration of hydrogen-powered aircraft, adding to the already challenging design space.
+  Carrying and burning hydrogen introduces complexity and weight penalties that we must offset using the fuel's thermodynamic and chemical properties.
+  In this study, we create a closed-loop water recirculation system with a zero-dimensional thermodynamic model and compare the benefits between Jet-A and hydrogen fuels.
+  We perform a gradient-based optimization parameter sweep to explore the trade-offs between performance and emissions using both fuels with water recirculation.
+  The results quantify the design space for next-generation propulsion concepts that can benefit from hydrogen fuel's advantageous properties to reduce emissions and improve performance.
+  % The results quantify the design space for next-generation propulsion concepts that can take advantage of hydrogen fuel's advantageous thermodynamic properties to reduce emissions and improve performance.
 \end{abstract}
 
 \section{Introduction}
 % Message 1: Motivation to incorporate low-emission fuels and techniques
 The effects of climate change are pushing the aviation industry towards hydrogen-fueled propulsion systems as a solution to reduce emissions.
-N+3 technology estimates for engines that burn hydrocarbon fuels suggest that higher efficiencies can be achieved by designing ultra high bypass ratio (UHBR) turbofans with small cores and high overall pressure ratios (OPR).
+% [x] TODO: AL-AL, probably should cite the N+3 paper here
+N+3 technology estimates for engines that burn hydrocarbon fuels suggest that higher efficiencies can be achieved by designing ultra high bypass ratio (UHBR) turbofans with small cores and high overall pressure ratios (OPR)~\cite{Jones2017a}.
 Higher OPR and smaller cores challenge the limits of compressor and turbine design, placing an upper bound on potential performance and emissions improvements.
 Switching to hydrogen as the primary fuel source reduces carbon dioxide emissions immediately, but adds complexity and weight that can offset the benefits~\cite{Adler2023}.
 However, hydrogen is a versatile fuel with advantageous molecular and thermodynamic properties that can be exploited to increase the performance and reduce emissions.
@@ -81,37 +98,39 @@ NASA, Boeing, and Rolls-Royce studied this concept and suggested that this techn
 Additionally, water injection improves fuel efficiency and thrust output with lower combustion temperatures that can improve the lifetime of turbine blades and reduce noise~\cite{Daggett2010}.
 % [x] TODO: AL-PA, Should try to find a citation for this if one exists.
 Traditional propulsion systems that burn hydrocarbon fuels would require external demineralized water storage on the aircraft for water injection~\cite{Mourouzidis2015}.
-The added weight of tanks, pumping, and ducting makes this concept infeasible for a conventional aircraft over the entire flight.
-The main product of hydrogen combustion is water vapor that we can recover from the exhaust stream~\cite{Strom2002}.
-Condensing water vapor from the exhaust stream of hydrogen combustion and recirculating it eliminates any additional storage requirements.
-This allows for the theoretical design of a closed loop water feedback system inside the propulsion cycle.
-Pratt and Whitney are actively researching this technology to improve the feasibility of hydrogen-powered propulsion~\cite{arpa-e_2021}.
-They suggest that water vapor can be recovered by utilizing the thermal properties of hydrogen to condense some of the water in the turbofan exhaust.
+The added weight of tanks, pumping, and ducting makes this concept infeasible for a conventional aircraft.
+The main product of hydrogen combustion is water vapor.
+We can recover the vapor from the exhaust stream~\cite{Strom2002} with condensers and recirculate it upstream to eliminate additional storage requirements.
+% Condensing water vapor from the exhaust stream of hydrogen combustion and recirculating it eliminates any additional storage requirements.
+This system represents a closed loop water feedback system inside the propulsion cycle.
+% This allows for the theoretical design of a closed loop water feedback system inside the propulsion cycle.
+Pratt and Whitney are actively researching this technology to increase the efficiency of hydrogen-powered propulsion~\cite{arpa-e_2021}.
+% They suggest that water vapor can be recovered by utilizing the thermal properties of hydrogen to condense some of the water in the turbofan exhaust.
 
 Zero-dimensional cycle modeling is an efficient tool for predicting the initial design, performance, and emissions of new propulsion concepts.
 % [x] TODO: AL-AL, Need to cite CEA paper.
 Zero-dimensional analysis uses a first-principles approach with a chemical equilibrium analysis (CEA) thermodynamics solver~\cite{Gordon1994} that considers the molecular species of different fuels.
 The industry standard for thermodynamic cycle analysis is the Numerical Propulsion System Simulation (NPSS) framework~\cite{JonesNPSS}.
-NPSS is a modular object-oriented library that models engine components as individual blocks with several thermodynamic solvers.
-\citet{Hendricks2019} created a new tool called pyCycle with the same functionality as NPSS with analytical derivatives~\cite{Gray2017b}.
-pyCycle is built on top of the OpenMDAO framework~\cite{Gray2019a} to enable gradient-based optimization and leverage hierarchical nonlinear solver structures for robustness.
+NPSS is a modular object-oriented library that models engine components as individual blocks with specialized thermodynamic solvers.
+\citet{Hendricks2019} created a new tool called pyCycle with the same functionality as NPSS, with the addition of analytical derivatives~\cite{Gray2017b}.
+pyCycle is built on top of the OpenMDAO framework~\cite{Gray2019a} to facilitate gradient-based optimization and leverage hierarchical solver structures.
 % NOTE: AL-PA, I removed the MAUD sentence because it's a wormhole that you probably don't want to enter lol.
 
 % Message 3: Introduce the extension of the HBTF and propose novel contributions
-In this work, we analyze the thermodynamic benefits of a closed-loop water vapor recovery and water injection system in a high-bypass turbofan engine.
+In this work, we analyze the thermodynamic benefits of a closed-loop water vapor recovery and injection system in a high-bypass turbofan engine.
 We develop pyCycle components for water injection and vapor recovery to quantify the benefit of a closed loop recirculation system.
 We use gradient-based optimization to minimize fuel burn subject to performance requirements using both Jet-A and hydrogen at a range of flight conditions.
 The optimized results show the trade-off between complexity, performance, and efficiency for Jet-A and hydrogen fuels.
+Finally, we present a design space study that demonstrates the necessary condenser technology levels for efficient water recovery.
 
 This work is organized as follows. First, in Section~\ref{sec:method}, we introduce the turbofan model and explain the water injection and water recovery components.
 In section~\ref{sec:optprob} the implementation of the multipoint optimization problem is discussed.
-Finally, we present the optimized results and discuss the design space in section~\ref{sec:results}.
+Finally, we present the optimized results and discuss the condenser design space study in section~\ref{sec:results}.
 
 \section{Methodology}
 \label{sec:method}
-
 % Engine Architecture: Describe the flow path of the engine and establish the mechanical coupling.
-The UHB turbofan model is the NASA advanced technology "N+3" engine~\cite{Jones2017a}.
+The UHB turbofan model is the NASA advanced technology N+3 engine~\cite{Jones2017a}.
 The N+3 reference cycle is a UHB ratio geared turbofan that could be available in the 2030 to 2040 time frame.
 The flow path consists of an inlet that directs ambient air through a fan, followed by a duct that splits the flow into a core and a bypass stream, each ending in a core and bypass nozzle, respectively.
 The low pressure system is split into two mechanical subsystems.
@@ -119,11 +138,11 @@ First, the fan is connected to the gearbox that reduces the shaft speed to decre
 Second, the gearbox attaches to the low-pressure shaft that connects to the low-pressure compressor (LPC) and low-pressure turbine (LPT).
 The high pressure compressor (HPC) is connected to the high pressure turbine (HPT) by the high pressure shaft.
 % [x] TODO: AL-PA, I think we need to reference the engine diagram figure here so the reader can visualize all this text.
-Figure~\ref{fig:n3_cycle} shows a standard high bypass turbofan engine flow connections.
+Figure~\ref{fig:n3_cycle} shows a simplified UHB turbofan engine flow path.
 % [x] TODO: AL-PA, potentially move the commented line below about CEA into the subsection discussing the propulsion model.  I think it's too much detail for the setup of this section.
-We introduce the closed-loop water recovery system as a feedback cycle that transports water from the exhaust to a point upstream of the compressors.
+We introduce the closed-loop water recovery system as a feedback cycle that transports water from the exhaust to upstream of the compressors.
 The recovery system injects vaporized water into the core stream that reduces the combustion temperature due to heat absorption.
-The vapor recovery component is placed directly before the core nozzle to extract water from the exhaust and recycles it back to the injector.
+The vapor recovery component is located just upstream of the core nozzle to extract water from the exhaust and recycle it back to the injector.
 Figure~\ref{fig:n3_clvr} shows the water vapor recovery loop implemented in a turbofan engine.
 % [x] TODO: AL-PA, Again, probably should reference a figure to give context to the water recovery layout.
 % NOTE: AL-PA, don't discredit your work before you even explain the model and methods.  We can make this point in the results or conclusion.
@@ -135,6 +154,7 @@ We explain the implementation and assumptions of the water recovery model and th
 % [x] TODO: AL-PA, Add the description of the figure elements to the caption.
 % [x] TODO: AL-PA, Consider changing the caption to "Simplified layout of the N+3 engine cycle, adapted from~\citet{Hendricks2019}"
 % [x] TODO: AL-PA, Remove the flight conditions component and add the bypass duct component below the splitter. I think the bypass is an important enough aspect of the engine to include.
+% [ ] TODO: AL-PA, Missing station labels for the bypass duct, splitter, and inlet
 \begin{figure}[hbt!]
   \centering
   \includegraphics[width=1.0\textwidth]{N3_cycle.pdf}
@@ -148,7 +168,7 @@ We explain the implementation and assumptions of the water recovery model and th
 
 \subsection{Water Recovery Model}
 We implemented the closed-loop water recovery system as a feedback cycle that extracts water from the exhaust stream and injects it upstream of the HPC.
-We chose this injection location based on claims from a study by NASA, Boeing, and Rolls-Royce~\cite{Daggett2010} that water injection directly into the combustor is unnecessary.
+We chose this injection location following a study by NASA, Boeing, and Rolls-Royce~\cite{Daggett2010} that claims water injection directly into the combustor is unnecessary.
 The water vapor recovery component sits downstream of the LPT and extracts water from the flow before exiting the core nozzle.
 % [x] TODO: AL-PA, add a sentence about the assumptions for the vapor recovery instead of the mentioning the condenser
 We assume that a fraction of the total water available in the exhaust stream is recovered and that there are no pressure or temperature losses associated with this process.
@@ -169,9 +189,9 @@ To account for the humidity of the inlet air as well as the increased humidity a
 pyCycle provides a \texttt{wet-air} dataset that introduces \ce{H2O} molecules to the composition of air.
 We prescribe atmospheric mass-specific humidity as a water-to-air ratio (WAR) that is defined as the ratio of \ce{H2O} to air in the reactants of the inflow mixture.
 % [x] TODO: AL-PA, Reference Table 1 with humidity values as well.
-\citet{Kalnay1996} give the humidity values for each flight condition and are shown in Table~\ref{tab:flight_conds}.
+\citet{Kalnay1996} give the humidity values for each flight condition, provided in Table~\ref{tab:flight_conds}.
 
-We introduce two new thermodynamic models for water recirculation in pyCycle.
+We introduce two thermodynamic models in pyCycle to capture the effects of water recirculation.
 A water injector adds water to the flow upstream of the HPC, while a water extractor diverts a portion of the water in the flow away from the exhaust stream.
 The injector operates similarly to fuel injection in the pyCycle combustor component.
 We determine a WAR that is analogous to the fuel-to-air (FAR) ratio in the combustor.
@@ -212,6 +232,8 @@ The composition of the core stream is updated to represent the remaining mixture
 We then solve for the thermodynamic state and flow path areas at the outflow of both extractor streams.
 A simple schematic of the extractor is shown in Figure~\ref{fig:extractor} where \ce{Y_{\ce{H2O}}} is the mole fraction of water molecules and \ce{X_{\ce{H2O}}} is the fraction of water that is recovered from the core stream.
 We connect one outflow stream of the extractor to the inflow stream of the injector to complete the water recirculation system.
+
+% NOTE: AL-PA, I made this a new paragraph (no content change)
 The model results in a mismatch between the mass flow rate upstream of the HPC and the mass flow rate exiting the core nozzle.
 To preserve conservation of mass, we treat the water recirculation as a nonlinear cycle that must converge before the engine calculation is physically balanced.
 In this model, we are assuming the water molecules are removed from the exhaust stream with no pressure or temperature losses.
@@ -236,21 +258,23 @@ The model consists of twenty-five different elements that define the flow path a
 Thermodynamic quantities are solved and exchanged using CEA at flow path boundaries represented by black arrows between blue flow path components in Figure~\ref{fig:N3_original}.
 The fan, gearbox, low pressure, and high pressure systems are connected by three mechanical shafts depicted in red in Figure~\ref{fig:N3_original}.
 
+% NOTE: AL-PA, this ended up a bit choppy, but I think it's better than before.  If you want to adjust things a bit go ahead.
+We impose \emph{balance} equations to satisfy the physical governing equations, conservation laws, and design rules.
+Balance relationships are formulated as equations in the form $r(u)=0$ where $r$ is a residual function and $u$ is an implicit state variable.
+We use Newton based solvers to find the value of the state variables that drive the set of balance residuals to zero.
+\citeauthor{Hendricks2019} provide the extensive set of balance equations with further details on the construction of the nonlinear system for the N+3 model.
+
 % NOTE: AL-PA, I added this blurb to introduce multipoint
 We operate the engine cycle in different modes depending on the desired conservation relationships, design rules, and flight conditions.
 In ``on-design'' mode, we prescribe cycle inputs such as turbo machinery efficiencies, pressure ratios, and combustion temperatures.
 The ``off-design'' mode inherits the flow path areas and turbo machinery map scalars from the ``on-design'' analysis.
-
-% NOTE: AL-PA, this ended up a bit choppy, but I think it's better than before.  If you want to adjust things a bit go ahead.
-We impose \emph{balance} equations to satisfy the physical governing equations, conservation laws, and design rules.
-\emph{Balance} relationships are formulated as equations in the form $r(u)=0$ where $r$ is a residual function and $u$ is an implicit state variable.
-We use Newton based solvers to find the value of the state variables that drive the set of balance residuals to zero.
-\citeauthor{Hendricks2019} provide the extensive set of balance equations with further details on the construction of the nonlinear system for the N+3 model.
+This approach is known as multi-design point (MDP)~\cite{Schutte2009} analysis.
+MDP analysis simultaneously considers the performance and design requirements at each operation to automatically calculate a feasible design.
 
 The ``on-design'' point is top-of-climb (TOC) with ``off-design'' conditions at rolling takeoff (RTO), sea-level static (SLS), and cruise (CRZ).
-To account for each of these operating conditions, the N+3 model uses a technique called Multipoint Design Point (MDP) modeling to converge the model to an engine design.
+% To account for each of these operating conditions, the N+3 model uses a technique called Multipoint Design Point (MDP) modeling to converge the model to an engine design.
 Table~\ref{tab:flight_conds} shows the different altitudes and mach numbers for each flight condition.
-We consider these points because they either limit the performance at cruise or present critical design considerations for the propulsion system.
+% We consider these points because they either limit the performance at cruise or present critical design considerations for the propulsion system.
 % [x] TODO: AL-PA, Add a small table to show the mach and altitude of each flight condition
 \begin{table}[hbt!]
   \centering
@@ -279,7 +303,8 @@ The cooling mass flow rates ($\dot{m}_{\rm{cool},k}$) are passed from the RTO po
 We add a fuel burn objective at cruise to optimize the engine performance during the longest flight segment.
 We size the water recovery system at the CRZ condition because it has the greatest impact on fuel burn over the flight envelope.
 Similarly to $\dot{m}_{\rm{cool},k}$, the water recovery mass flow rates ($\dot{m}_{\rm{water},k}$) are connected back to the other operating points.
-The interconnections between flight conditions create a complex nonlinear loop, shown in Figure~\ref{fig:N3_xdsm_full}.
+Figure~\ref{fig:N3_xdsm_full} is an extended design structure matrix (XDSM)~\cite{Lambe2012a} diagram depicting the coupled multipoint model.
+The interconnections between flight conditions create a nonlinear cyclic loop with feedback between flight conditions.
 The converged model represents a feasible multipoint engine that accounts for design considerations and conservation laws at all four operating conditions.
 % [x] TODO: AL-PA, I removed a lot of stuff here to simplify this section.
 %                  - Ultimately I think we need to reference the pyCycle paper to prevent duplicating a bunch of math/text
@@ -304,16 +329,14 @@ We direct the reader to the N+3 multipoint model definition in the paper by \cit
 
 \section{Optimization Problem}
 \label{sec:optprob}
-
 % NOTE: AL-PA, No reason to have an extra subsection here so I removed it
 % \subsection{Problem Statement}
 % Briefly discuss the optimization problem
 % NOTE: AL-PA, "We will perform" makes it seem like we haven't done the work yet.
-We performed multipoint gradient-based design optimization of the N+3 engine model considering the TOC, RTO, SLS, and CRZ flight conditions.
+We performed MDP gradient-based design optimization of the N+3 engine model considering the TOC, RTO, SLS, and CRZ flight conditions.
 % NOTE: AL-PA, I re-wrote this to be more direct
 The objective is to minimize fuel burn subject to design and performance constraints.
 % [x] TODO: AL-PA, This is a good place to discuss the performance metrics and add the equations for TSEC and explain why it's better for this study than TSFC.
-
 Typical gas-turbine analysis measures the efficiency using the thrust-specific fuel consumption (TSFC).
 % For measuring the efficiency of Jet engines, thrust-specific fuel consumption (TSFC) is used in cycle analysis since it represents how much fuel is burned at a given thrust level.
 However, this metric is not useful in the comparison of efficiency between Jet-A and hydrogen fueled cycle models because of the differences in fuel density and energy capacity.
@@ -330,8 +353,7 @@ TSEC is TSFC multiplied by the lower heating value (LHV) of the fuel shown in Eq
   \mathrm{TSEC} = \frac{\dot{m}_{\mathrm{fuel}} \mathrm{LHV}}{F_{\mathrm{thrust}}} = \mathrm{TSFC} \times \mathrm{LHV}
   \label{eq:tsec}
 \end{equation}
-
-For this work we are concerned with minimizing fuel burn of the engine subject to known thrust constraints.
+% In this work we are concerned with minimizing fuel burn of the engine subject to thrust constraints.
 % [x] TODO: AL-PA, TSEC is not the objective.  Fuel burn is the objective.  TSEC is the efficiency metric of interest.
 TSEC will be used as a efficiency metric at the cruise condition to compare the two fuels in the results.
 % [x] TODO: AL-PA, explain the important aspects of the XDSM in writing before referencing the figure.
@@ -355,11 +377,18 @@ The fuel properties used in the engine model are given in~\ref{fuel_props}.
   \label{fuel_props}
 \end{table}
 
-Large multidisciplinary optimization problems are commonly represented with extended design structure matrix (XDSM) diagrams.
-XDSM diagrams are used to visualize the complex implicit and explicit relationships between functions, the solver, and optimizer.
-An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure~\ref{fig:N3_opt_xdsm}.
+We present a high-level summary of the optimization framework using an XDSM diagram in Figure~\ref{fig:N3_opt_xdsm}.
+The XDSM diagram shows the design variable, objective, and constraint connections between the optimization algorithm and the multipoint analysis model.
+The detailed optimization problem description is provided in Table~\ref{tab:opt_problem}.
+% Large multidisciplinary optimization problems are commonly represented with extended design structure matrix (XDSM) diagrams.
+% XDSM diagrams are used to visualize the complex implicit and explicit relationships between functions, the solver, and optimizer.
+% An XDSM diagram of the optimization problem with the multipoint formulation is shown in Figure~\ref{fig:N3_opt_xdsm}.
 
 % [x] TODO: AL-PA, simplify this XDSM to show just the optimization setup. Condense the MDA into a single block and remove all the multipoint acronyms.
+% [ ] TODO: AL-PA, Combine the TOC and Off design stack into a single block that just says (MDP Cycle Model)
+% [ ] TODO: AL-PA, Remove the map scalar, core area, and water recovery area connections
+% [ ] TODO: AL-PA, The symbol for thrust is "F" not "T"
+% [ ] TODO: AL-PA, Show the final outputs on the left side of the XDSM and include a superscript "*" to denote optimal values. i.e \dot{m}_\text{fuel}^*
 \begin{figure}[!hbt]
   \centering
   \includegraphics[width=0.5\textwidth]{N3_opt_XDSM.pdf}
@@ -375,9 +404,14 @@ An XDSM diagram of the optimization problem with the multipoint formulation is s
 % [x] TODO: AL-AL, I decided this is no longer necessary
 
 % [x] TODO: AL-PA, I would break this up into two or more sentences.
-The design variables for this problem are pressure controls such as fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), low pressure compressor pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), overall pressure ratio at CRZ ($\rm{OPR}_{\rm{TOC}}$).
-Other design variables are temperature controls such as burner temperature at RTO ($T_{4,\rm{RTO}}$) and the TOC-RTO burner temperature ratio ($T_{4,\rm{ratio}}$).
-TOC-to-RTO burner temperature ratio ($T_{4,\rm{ratio}}$) is shown in Equation~\eqref{t4ratio}.
+The design variables are specified at different flight conditions.
+At the TOC point, we include the fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), LPC pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), and overall pressure ratio ($\rm{OPR}_{\rm{TOC}}$).
+We add a design variable for maximum turbine inlet temperature at RTO ($T_{4,\rm{RTO}}$).
+RTO is the limiting condition for the maximum allowable exit temperature of the burner.
+The turbine inlet temperature at TOC is specified by a temperature ratio design variable ($T_{4,\rm{ratio}}$) between the RTO and TOC points, calculated as
+% The design variables for this problem are pressure controls such as fan pressure ratio ($\rm{PR}_{\rm{fan,TOC}}$), low pressure compressor pressure ratio ($\rm{PR}_{\rm{LPC,TOC}}$), overall pressure ratio at CRZ ($\rm{OPR}_{\rm{TOC}}$).
+% Other design variables are temperature controls such as burner temperature at RTO ($T_{4,\rm{RTO}}$) and the TOC-RTO burner temperature ratio ($T_{4,\rm{ratio}}$).
+% TOC-to-RTO burner temperature ratio ($T_{4,\rm{ratio}}$) is shown in Equation~\eqref{t4ratio}.
 
 \begin{equation}
   T_{4,\rm{ratio}} = \frac{T_{4,\rm{TOC}}}{T_{4,\rm{RTO}}}
@@ -385,39 +419,57 @@ TOC-to-RTO burner temperature ratio ($T_{4,\rm{ratio}}$) is shown in Equation~\e
 \end{equation}
 
 \noindent
-The nozzle velocity ratio at CRZ ($V_{\rm{ratio,CRZ}}$) is also added as a design variable to control the bypass ratio and mass flow rate through the engine.
-The nozzle velocity ratio is defined as,
+The nozzle velocity ratio at CRZ ($V_{\rm{ratio,CRZ}}$) is also added as a design variable to control the bypass ratio (BPR) at TOC.
+The nozzle velocity ratio is defined as
 
 \begin{equation}
   V_{\rm{ratio}} = \frac{V_{\rm{core,ideal}}C_{v,\rm{core}}}{V_{\rm{bypass,ideal}}C_{v,\rm{bypass}}}
   \label{eq:vratio}
 \end{equation}
-
-\noindent
-where $V_{ideal}$ is the exit velocity of a nozzle and $C_v$ is the velocity coefficient which accounts for non-ideal effects.
-Finally, the water recovery fraction at CRZ ($X_{\rm{H_2O,CRZ}}$) is added as a design variable in order to take advantage of water recirculation.
+where $V_\text{ideal}$ is the ideal nozzle exit velocity and $C_v$ is the nozzle velocity coefficient that accounts for non-ideal effects.
+The final design variable is the water recovery fraction at CRZ ($X_{\rm{H_2O,CRZ}}$).
 % [x] TODO: AL-PA, optimizing for fuel burn subject to net thrust constraint...
 % [x] TODO: AL-PA, this isn't the only reason we consider just the water recovery at cruise.  It's also the longest flight segment and contributes the most to long-term performance.
-We only add the water recovery fraction at CRZ as a design variable since we are optimizing $\dot{m}_{\rm{fuel,CRZ}}$.
-The CRZ operating condition is also the longest flight segment and therefore contributes the most to long-term performance.
+We only include the water recovery fraction at cruise because it has the largest impact on the fuel mass flow rate objective function.
+Additionally, the CRZ operating condition is the longest flight segment and contributes the most to long-term engine performance.
+The range for each design variable and the associated units are shown in Table~\ref{tab:dv_table}.
+% We add the water recovery fraction only at the CRZ point as a design variable since we are optimizing $\dot{m}_{\rm{fuel,CRZ}}$.
 
 % [x] TODO: AL-PA, You already explained the flight conditions in the multipoint section so not necessary here
 % [x] TODO: AL-PA, I would describe the constraints in more detail here.  This might be a good spot to talk about the constraints imposed by the balance comps at the top level.
 %                  - i.e the SLS and CRZ net thrust constraints
 %                  - i.e how the BPR is set by the nozzle velocity ratio
 %                  - i.e The interdependence of the TOC mass flow rate and the RTO temperature
+As aforementioned in Section~\ref{sec:method}, the N+3 model uses balance relationships to enforce design, conservation, and performance requirements.
+To create a reduced space optimization problem, the N+3 model imposes a set of constraints using additional balance relationships.
+These constraints are satisfied using a Newton solver at the analysis level instead of the optimization level.
+The advantage of the reduced space approach is that the design is feasible at the completion of each optimization iteration.
+\citet{Martins2013} classify this architecture as multidisciplinary design feasible (MDF).
+The balance relationships constrain the net thrust at the SLS and CRZ conditions, the BPR at TOC, and the turbine inlet temperature ($T_4$) at RTO.
+We summarize the constraints as residuals (r) and the associated implicit states ($\vec{u}$) in Equation~\eqref{eq:balance_cons}.
+\begin{equation}
+  \label{eq:balance_cons}
+  r(\vec{u}) \rightarrow
+  \begin{cases}
+    \setlength{\tabcolsep}{1pt}
+    \begin{tabular}{l l}
+      $r(\text{BPR}_\text{TOC})$    & $= (V_\text{ratio,TOC})_\text{des} - V_\text{ratio,TOC} = 0$, \\
+      $r(\dot{m}_\text{total,TOC})$ & $= (T_{4,\text{RTO}})_\text{des} - T_{4,\text{RTO}} = 0$,     \\
+      $r(\text{FAR}_\text{CRZ})$    & $= 0.9 F_\text{net, TOC} - F_\text{net, CRZ} = 0$,            \\
+      $r(\text{FAR}_\text{SLS})$    & $= 1.2553 F_\text{net,RTO} - F_\text{net, SLS} = 0$.          \\
+    \end{tabular}
+  \end{cases}
+\end{equation}
 
-The net thrust for the SLS and CRZ conditions are set using \emph{balance} components.
-Net thrust for SLS is constrained to be 1.2335 times the net thrust at RTO which itself is constrained to 22800 \si{lbf}.
-Similarly, the net thrust at CRZ is constrained to be 0.9 times the net thrust at TOC.
-The bypass ratio (BPR) at TOC is set by the \emph{balance} component such that the CRZ nozzle velocity ratio meets a given target value.
-The CRZ velocity ratio constraint ensures that the core exit velocity is higher than the bypass exit velocity.
-The TOC engine mass flow rate is set by the \emph{balance} component using the combustor temperature at RTO, $T_{4,\rm{RTO}}$.
+% The net thrust for the SLS and CRZ conditions are set using balance relationships between the RTO and TOC points respectively.
+% We prescribe an equality constraint using a balance residual to set the RTO net thrust to \SI{22800}{lbf}.
+% Another balance residual constrains the SLS net thrust to be 1.2335 the net thrust at RTO.
+% Similarly, the net thrust at CRZ is constrained to be 0.9 times the net thrust at TOC.
+% Net thrust for SLS is constrained to be 1.2335 times the net thrust at RTO.
+% The bypass ratio (BPR) at TOC is set by the \emph{balance} component such that the CRZ nozzle velocity ratio meets a given target value.
+% The CRZ velocity ratio constraint ensures that the core exit velocity is higher than the bypass exit velocity.
+% The TOC engine mass flow rate is set by the \emph{balance} component using the combustor temperature at RTO, $T_{4,\rm{RTO}}$.
 % [x] TODO: AL-PA, Combine these into a single sentence.
-
-The optimization problem objective function, design variables, and constraints are shown in Table~\ref{tab:opt_problem}.
-The thermodynamic cycle design variable ranges are determined from the expected N+3 technology limits~\cite{Hendricks2019}.
-Additionally, the design variable ranges are shown in Table~\ref{tab:dv_table}.
 
 % [x] TODO: AL-PA, Define the T4 ratio with an equation and reference the equation in the table
 % [x] TODO: AL-PA, I thought we were only doing recovery fractions at CRZ??
@@ -484,18 +536,20 @@ Additionally, the design variable ranges are shown in Table~\ref{tab:dv_table}.
 % NOTE: AL-PA, "pyOptSparse" not "PyOptSparse", i.e the first "p" is not capitalized.
 % [x] TODO: AL-AL, need to cite pyOptSparse, SNOPT, and OpenMDAO
 % NOTE: AL-PA, I re-wrote most of this to be more concise.
-The N+3 pyCycle model is implemented in OpenMDAO~\cite{Gray2019a} to enable multidisciplinary gradient-based optimization with analytic coupled derivatives.
+The N+3 pyCycle model is implemented in OpenMDAO~\cite{Gray2019a} to perform multidisciplinary gradient-based optimization with analytic coupled derivatives.
 We use pyOptSparse~\cite{Wu2020a} to facilitate the use of state-of-the-art optimization software through a unified python interface.
 We solve the optimization problem listed in Table~\ref{tab:opt_problem} with SNOPT~\cite{Gill2005a}, a gradient-based sequential quadratic programming (SQP) algorithm for large-scale constrained problems.
 
-During initial optimization studies of this model, it was found that when $T_{4,\rm{RTO}}$ and $X_{\rm{H_2O,CRZ}}$ are design variables at the same time they had opposite effects on the design.
-The optimizer increases $X_{\rm{H_2O,CRZ}}$ which allows for a lower optimal $T_{4,\rm{RTO}}$.
-This is likely due to the interdependency between engine mass flow rate and $T_{4,\rm{RTO}}$.
-As the recovery water fraction increases less mass flow rate is required through the engine which lowers the required $T_{4,\rm{RTO}}$ for a required level of thrust.
-It was also observed that $X_{\rm{H_2O,CRZ}}$ is increased until the model breaks due to the CEA solver not being able resolve the increased \ce{H2O} molecules that are injected.
-Since $T_{4,\rm{RTO}}$ would be pushed down to its lower limit, it was set as the optimal value from the optimizations with no water recovery.
-This allowed the optimizer to find the maximum $X_{\rm{H_2O,CRZ}}$ that would allow the most water to be recirculated.
-The upper bound on $X_{\rm{H_2O,CRZ}}$ was found to be around 30\% for Jet-A and 17\% for \ce{H2}.
+% NOTE: AL-PA, this was confusing and I don't think it add much useful information that the readers will actually understand.
+
+% During initial optimization studies of this model, it was found that when $T_{4,\rm{RTO}}$ and $X_{\rm{H_2O,CRZ}}$ are design variables at the same time they had opposite effects on the design.
+% The optimizer increases $X_{\rm{H_2O,CRZ}}$ which allows for a lower optimal $T_{4,\rm{RTO}}$.
+% This is likely due to the interdependency between engine mass flow rate and $T_{4,\rm{RTO}}$.
+% As the recovery water fraction increases less mass flow rate is required through the engine which lowers the required $T_{4,\rm{RTO}}$ for a required level of thrust.
+% It was also observed that $X_{\rm{H_2O,CRZ}}$ is increased until the model breaks due to the CEA solver not being able resolve the increased \ce{H2O} molecules that are injected.
+% Since $T_{4,\rm{RTO}}$ would be pushed down to its lower limit, it was set as the optimal value from the optimizations with no water recovery.
+% This allowed the optimizer to find the maximum $X_{\rm{H_2O,CRZ}}$ that would allow the most water to be recirculated.
+% The upper bound on $X_{\rm{H_2O,CRZ}}$ was found to be around 30\% for Jet-A and 17\% for \ce{H2}.
 
 \section{Results}
 \label{sec:results}
@@ -511,15 +565,21 @@ The upper bound on $X_{\rm{H_2O,CRZ}}$ was found to be around 30\% for Jet-A and
 % Results of optimization problems
 % [x] TODO: AL-PA, Include the optimization and feasibility targets and talk about the number of iterations for each optimization.
 % [x] TODO: AL-PA, Add that you are running these optimizations on a laptop and provide a rough estimate for the wall time. i.e "These optimizations run in approximately X number of hours on a laptop"
-The 4 optimizations described in the section~\ref{sec:optprob} were run and solved.
-The optimality and feasibility targets for the optimizations was $10^{-6}$.
-These optimizations took between 20-30 major SNOPT iterations to reach optimality and were completed in approximately 36-48 minutes on a standard laptop.
-The optimality, feasibility, and merit function for each optimization is shown plotted in Figure \ref{fig:history_summary}.
+We performed four optimizations of the N+3 engine cycle.
+The optimizations considered Jet-A and hydrogen fuels with and without the water recovery loop.
+For the optimizations without water recovery, we removed the water mass fraction design variable in Table~\ref{tab:opt_problem}.
+In optimizations with water recovery, we use a constant $T_{4,\text{RTO}}$ from the optimizations without water recovery to aid comparisons between configurations.
+
+The optimality and feasibility targets for the optimizations are both $10^{-6}$.
+These optimizations took between 20-30 major SNOPT iterations to reach optimality and were completed in approximately 45 minutes on a standard laptop.
+The optimality, feasibility, and merit function for each optimization is shown in Figure \ref{fig:history_summary}.
+All four optimization problems converged to the requested feasibility and optimality tolerances.
+The optimal design variables for each of the four optimizations are presented in Table~\ref{tab:dv_opt}.
+% The merit function reached a final value in about 10 iterations for all cases.
 % [x] TODO: AL-PA, No need to explain this and then answer your own observation from the plot.  Just tell the reader what the plot shows.
 % [x] TODO: AL-PA, Be cognizant that latex will not always put the figure right above a paragraph.  So saying "From this plot" might not make sense.  Need to directly reference the figure.
 % NOTE: AL-PA, The merit function is not a time-dependent quantity, so there's no "steady state".  Its enough to just say the merit function was reduced by X amount in X number of iterations...
-From Figure~\ref{fig:history_summary} we observe quadratic convergence in the optimality of the problem near the optimal solution as expected.
-A feasible design is reached and the merit function is reduced to its final value in about 10 iterations for all cases.
+% From Figure~\ref{fig:history_summary} we observe quadratic convergence in the optimality of the problem near the optimal solution.
 
 % [x] TODO: AL-PA, Stretch the aspect ratio of this figure and squeeze the height in matplotlib.  You don't need this many values on the y-axis for the summary plots.
 % Feasibility, Optimality, Merit history
@@ -531,10 +591,9 @@ A feasible design is reached and the merit function is reduced to its final valu
   \label{fig:history_summary}
 \end{figure}
 
-The optimal design variables for each of the four optimizations is shown in Table~\ref{tab:dv_opt}.
 % [x] TODO: AL-PA, You should explain the plot before it's introduced to the reader.  Stating what's on the figure after it appears doesn't provide any insight.
 % [x] TODO: AL-PA, See my previous TODOs but this needs some more explanation in the optimization problem section.
-Note that the $T_{4,\rm{RTO}}$ variables are only present for the optimizations without water recovery and the $X_{\rm{{H_2O},CRZ}}$ variables are present only for the optimizations with water recovery.
+% Note that the $T_{4,\rm{RTO}}$ variables are only present for the optimizations without water recovery and the $X_{\rm{{H_2O},CRZ}}$ variables are present only for the optimizations with water recovery.
 
 \begin{table}[hbt!]
   \centering
@@ -565,17 +624,32 @@ Note that the $T_{4,\rm{RTO}}$ variables are only present for the optimizations 
 
 % [x] TODO: AL-PA, Constraints are either feasible or they aren't, can't be "for the most part"
 % [x] TODO: AL-PA, Elaborate on why we include this parallel axis plot.  Why is it important?  What insight does it provide to the reader?  Compare and contrast the optimization results!
-The resulting optimal values from the optimization problems are shown in Figure~\ref{fig:parallel_coords} on a parallel coordinate plot.
-Figure~\ref{fig:parallel_coords} shows the how each of the optimal overall design of the engine compares across fuel type with and without water recovery.
+We summarize the optimal values of important thermodynamic variables on a parallel coordinate plot in Figure~\ref{fig:parallel_coords}.
+This figure compares the optimal overall design of the N+3 cycle across the four optimization problems.
+The TSEC of Jet-A is less than hydrogen with and without water recovery.
+However, the TSEC of the optimal cycle with hydrogen combustion and water recovery is less than Jet-A combustion without water recovery.
+This suggests that a hydrogen fueled N+3 UHB turbofan with water recovery can compete with the efficiency of a standard Jet-A fueled cycle.
+% Figure~\ref{fig:parallel_coords} shows the how each of the optimal overall design of the engine compares across fuel type with and without water recovery.
 % [x] TODO: AL-PA, How are they similar? Be specific.
 % [x] TODO: AL-PA, I would move a lot of this up to when you introduce the parallel axis plot.
-We see that across the range of values that each optimal value is very similar with the exception of water recovery fraction.
-As noted earlier, the water recovery fractions are different because the optimizer pushes $X_{\rm{{H_2O},CRZ}}$ to the highest value it can attain.
-The $\rm{PR}_{fan,TOC}$ and $V_{ratio,CRZ}$ design variables go to their upper and lower limits, respectively.
+% We see that across the range of values that each optimal value is very similar with the exception of water recovery fraction.
+
+With the addition of water recovery, the propulsive efficiency increases and leads to higher fan pressure ratios and lower TSEC for both fuels.
+Additionally, the $T_{4,\text{ratio}}$ is reduced with water recovery leading to cooler combustion temperatures at TOC and subsequently lower fuel burn at CRZ.
+We observe the optimal $T_{4,\text{RTO}}$ is larger for Jet-A than hydrogen because hydrogen has a larger combustion flammability limit and the engine can burn at a lower equivalence ratio to attain the same thrust requirements~\cite{Adler2023}.
+% [ ] TODO: AL-PA, why is this favorable for emissions reduction?  Need to cite or explain.
+Burning leaner reduces the fuel consumption and is favorable for emissions reduction.
+% The additional water in the combustion improves the propulsive efficiency and enables the increase in overall pressure ratio.
+% As noted earlier, the water recovery fractions are different because the optimizer pushes $X_{\rm{{H_2O},CRZ}}$ to the highest value it can attain.
+% The $\rm{PR}_{fan,TOC}$ and $V_{ratio,CRZ}$ design variables go to their upper and lower limits, respectively.
+$V_\text{ratio,CRZ}$ is at the lower bound for all four cases to maximize the amount of mass flow through the bypass stream.
 
 % NOTE: PA-PA/AL replace this with a parallel axis plot?
 % [x] TODO: AL-PA, Yeah let's do the parallel axis plot for the basic thermodynamic parameters
 % AL-PA, We can make another plot for the water fractions and the dpQp study.
+% [ ] TODO: AL-PA, Can you make the y-axis range for T4_ratio smaller so we can see the differences a bit better.  Maybe like 0.85 - 0.95
+% [ ] TODO: AL-PA, Same comment as above but for FPR, maybe 1.28-1.32
+% [ ] TODO: AL-PA, If a variable has bounds, can we make the y-axis limits match the bounds?
 \begin{figure}[hbt!]
   \centering
   \includegraphics[width=1.0\textwidth]{N3_parallel_coords.pdf}
@@ -585,43 +659,46 @@ The $\rm{PR}_{fan,TOC}$ and $V_{ratio,CRZ}$ design variables go to their upper a
   \label{fig:parallel_coords}
 \end{figure}
 
+
 % [x] TODO: AL-PA, How are the pressure ratios and temperatures different?  Which optimizations resulted in different values?
-\noindent
-$\rm{PR}_{fan,TOC}$ likely goes to its upper value since its more efficient to increase $\rm{PR}_{fan,TOC}$ than $\rm{OPR}_{\rm{TOC}}$.
-$V_{ratio,CRZ}$ tends toward its lower value since the engine is more efficient when the bypass stream is larger and has more mass flow through it.
-The main differences in the engine designs are the pressure ratios and temperatures.
+% $\rm{PR}_{fan,TOC}$ likely goes to its upper value since its more efficient to increase $\rm{PR}_{fan,TOC}$ than $\rm{OPR}_{\rm{TOC}}$.
+% The main differences in the engine designs are the pressure ratios and temperatures.
 % [x] TODO: AL-PA, Why is pushed to the upper limit?  Explain how it improves the combustion characteristics.
-Between the two fuel types, the water recovery fraction for both is pushed up to the upper limit of the design space.
-One reason the water recovery fraction increases to its upper bound use to improve combustion characteristics of the core flow when fuel is injected.
-The same thrust output can be achieved with water recovery at a lower FAR, slightly lower temperature, and less total mass flow rate.
-The recovery fraction does not directly relate to the mass flow rate of recirculated water since more available water will increase the recirculation flow rate.
-It is noted that recovery fraction for \ce{H2} is smaller than the recovery fraction for Jet-A because there is more water produced in the combustion process.
-However, the mass flow rate of water is larger for \ce{H2} at \SI{0.405}{lbm/s} as opposed to \SI{0.324}{lbm/s} for Jet-A.
-The \ce{H2} fuel has the benefit of recovering more water at a lower fraction of the overall water in the core exhaust.
-We see slightly higher pressure ratios across the fan with water recovery leading to a larger overall pressure ratio.
+% Between the two fuel types, the water recovery fraction for both is pushed up to the upper limit of the design space.
+% One reason the water recovery fraction increases to its upper bound use to improve combustion characteristics of the core flow when fuel is injected.
+% The same thrust output can be achieved with water recovery at a lower FAR, slightly lower temperature, and less total mass flow rate.
+% The recovery fraction does not directly relate to the mass flow rate of recirculated water since more available water will increase the recirculation flow rate.
+% It is noted that recovery fraction for \ce{H2} is smaller than the recovery fraction for Jet-A because there is more water produced in the combustion process.
+% However, the mass flow rate of water is larger for \ce{H2} at \SI{0.405}{lbm/s} as opposed to \SI{0.324}{lbm/s} for Jet-A.
+% The \ce{H2} fuel has the benefit of recovering more water at a lower fraction of the overall water in the core exhaust.
+% We see slightly higher pressure ratios across the fan with water recovery leading to a larger overall pressure ratio.
 % [x] TODO: AL-PA, I'm beating a dead horse here but you don't need to say this if you mention it earlier
 % [x] TODO: AL-PA, Why is the T4 ratio higher?  Explain it in terms of the fuel properties.  The reader can look at the plot themselves and see that it's higher.
-The $T_{4,\rm{RTO}}$ value for Jet-A is slightly higher than that of \ce{H2}.
-This is most likely due to the combustion properties of \ce{H2} compared to Jet-A.
-\ce{H2} can has a wider combustion flammability limit and allows the engine to burn at a lower equivalence ratio to attain the same thrust requirements.
-Burning leaner not only cools the engine but also reduces fuel consumption.
+% The $T_{4,\rm{RTO}}$ value for Jet-A is slightly higher than that of \ce{H2}.
+% This is most likely due to the combustion properties of \ce{H2} compared to Jet-A.
+% \ce{H2} can has a wider combustion flammability limit and allows the engine to burn at a lower equivalence ratio to attain the same thrust requirements.
+% Burning leaner not only cools the engine but also reduces fuel consumption.
 % [x] TODO: AL-PA, Why are the temperatures colder with the H2 fuel?  Why does water recovery make them even lower?
 % [x] TODO: AL-PA, I wouldn't say "cooler" I would say "less than" or "colder"
-Therefore, TOC temperatures are colder with the \ce{H2} fuel and even slightly colder when adding water recovery.
-The engine is likely able to size the components with water recovery so that the same thrust is generated at a lower fuel-to-air ratio.
-Furthermore, adding water recovery at CRZ slightly decreases the $T_{4,\rm{ratio}}$ value.
-As noted earlier, the water recovery and injection allows the engine achieve the same level of thrust at a lower temperature.
+% Therefore, TOC temperatures are colder with the \ce{H2} fuel and even slightly colder when adding water recovery.
+% The engine is likely able to size the components with water recovery so that the same thrust is generated at a lower fuel-to-air ratio.
+% Furthermore, adding water recovery at CRZ slightly decreases the $T_{4,\rm{ratio}}$ value.
+% As noted earlier, the water recovery and injection allows the engine achieve the same level of thrust at a lower temperature.
 % [x] TODO: AL-PA, Why did the optimizer push the value of T4 down with water recovery?  Dig into this more.
-In terms of pressure ratios we see that the fan pressure ratio increases with hydrogen fuel and even more with water recovery.
-This is again likely due to using \ce{H2} and water recovery each resizing the engine to increase the amount of thrust generated by the fan.
+% In terms of pressure ratios we see that the fan pressure ratio increases with hydrogen fuel and even more with water recovery.
+% This is again likely due to using \ce{H2} and water recovery each resizing the engine to increase the amount of thrust generated by the fan.
 % [x] TODO: AL-PA, We want to discuss how the thrust from the fan/core changes when we introduce water recovery.
 % NOTE: AL-PA, The idea here is to communicate the effect of water recovery on the core power vs. the fan power.
-The breakdown of the gross thrust fractions from the core and bypass nozzles for each point is shown in Table~\ref{tab:thrust}.
-Table~\ref{tab:thrust} shows that the fraction of gross thrust generated by the core nozzle decreases when we use \ce{H2} and decreases further when adding water recovery.
-Utilizing the fan more than the core nozzle increases the efficiency of the engine since we are not burning as much fuel but is limited by the maximum size of the fan.
-The increase in $\rm{OPR}_{\rm{TOC}}$ mostly reflects the increase in $\rm{PR}_{fan,TOC}$ and resizes of the turbojet section of the engine with water recovery.
-Additionally, the FAR of the engines with water recovery increases due to a decrease in overall and core mass flow.
-An increase in FAR likely requires a larger OPR to maintain the required thrust while minimizing fuel burn.
+% We analyzed the gross thrust split between the core and bypass streams of the optimized engine cycles.
+% Table~\ref{tab:thrust} shows the breakdown between the two flow paths as percentages of the total gross thrust.
+% The breakdown of the gross thrust fractions from the core and bypass nozzles for each point is shown in Table~\ref{tab:thrust}.
+% The fraction of gross thrust generated by the core nozzle decreases when we use \ce{H2} and decreases further when adding water recovery.
+
+% Increasing the thrust produced in the bypass stream improves the propulsive efficiency.
+% Utilizing the fan more than the core nozzle increases the efficiency of the engine since we are not burning as much fuel but is limited by the maximum size of the fan.
+% The increase in $\rm{OPR}_{\rm{TOC}}$ mostly reflects the increase in $\rm{PR}_{fan,TOC}$ and resizes of the turbojet section of the engine with water recovery.
+% Additionally, the FAR of the engines with water recovery increases due to a decrease in overall and core mass flow.
+% An increase in FAR likely requires a larger OPR to maintain the required thrust while minimizing fuel burn.
 
 % Thrust splits
 % [x] TODO: PA-PA: Add thrust splits for each opt
@@ -659,10 +736,10 @@ An increase in FAR likely requires a larger OPR to maintain the required thrust 
 % NOTE: AL-PA, I think you misunderstood what happens in the ram drag/gross thrust calculations.  They are just simple control volume thrust equations.
 %              If your mass flow rate changes with water recirculation these will change, but that is expected and not super informative in terms of a comparison.
 
-The $\rm{TSEC}_{\rm{CRZ}}$ improvement due to water recovery relative to no water recovery for both fuels is shown on a bar chart in Figure~\ref{fig:barchart}.
 
 % [x] TODO: I would change this to the horizontal bar chart and plot both H2 and Jet-A on the same axis
 % See this example in niceplots: https://github.com/mdolab/niceplots/blob/main/examples/plot_bar_chart.py and https://github.com/mdolab/niceplots/blob/main/examples/ref/bar_chart.png
+% [ ] TODO: Can you add a line to bar chart that shows the improvement between baseline Jet-A and hydrogen with water recovery?
 \begin{figure}[hbt!]
   \centering
   \includegraphics[width=0.65\textwidth]{bar_chart.pdf}
@@ -671,32 +748,44 @@ The $\rm{TSEC}_{\rm{CRZ}}$ improvement due to water recovery relative to no wate
   \label{fig:barchart}
 \end{figure}
 
-We see an improvement greater than 5\% at CRZ for TSEC for both fuels.
+The TSEC improvement at CRZ due to water recovery for both fuels is shown on a bar chart in Figure~\ref{fig:barchart}.
+Water recovery improves the TSEC approximately 5\% for both Jet-A and hydrogen fueled cycles.
+% We see an improvement greater than 5\% at CRZ for TSEC for both fuels.
 % [x] TODO: AL-PA, This is a good point, but maybe combine with the paragraph after the figure?
-Given that most of the design variables change only slightly between designs, most of the efficiency gains are driven by water recovery and injection.
-This level of improvement would have a significant reduction in fuel costs over the course of an engine's lifecycle.
+Most of the design variables for the optimal designs with and without water recovery vary only slightly for both fuels.
+This suggests that the water recovery system accounts for a majority of the efficiency improvements.
+Achieving a 5\% reduction in TSEC represents a large fuel savings over the lifecycle of an engine.
+% This level of improvement would have a significant reduction in fuel costs over the course of an engine's lifecycle.
 % [x] TODO: AL-PA, Add a sentence that introduces this citation and paraphrases the claim.  Then relate it to your findings.
-As~\citeauthor{Strom2002} points out, the water in the exhaust of a \ce{H2}-powered engine would have close to 3 times the amount of a similar Jet-A engine.
-Due to the comparatively small amount of water in the exhaust stream for Jet-A, the Jet-A engine would require a larger condenser with more surface area.
-Therefore, \ce{H2} is a much more appealing fuel to use with the proposed closed-loop water recovery system.
+As~\citeauthor{Strom2002} point out, a hydrogen-fueled engine would have close to 3 times more water in the exhaust than a similar Jet-A fueled counterpart.
+% [ ] TODO: AL-PA, I think we need to add some numbers here for the mass flow rate of water for jet-a and hydrogen to help this claim.
+% Therefore, \ce{H2} is a much more appealing fuel to use with the proposed closed-loop water recovery system.
+Hydrogen combustion offers an immediate reduction in emissions and produces more water in the exhaust stream.
+With an advanced water recovery system, we can achieve better TSEC with hydrogen fuel than Jet-A.
+To make hydrogen fueled engines a reality, we need to take advantage of the additional benefits of hydrogen combustion.
 \subsection{Condenser Design Space Study}
 \label{sub:dpqp_sweep}
 % [x] TODO: AL-PA, I would emphasize that we did this sweep to explore the design space following our optimization results.
 %                  Might be worth moving this into a new subsection.
 % [x] TODO: AL-PA, This study wasn't motivated by a lack of literature, we want to explore the potential design space for the technology we just proposed and analyzed.
-The large efficiency improvement gained from water recirculation warrant a study of a condenser that could be developed to capture these gains.
+The efficiency improvement gained from water recirculation warrant a design space study for potential condenser technology.
 Companies that are developing engines with water recirculation suggest that hydrogen can be used to as the heat sink for a water condenser~\cite{arpa-e_2021}.
-To motivate water recirculation technology it of interest to explore the design space for a condenser designed to fit inside the exhaust stream of a turbofan engine.
-A relatively low pressure loss condenser would need to be developed for the water recirculation loop to be implemented.
+We consider a condenser designed to fit inside the exhaust stream of a hydrogen-fueled turbofan engine.
+The trade space for a condenser in the exhaust stream depends on the pressure loss and water recovery capability.
+% A low pressure loss condenser would need to be developed for the water recirculation loop to be implemented.
 % [x] TODO: AL-PA, dPqP is the relative total pressure loss not just a "pressure loss"
-pyCycle handles pressure losses in ducts by specifying a pressure loss coefficient, dPqP.
-This pressure loss coefficient represents is the total pressure loss relative to the inlet pressure of the duct.
+
+We model the pressure loss across the condenser by varying the relative total pressure loss across duct 5 just upstream of the core nozzle.
+% pyCycle handles pressure losses in ducts by specifying a pressure loss coefficient, dPqP.
+This pressure loss coefficient (dPqP) is the difference in total pressure across the duct divided by the total pressure at the duct inlet.
 % [x] TODO: AL-PA, Try rewording to: "We varied the total pressure loss across the extraction model to simulate drag from an increasingly larger condenser"
 % [x] TODO: AL-PA, Elaborate on why we re-optimized the design.  It is because we want to see how the optimal amount of water recovery changes based on the drag incurred by the condenser.
-We varied the total pressure loss across the extraction model to simulate drag from an increasingly large condenser.
-The rest of the engine design variables were optimized during this pressure loss sweep to determine the how the optimal amount of water recovery changed based on drag losses from the condenser.
-Figure~\ref{fig:dpqp_sweep} shows $\rm{TSEC}_{\rm{CRZ}}$ of this sweep relative to and engine with no water recovery.
-
+We varied the total pressure loss across the duct to simulate drag from an increasingly large condenser.
+We ran an optimization to minimize fuel mass flow rate of hydrogen at each pressure loss value using the formulation for water recovery in Table~\ref{tab:opt_problem}.
+% The rest of the engine design variables were optimized during this pressure loss sweep to determine the how the optimal amount of water recovery changed based on drag losses from the condenser.
+Figure~\ref{fig:dpqp_sweep} shows the $\rm{TSEC}_{\rm{CRZ}}$ of the optimal engine cycles plotted against dPqP.
+The red horizontal line is the $\text{TSEC}_\text{CRZ}$ value of the optimized engine with no water recovery.
+The blue region represents the feasible space for potential condenser technology.
 \begin{figure}[hbt!]
   \centering
   \begin{subfigure}[t]{0.49\textwidth}
@@ -720,51 +809,64 @@ Figure~\ref{fig:dpqp_sweep} shows $\rm{TSEC}_{\rm{CRZ}}$ of this sweep relative 
   \caption{}
   \label{fig:dpqp_study}
 \end{figure}
-
-From Figure~\ref{fig:dpqp_sweep}, we can see the design space in which the closed-loop water recovery model is feasible.
-The water recovery model will offer efficiency improvements up until about $\rm{dPqP} = 0.16$.
-A value of $\rm{dPqP} = 0.16$ means that a 16\% loss of pressure from the condenser is allowed assuming the maximum water recovery fraction of 17\% for \ce{H2}.
-This improvement design space would be reduced if only a smaller fraction of water recovered could be obtained.
+% From Figure~\ref{fig:dpqp_sweep}, we can see the design space in which the closed-loop water recovery model is feasible.
+The breakeven point where water recovery is no longer beneficial occurs at a pressure loss of roughly 0.16, or 16\%.
+This estimate is based on an ideal condenser that can achieve the optimal water extraction for a given pressure loss.
+In reality, losses due to inefficiencies further reduce the size of the feasible space.
+% The water recovery model will offer efficiency improvements up until about $\rm{dPqP} = 0.16$.
+% A value of $\rm{dPqP} = 0.16$ means that a 16\% loss of pressure from the condenser is allowed assuming the maximum water recovery fraction of 17\% for \ce{H2}.
+% This improvement design space would be reduced if only a smaller fraction of water recovered could be obtained.
+% [ ] TODO: AL-PA, Re-write this part to match the new figure that shows the mass flow of water extracted (per our slack convo)
 The total water available in the core stream as a function of the same pressure loss is shown in Figure~\ref{fig:dpqp_wdot}.
 Figure~\ref{fig:dpqp_wdot} shows that the optimizer finds designs that increase the available water in the core stream.
 Since the water recovery fraction is always pushed to 17\%, the water mass flow rate that is recovered increases to overcome the pressure loss.
 This effect helps the engine increase the feasible design space in Figure~\ref{fig:dpqp_sweep}.
 
 % NOTE: PA-AL, any other plots to include?
+% AL, Nah we are good to go with plots
 
 % Motivation: space to work with hydrogen, benefits of water injection, benefits of H2 (a lot of water, no tanks, de-mineralized water)
 \section{Conclusion}
 \label{sec:conc}
 In this paper, we describe a novel closed-loop water recirculation system for commercial aviation engines.
-The water recirculation system was designed and implemented into the N+3 ultra-high bypass engine model.
-We have presented the results of four optimization problems demonstrating the use of this technology using the pyCycle cycle modeling tool for Jet-A and hydrogen fuel.
+The water recirculation system was designed and implemented within the N+3 ultra-high bypass engine model.
+We presented the results of four optimization problems demonstrating the use of this technology within pyCycle for Jet-A and hydrogen fuels.
 
-The recirculation system is implemented by introducing two new custom pyCycle components, the water extractor and injector, which form a continuous closed-loop feedback water flow in the engine.
-We then described the multipoint design problem and how it is used to design an aircraft engine to meet the operating requirements at different flight regimes.
-The optimization problem is then introduced with constraints on the thrust and overall engine size at the design point.
-The design variables used are thermodynamic design variables describing the temperatures, pressures, and velocities within the engine.
-An additional design variable controlling how much water is recirculated is added at the cruise point to improve the fuel burn.
-The optimization problem was solved for four cases: with Jet-A or hydrogen fuel, and with or without water recirculation.
+The water recirculation system introduces two pyCycle components, namely the water extractor and injector, that form a continuous closed-loop feedback cycle in the engine.
+% We then described the multipoint design problem and how it is used to design an aircraft engine to meet the operating requirements at different flight regimes.
+% The optimization problem is then introduced with constraints on the thrust and overall engine size at the design point.
+We optimize the engine cycle considering Jet-A and hydrogen fuels with and without water recovery.
+The objective is to minimize fuel mass flow rate subject to net thrust and fan diameter constraints.
+% The design variables used are thermodynamic design variables describing the temperatures, pressures, and velocities within the engine.
+% An additional design variable controlling how much water is recirculated is added at the cruise point to improve the fuel burn.
+% The optimization problem was solved for four cases: with Jet-A or hydrogen fuel, and with or without water recirculation.
+% The results from the optimization problems show temperature, thrust, and efficiency improvements for hydrogen as a fuel and even further improvements with water circulation.
+The results show that optimal hydrogen-fueled engines with water recirculation are more efficient than standard Jet-A with no water recovery.
+We demonstrate that the increased availability of water from hydrogen combustion proves the viability of this concept.
+Additionally, hydrogen combustion eliminates carbon emissions and the lean fuel-to-air ratios result in cooler turbine inlet temperatures compared to Jet-A.
+% Thermal reductions with hydrogen and water recirculation will improve the lifetime of the engine which would reduce maintenance and overall costs.
+% Between the two fuels, we see similar values of the engine performance metric, TSEC.
+% Significant energy efficiency gains are seen with water recirculation which would improve the overall costs of the engine during its operational lifecycle.
+% At the same water recovery fraction, hydrogen with water recirculation could achieve a lower TSEC value.
 
-The results from the optimization problems show temperature, thrust, and efficiency improvements when using hydrogen as a fuel and even further improvements with water circulation.
-Thermal reductions with hydrogen and water recirculation will improve the lifetime of the engine which would reduce maintenance and overall costs.
-Between the two fuels, we see similar values of the engine performance metric, TSEC.
-Significant energy efficiency gains are seen with water recirculation which would improve the overall costs of the engine during its operational lifecycle.
-At the same water recovery fraction, hydrogen with water recirculation could achieve a lower TSEC value.
-
-There are technological obstacles to overcome in order to implement this water recirculation system in a modern turbofan engine.
-The main obstacle would be how to design a condenser that can recover a portion of the exhaust water without a excessive drag pressure losses.
-Therefore, a condenser design space study was completed to show the feasible design space for such a condenser.
-The results showed that at the maximum possible water recovery fraction for hydrogen quite a large pressure loss can be imposed before the improvements are canceled out.
-Furthermore, using hydrogen as the fuel allows for designs that are not available for an engine using Jet-A.
+We performed a design space study to understand the technology requirements for a condenser that might operate in the proposed water recovery system.
+% There are technological obstacles to overcome in order to implement this water recirculation system in a modern turbofan engine.
+% The main obstacle would be how to design a condenser that can recover a portion of the exhaust water without a excessive drag pressure losses.
+% Therefore, a condenser design space study was completed to show the feasible design space for such a condenser.
+The results showed that a hydrogen-fueled cycle with water recovery can sustain a pressure loss of 16\% across a condenser before the efficiency benefits diminish.
+% The results of the study showed that at the maximum possible water recovery fraction for hydrogen quite a large pressure loss can be imposed before the improvements are canceled out.
+% Furthermore, using hydrogen as the fuel allows for designs that are not available for an engine using Jet-A.
+% [ ] TODO: AL-PA, I suggest you bolster the discussion of these two sentences in the results section and maybe add a citation?
 The thermal properties of hydrogen provide a heat sink and thus a readily available resource for water condensation within the condenser.
 The hydrogen fuel absorbs heat and is then used in the combustion process, further improving engine efficiency.
-The novel water recovery system with shows promising efficiency results when used with hydrogen fuel.
-This water recovery system provides a potential avenue for hydrogen engine design that could help overcome the technological issues associated with hydrogen as a fuel.
+% The novel water recovery system shows promising efficiency results when used with hydrogen fuel.
+Hydrogen-fueled UHBR turbofan engines can be more efficient than Jet-A counterparts when optimized considering water recovery.
+Taking advantage of the beneficial properties of hydrogen is paramount for new engine technologies that can reduce emissions while improving performance.
+% This water recovery system provides a potential avenue for hydrogen engine design that could help overcome the technological issues associated with hydrogen as a fuel.
 
 \section{Acknowledgements}
-We would like to thank Justin Grey for his help with the pyCycle components in this work.
-Justin's expertise and knowledge of pyCycle tool helped make the development of the custom pyCycle components possible.
+\noindent
+We would like to thank Justin Gray for his support in the development of the water recovery pyCycle models.
 
 \bibliography{mdolab,references}
 
